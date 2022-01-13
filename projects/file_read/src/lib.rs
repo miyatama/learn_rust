@@ -46,6 +46,21 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+pub fn reverse_write(config: Config) -> Result<(), Box<dyn Error>> {
+    let newfilename = format!("{}_new", config.filename);
+
+    let mut file = File::open(config.filename).expect("file not found");
+    let mut contents = Vec::<u8>::new();
+    file.read_to_end(&mut contents)
+        .expect("something went wrong reading the file");
+
+    let mut write_file = File::create(newfilename)?;
+    contents.reverse();
+    write_file.write_all(&contents)
+        .expect("can not write");
+    Ok(())
+}
+
 fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut result = Vec::new();
     for line in contents.lines() {
