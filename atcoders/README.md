@@ -46,6 +46,41 @@ mod tests {
 
 </div></details>
 
+## 標準入力の受け取り(proconio非使用)
+
+<details><summary>Code</summary><div>
+
+```rust
+fn main() {
+    fn read_buffer() -> Option<u64> {
+        let mut buffer = String::new();
+        io::stdin()
+            .read_line(&mut buffer)
+            .expect("Failed to read line.");
+        let s = buffer.trim().chars().collect::<String>();
+        if s.len() == 0 {
+            return None;
+        }
+        Some(s.parse::<u64>().unwrap())
+    }
+    let mut a = Vec::new();
+    loop {
+        match read_buffer() {
+            None => break,
+            Some(val) => {
+                a.push(val);
+            }
+        }
+    }
+    let stdout = io::stdout();
+    let mut stdout = BufWriter::new(stdout.lock());
+    main_logic(&mut stdout, a);
+    stdout.flush().unwrap();
+}
+```
+
+</div><details>
+
 ## 整数計算
 
 ### 平方根
