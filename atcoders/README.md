@@ -79,7 +79,7 @@ fn main() {
 }
 ```
 
-</div><details>
+</div></details>
 
 ## 整数計算
 
