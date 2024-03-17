@@ -174,3 +174,38 @@ fn gcd(factor1: u64, factor2: u64) -> u64 {
 ```
 
 </div></details>
+
+
+### 階乗
+
+<details><summary>Code</summary><div>
+
+```rust
+fn factorial(x: u64) -> u64 {
+    if x <= 1 {
+        return 1;
+    }
+    x * factorial(x - 1)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_factorial_01() {
+        let actual = factorial(3);
+        let expect = 6;
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_factorial_02() {
+        let actual = factorial(7);
+        let expect = 5040;
+        assert_eq!(expect, actual);
+    }
+}
+```
+
+</div></details>
