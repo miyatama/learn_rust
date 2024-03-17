@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 fn main() {
@@ -7,6 +7,7 @@ fn main() {
     with_variable();
     shared_memory_thread();
     message_passing();
+    message_passing_bidirectional();
 }
 
 fn simple_spawn() {
@@ -54,10 +55,43 @@ fn shared_memory_thread() {
 
 fn message_passing() {
     let (tx, rx) = mpsc::channel();
-    let handle = thread::spawn(move ||{
+    let handle = thread::spawn(move || {
         let data = rx.recv().unwrap();
         println!("recive data: {}", data);
     });
     let _ = tx.send("hello world");
     let _ = handle.join();
+}
+
+fn message_passing_bidirectional() {
+    let mut handles = Vec::new();
+    let mut data = vec![1; 10];
+    let mut send_channel = Vec::new();
+    let mut recv_channel = Vec::new();
+
+    for _ in 0..10 {
+        let (send_tx, send_rx) = mpsc::channel();
+        let (recv_tx, recv_rx) = mpsc::channel();
+        send_channel.push(send_tx);
+        recv_channel.push(recv_rx);
+
+        handles.push(thread::spawn(move || {
+            let mut data = send_rx.recv().unwrap();
+            data += 1;
+            let _ = recv_tx.send(data);
+        }));
+    }
+
+    for x in 0..10 {
+        let _ = send_channel[x].send(data[x]);
+    }
+
+    for x in 0..10 {
+        data[x] = recv_channel[x].recv().unwrap();
+    }
+
+    for handle in handles {
+        let _ = handle.join();
+    }
+    eprintln!("message passing bidirectional: {:?}", data);
 }
