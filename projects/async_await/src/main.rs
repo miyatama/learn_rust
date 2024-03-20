@@ -1,3 +1,4 @@
+mod count_down;
 mod primer;
 use futures::executor::block_on;
 
@@ -6,6 +7,7 @@ fn main() {
     let future = do_something();
     block_on(future);
     primer::run();
+    count_down::run();
     println!("finish main");
 }
 
