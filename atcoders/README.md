@@ -209,3 +209,21 @@ mod tests {
 ```
 
 </div></details>
+
+## 配列
+
+### Uniq + Sum
+
+指定した数値以下の要素に対してUniq + Sum。
+
+<details><summary>Code</summary><div>
+
+```rust
+fn main_logic<W: Write>(w: &mut W, n: usize, k: u64, a: Vec<u64>) {
+    let uniq_set: HashSet<u64> = a.into_iter().filter(|val| val <= &k).collect();
+    let summary = Vec::from_iter(uniq_set).iter().fold(0, |sum, i| sum + i);
+    writeln!(w, "{}", summary).unwrap();
+}
+```
+
+</div></details>
