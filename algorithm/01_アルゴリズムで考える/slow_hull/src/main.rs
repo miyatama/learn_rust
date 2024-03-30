@@ -4,6 +4,12 @@ use std::{
     io::{self, BufWriter, Write},
 };
 
+#[derive(Eq, Hash, PartialEq, Debug, Copy, Clone)]
+struct Point {
+    x: i64,
+    y: i64,
+}
+
 fn main() {
     input! {
         n: usize,
@@ -15,50 +21,83 @@ fn main() {
     stdout.flush().unwrap();
 }
 
-fn main_logic<W: Write>(w: &mut W, n: usize, points: Vec<(i64, i64)>) {
-    let mut inner_points: HashSet<(i64, i64)> = HashSet::from([]);
-    (0..points.len()).for_each(|p0| {
-        (0..points.len()).for_each(|p1| {
-            if p0 != p1 {
-                (0..points.len()).for_each(|p2| {
-                    if p0 != p2 && p1 != p2 {
-                        (0..points.len()).for_each(|p3| {
-                            if p0 != p3 && p1 != p3 && p2 != p3 {
-                                eprintln!(
-                                    "{:?}, {:?}, {:?}, {:?}",
-                                    points[p0], points[p1], points[p2], points[p3]
-                                );
-                                if in_triangle(points[p0], points[p1], points[p2], points[p3]) {
-                                    eprintln!("in_triangle: {:?}", points[p3]);
-                                    inner_points.insert(points[p3]);
-                                }
-                            }
-                        })
-                    }
-                })
-            }
+fn main_logic<W: Write>(w: &mut W, _n: usize, default_points: Vec<(i64, i64)>) {
+    let points = default_points
+        .into_iter()
+        .map(|point| Point {
+            x: point.0,
+            y: point.1,
         })
-    });
+        .collect::<Vec<Point>>();
+    let inner_points =
+        generate_inner_point(&points, vec![], &HashSet::new()).unwrap_or(HashSet::new());
     points.iter().for_each(|point| {
         if !inner_points.contains(point) {
-            writeln!(w, "{},{}", point.0, point.1);
+            writeln!(w, "{},{}", point.x, point.y).unwrap();
         }
     })
 }
 
-/**
- * 外積の方向を返す
- * true: 時計回り、false: 反時計回り
- */
-fn get_sign_cross_product(a: (i64, i64), b: (i64, i64), c: (i64, i64)) -> bool {
-    (a.0 - c.0) * (b.1 - c.1) - (b.0 - c.0) * (a.1 - c.1) < 0
+fn generate_inner_point(
+    points: &Vec<Point>,
+    triangle_points: Vec<Point>,
+    inner_points: &HashSet<Point>,
+) -> Option<HashSet<Point>> {
+    if triangle_points.len() < 4 {
+        let mut hs: HashSet<Point> = HashSet::from_iter(
+            points
+                .iter()
+                .filter(|val| !inner_points.contains(val))
+                .map(|val| {
+                    let mut new_triangle_points = triangle_points.to_vec();
+                    let mut new_points = points.to_vec();
+                    let position = points.iter().position(|v| v == val).unwrap();
+                    new_points.remove(position);
+                    new_triangle_points.push(*val);
+                    generate_inner_point(&new_points, new_triangle_points, inner_points)
+                        .unwrap_or(HashSet::new())
+                        .iter()
+                        .copied()
+                        .collect::<Vec<_>>()
+                })
+                .flatten(),
+        );
+        hs.extend(inner_points);
+        Some(hs)
+    } else {
+        if in_triangle(
+            triangle_points[0],
+            triangle_points[1],
+            triangle_points[2],
+            triangle_points[3],
+        ) {
+            eprintln!("capture inner point");
+            let mut hs: HashSet<Point> = HashSet::new();
+            hs.insert(triangle_points[3]);
+            Some(hs)
+        } else {
+            None
+        }
+    }
 }
 
-fn in_triangle(a: (i64, i64), b: (i64, i64), c: (i64, i64), p: (i64, i64)) -> bool {
-    let s1 = get_sign_cross_product(p, a, b);
-    let s2 = get_sign_cross_product(p, b, c);
-    let s3 = get_sign_cross_product(p, a, c);
-    (s1 == s2) && (s2 == s3)
+fn in_triangle(a: Point, b: Point, c: Point, p: Point) -> bool {
+    eprintln!("is_triangle({:?}, {:?}, {:?}, {:?})", a, b, c, p);
+
+    let ab = Point{x: b.x - a.x, y: b.y - a.y};
+    let bc = Point{x: c.x - b.x, y: c.y - b.y};
+    let ca = Point{x: a.x - c.x, y: a.y - c.y};
+
+    let ap = Point{x: p.x - a.x, y: p.y - a.y};
+    let bp = Point{x: p.x - b.x, y: p.y - b.y};
+    let cp = Point{x: p.x - c.x, y: p.y - c.y};
+
+    let c1 = ab.x * bp.y - ab.y * bp.x;
+    let c2 = bc.x * cp.y - bc.y * cp.x;
+    let c3 = ca.x * ap.y - ca.y * ap.x;
+
+    (c1 > 0 && c2 > 0 && c3 > 0) ||
+    (c1 < 0 && c2 < 0 && c3 < 0)
 }
 
 #[cfg(test)]
