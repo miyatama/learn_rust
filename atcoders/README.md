@@ -227,3 +227,40 @@ fn main_logic<W: Write>(w: &mut W, n: usize, k: u64, a: Vec<u64>) {
 ```
 
 </div></details>
+
+## 図形
+
+### 三角形の範囲内判定
+
+外積を使った範囲内判定
+
+<details><summary>Code</summary><div>
+
+```rust
+#[derive(Eq, Hash, PartialEq, Debug, Copy, Clone)]
+struct Point {
+    x: i64,
+    y: i64,
+}
+
+fn in_triangle(a: Point, b: Point, c: Point, p: Point) -> bool {
+    eprintln!("is_triangle({:?}, {:?}, {:?}, {:?})", a, b, c, p);
+
+    let ab = Point{x: b.x - a.x, y: b.y - a.y};
+    let bc = Point{x: c.x - b.x, y: c.y - b.y};
+    let ca = Point{x: a.x - c.x, y: a.y - c.y};
+
+    let ap = Point{x: p.x - a.x, y: p.y - a.y};
+    let bp = Point{x: p.x - b.x, y: p.y - b.y};
+    let cp = Point{x: p.x - c.x, y: p.y - c.y};
+
+    let c1 = ab.x * bp.y - ab.y * bp.x;
+    let c2 = bc.x * cp.y - bc.y * cp.x;
+    let c3 = ca.x * ap.y - ca.y * ap.x;
+
+    (c1 > 0 && c2 > 0 && c3 > 0) ||
+    (c1 < 0 && c2 < 0 && c3 < 0)
+}
+```
+
+</div></details>
