@@ -71,7 +71,6 @@ fn generate_inner_point(
             triangle_points[2],
             triangle_points[3],
         ) {
-            eprintln!("capture inner point");
             let mut hs: HashSet<Point> = HashSet::new();
             hs.insert(triangle_points[3]);
             Some(hs)
@@ -82,22 +81,37 @@ fn generate_inner_point(
 }
 
 fn in_triangle(a: Point, b: Point, c: Point, p: Point) -> bool {
-    eprintln!("is_triangle({:?}, {:?}, {:?}, {:?})", a, b, c, p);
+    let ab = Point {
+        x: b.x - a.x,
+        y: b.y - a.y,
+    };
+    let bc = Point {
+        x: c.x - b.x,
+        y: c.y - b.y,
+    };
+    let ca = Point {
+        x: a.x - c.x,
+        y: a.y - c.y,
+    };
 
-    let ab = Point{x: b.x - a.x, y: b.y - a.y};
-    let bc = Point{x: c.x - b.x, y: c.y - b.y};
-    let ca = Point{x: a.x - c.x, y: a.y - c.y};
-
-    let ap = Point{x: p.x - a.x, y: p.y - a.y};
-    let bp = Point{x: p.x - b.x, y: p.y - b.y};
-    let cp = Point{x: p.x - c.x, y: p.y - c.y};
+    let ap = Point {
+        x: p.x - a.x,
+        y: p.y - a.y,
+    };
+    let bp = Point {
+        x: p.x - b.x,
+        y: p.y - b.y,
+    };
+    let cp = Point {
+        x: p.x - c.x,
+        y: p.y - c.y,
+    };
 
     let c1 = ab.x * bp.y - ab.y * bp.x;
     let c2 = bc.x * cp.y - bc.y * cp.x;
     let c3 = ca.x * ap.y - ca.y * ap.x;
 
-    (c1 > 0 && c2 > 0 && c3 > 0) ||
-    (c1 < 0 && c2 < 0 && c3 < 0)
+    (c1 > 0 && c2 > 0 && c3 > 0) || (c1 < 0 && c2 < 0 && c3 < 0)
 }
 
 #[cfg(test)]
@@ -138,6 +152,106 @@ mod tests {
             .filter(|it| it.len() > 0)
             .collect::<Vec<&str>>();
         let expect = vec!["0,0", "100,0", "0,100"];
+        assert_eq!(expect.len(), actual.len());
+        expect.into_iter().zip(actual).for_each(|(expect, actual)| {
+            assert_eq!(expect, actual);
+        });
+    }
+
+    #[test]
+    fn test_main_logic_03() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            5usize,
+            vec![(1, 1), (1, 3), (3, 3), (3, 1), (2, 2)],
+        );
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual
+            .split("\n")
+            .filter(|it| it.len() > 0)
+            .collect::<Vec<&str>>();
+        let expect = vec!["1,1","1,3","3,3","3,1","2,2"];
+        assert_eq!(expect.len(), actual.len());
+        expect.into_iter().zip(actual).for_each(|(expect, actual)| {
+            assert_eq!(expect, actual);
+        });
+    }
+
+    #[test]
+    fn test_main_logic_04() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            14usize,
+            vec![
+                (1, 7),
+                (2, 10),
+                (3, 7),
+                (4, 1),
+                (5, 12),
+                (6, 9),
+                (6, 5),
+                (7, 1),
+                (9, 4),
+                (8, 8),
+                (7, 13),
+                (10, 11),
+                (11, 6),
+                (12, 3),
+            ],
+        );
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual
+            .split("\n")
+            .filter(|it| it.len() > 0)
+            .collect::<Vec<&str>>();
+        let expect = vec!["1,7","2,10","4,1","5,12","7,1","7,13","10,11","12,3"];
+        assert_eq!(expect.len(), actual.len());
+        expect.into_iter().zip(actual).for_each(|(expect, actual)| {
+            assert_eq!(expect, actual);
+        });
+    }
+
+    #[test]
+    fn test_main_logic_05() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(&mut buff, 4usize, vec![(1, 1), (1, 3), (3, 3), (3, 1)]);
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual
+            .split("\n")
+            .filter(|it| it.len() > 0)
+            .collect::<Vec<&str>>();
+        let expect = vec!["1,1","1,3","3,3","3,1"];
+        assert_eq!(expect.len(), actual.len());
+        expect.into_iter().zip(actual).for_each(|(expect, actual)| {
+            assert_eq!(expect, actual);
+        });
+    }
+
+    #[test]
+    fn test_main_logic_06() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            8usize,
+            vec![
+                (1, 7),
+                (2, 10),
+                (5, 12),
+                (7, 13),
+                (10, 11),
+                (12, 3),
+                (7, 1),
+                (4, 1),
+            ],
+        );
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual
+            .split("\n")
+            .filter(|it| it.len() > 0)
+            .collect::<Vec<&str>>();
+        let expect = vec!["1,7","2,10","5,12","7,13","10,11","12,3","7,1","4,1"];
         assert_eq!(expect.len(), actual.len());
         expect.into_iter().zip(actual).for_each(|(expect, actual)| {
             assert_eq!(expect, actual);
