@@ -228,6 +228,31 @@ fn main_logic<W: Write>(w: &mut W, n: usize, k: u64, a: Vec<u64>) {
 
 </div></details>
 
+### Vec<String>から位置を取得
+
+<details><summary>code</summary><div>
+
+```rust
+fn main() {
+    let map = vec![
+        "..#..".to_string(),
+        ".S##.".to_string(),
+        ".##T.".to_string(),
+        ".....".to_string(),
+    ];
+    let (tx, ty) = map
+        .iter()
+        .enumerate()
+        .filter(|(_, map)| map.contains("T"))
+        .map(|(index, map)| (index, map.find("T").unwrap()))
+        .next()
+        .unwrap();
+    println!("x: {}, y: {}", tx, ty);
+}
+```
+
+</div></details>
+
 ## 図形
 
 ### 三角形の範囲内判定
