@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::Write;
 
-pub fn u64_hash_based_search<W: Write>(w: &mut W, _n: u64, a: Vec<u64>, value: u64) {
+pub fn search<W: Write>(w: &mut W, _n: u64, a: Vec<u64>, value: u64) {
     let result = hash_based_search(a, value);
     match result {
         None => writeln!(w, "Not Found").unwrap(),
@@ -29,7 +29,7 @@ mod tests {
     #[test]
     fn test_main_logic01() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(&mut buff, 10, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1);
+        search(&mut buff, 10, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1);
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["0"];
@@ -41,7 +41,7 @@ mod tests {
     #[test]
     fn test_main_logic02() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(&mut buff, 10, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 10);
+        search(&mut buff, 10, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 10);
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["9"];
@@ -53,7 +53,7 @@ mod tests {
     #[test]
     fn test_main_logic03() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(&mut buff, 10, vec![1, 3, 4, 5, 6, 7, 8, 9, 10, 11], 2);
+        search(&mut buff, 10, vec![1, 3, 4, 5, 6, 7, 8, 9, 10, 11], 2);
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["Not Found"];
@@ -65,7 +65,7 @@ mod tests {
     #[test]
     fn test_main_logic04() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(&mut buff, 3, vec![1, 2, 3], 3);
+        search(&mut buff, 3, vec![1, 2, 3], 3);
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["2"];
@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn test_main_logic05() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(
+        search(
             &mut buff,
             10,
             vec![
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn test_main_logic06() {
         let mut buff = Vec::<u8>::new();
-        u64_hash_based_search(
+        search(
             &mut buff,
             10,
             vec![

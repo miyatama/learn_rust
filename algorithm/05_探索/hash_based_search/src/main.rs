@@ -1,4 +1,4 @@
-use self::logics::{string_search, u64_search};
+use self::logics::{hash_based_search_string, hash_based_search_u64};
 use proconio::input;
 use std::io::{self, BufWriter, Write};
 
@@ -17,12 +17,12 @@ fn main() {
     // call u64 search
     let stdout = io::stdout();
     let mut stdout = BufWriter::new(stdout.lock());
-    u64_search::u64_hash_based_search(&mut stdout, n, a, v);
+    hash_based_search_u64::search(&mut stdout, n, a, v);
     stdout.flush().unwrap();
 
     // call string search
     let string_stdout = io::stdout();
     let mut string_stdout = BufWriter::new(string_stdout.lock());
-    string_search::string_hash_based_search(&mut string_stdout, sn, sa, sv);
+    hash_based_search_string::search(&mut string_stdout, sn, sa, sv);
     string_stdout.flush().unwrap();
 }

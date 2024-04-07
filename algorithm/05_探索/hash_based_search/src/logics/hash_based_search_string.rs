@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::Write;
 
-pub fn string_hash_based_search<W: Write>(w: &mut W, _n: u64, a: Vec<String>, value: String) {
+pub fn search<W: Write>(w: &mut W, _n: u64, a: Vec<String>, value: String) {
     let result = hash_based_search(a, value);
     match result {
         None => writeln!(w, "Not Found").unwrap(),
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn test_main_logic01() {
         let mut buff = Vec::<u8>::new();
-        string_hash_based_search(&mut buff, 100, generate_word_vec(), "stand".to_string());
+        search(&mut buff, 100, generate_word_vec(), "stand".to_string());
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["Found"];
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn test_main_logic02() {
         let mut buff = Vec::<u8>::new();
-        string_hash_based_search(&mut buff, 100, generate_word_vec(), "stand".to_string());
+        search(&mut buff, 100, generate_word_vec(), "stand".to_string());
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["Found"];
