@@ -22,6 +22,9 @@ fn main_logic<W: Write>(w: &mut W, _n: u64, a: Vec<u64>) {
 
 fn heap_sort(src_list: Vec<u64>) -> Vec<u64> {
     let list_size = src_list.len();
+    if list_size <= 1 {
+        return src_list;
+    }
     let mut list = build_heap(src_list, list_size);
     eprintln!("builded: {:?}", &list);
     for i in (1..list_size).rev() {
@@ -68,6 +71,27 @@ fn heapify(list: Vec<u64>, i: usize, max: usize) -> Vec<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_sort_empty() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(&mut buff, 0, Vec::<u64>::new());
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").filter(|val| val.len() >= 1).collect::<Vec<&str>>();
+        assert_eq!(actual.len(), 0);
+    }
+
+    #[test]
+    fn test_sort_one() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(&mut buff, 1, vec![0]);
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").filter(|val| val.len() >= 1).collect::<Vec<&str>>();
+        let expect = vec!["0"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
 
     #[test]
     fn test_main_logic01() {
