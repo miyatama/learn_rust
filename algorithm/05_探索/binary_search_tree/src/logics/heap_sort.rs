@@ -64,7 +64,10 @@ mod tests {
         let mut buff = Vec::<u8>::new();
         call_sort(&mut buff, 0, Vec::<u64>::new());
         let actual = String::from_utf8(buff).unwrap();
-        let actual = actual.split("\n").filter(|val| val.len() >= 1).collect::<Vec<&str>>();
+        let actual = actual
+            .split("\n")
+            .filter(|val| val.len() >= 1)
+            .collect::<Vec<&str>>();
         assert_eq!(actual.len(), 0);
     }
 
@@ -73,7 +76,10 @@ mod tests {
         let mut buff = Vec::<u8>::new();
         call_sort(&mut buff, 1, vec![0]);
         let actual = String::from_utf8(buff).unwrap();
-        let actual = actual.split("\n").filter(|val| val.len() >= 1).collect::<Vec<&str>>();
+        let actual = actual
+            .split("\n")
+            .filter(|val| val.len() >= 1)
+            .collect::<Vec<&str>>();
         let expect = vec!["0"];
         (0..expect.len()).for_each(|index| {
             assert_eq!(expect[index], actual[index]);
