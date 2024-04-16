@@ -1,0 +1,8 @@
+[package]
+name = "dijkstras_algorithm_for_dense_graphs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

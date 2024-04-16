@@ -146,7 +146,7 @@ stateDiagram-v2
 + 密グラフ用ダイクストラ法
 + ベルマン・フォード法
 
-#### ダイクストラ法
+#### ダイクストラ法(dijkstras algorithm)
 
 優先度付きキューを利用して最短経路を求める方式。
 Rust上の優先度付きキューはBinaryHeapを利用して実現する。というかRust公式でも、[BinaryHeap](https://doc.rust-lang.org/std/collections/binary_heap/index.html)の説明でダイクストラ法が使われている。
@@ -194,5 +194,8 @@ stateDiagram-v2
 | 6回目 | 0 | 6| 8| 17 | 17 | 20 |
 
 
-#### 密グラフ用ダイクストラ法
+#### 密グラフ用ダイクストラ法(dijkstras algorithm for dense graphs)
+
+蜜グラフ(ノードに対するエッジの数が多いグラフ)の場合は優先度付きキューを使わず、隣接行列構造を利用して探索を行う。
+
 #### ベルマン・フォード法
