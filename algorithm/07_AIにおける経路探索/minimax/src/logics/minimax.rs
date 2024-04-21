@@ -19,7 +19,8 @@ pub enum GameBoardState {
 
 pub fn best_move(board: &Vec<CellValue>) -> Option<usize> {
     let ply = 10u8;
-    let (best_move, _) = minimax(board, CellValue::Enemy, ply, -100);
+    let player = CellValue::Enemy;
+    let (best_move, _) = minimax(board, CellValue::Enemy, ply, None, get_player_min_score(player));
     best_move
 }
 
@@ -45,12 +46,21 @@ pub fn print_board(board: &Vec<CellValue>) {
     println!("-------");
 }
 
-fn minimax(board: &Vec<CellValue>, player: CellValue, ply: u8, score: i64) -> (Option<usize>, i64) {
+pub fn none_cell_not_exists(board: &Vec<CellValue>) -> bool {
+    board
+        .iter()
+        .filter(|cell| **cell == CellValue::None)
+        .next()
+        .is_none()
+}
+
+
+fn minimax(board: &Vec<CellValue>, player: CellValue, ply: u8, next_move: Option<usize>, score: i64) -> (Option<usize>, i64) {
     if ply <= 0 || none_cell_not_exists(board) {
         return (None, evaluate_score(board, player));
     }
 
-    let mut best_move = 0;
+    let mut best_move = next_move;
     let mut best_score = score;
     let indexes = board
         .iter()
@@ -61,17 +71,16 @@ fn minimax(board: &Vec<CellValue>, player: CellValue, ply: u8, score: i64) -> (O
     for i in 0..indexes.len() {
         let mut new_board = board.clone();
         new_board[indexes[i]] = player;
-        let (_, score) = minimax(&new_board, get_opponent(player), ply - 1, score);
-        if player == CellValue::Enemy && score >= best_score {
-            best_move = indexes[i];
+        let (_, score) = minimax(&new_board, get_opponent(player), ply - 1, next_move, get_player_min_score(get_opponent(player)));
+        if player == CellValue::Enemy && score > best_score {
+            best_move = Some(indexes[i]);
             best_score = score;
-        } else if player == CellValue::Player && score <= best_score {
-            best_move = indexes[i];
+        } else if player == CellValue::Player && score < best_score {
+            best_move = Some(indexes[i]);
             best_score = score;
         }
     }
-    eprintln!("minimax - player: {:?}, ply: {}, move: {}, score: {}", player, ply, best_move, best_score);
-    (Some(best_move), best_score)
+    (best_move, best_score)
 }
 
 fn get_opponent(player: CellValue) -> CellValue {
@@ -80,14 +89,6 @@ fn get_opponent(player: CellValue) -> CellValue {
     } else {
         CellValue::Player
     }
-}
-
-fn none_cell_not_exists(board: &Vec<CellValue>) -> bool {
-    board
-        .iter()
-        .filter(|cell| **cell == CellValue::None)
-        .next()
-        .is_none()
 }
 
 fn none_cell_len(board: &Vec<CellValue>) -> i64 {
@@ -164,4 +165,12 @@ fn assignable_player_line_count(board: &Vec<CellValue>, player: CellValue) -> i6
 fn calculate_draw_score(board: &Vec<CellValue>, player: CellValue) -> i64 {
     assignable_player_line_count(board, player)
         - assignable_player_line_count(board, get_opponent(player))
+}
+
+fn get_player_min_score(player: CellValue) -> i64 {
+    if player == CellValue::Enemy {
+        -100
+    } else {
+        100
+    }
 }

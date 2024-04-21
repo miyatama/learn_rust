@@ -35,6 +35,13 @@ pub fn run() {
                     println!("おめでとうございます！完全勝利です！");
                     break;
                 }
+                if minimax::none_cell_not_exists(&board) {
+                    println!(
+                        "引き分けですかね。対戦ありがとうございました。"
+                    );
+                    break;
+                }
+
                 println!("考え中....");
                 let enemy_move = minimax::best_move(&board);
                 if enemy_move.is_none() {
@@ -47,6 +54,12 @@ pub fn run() {
                 minimax::print_board(&board);
                 if minimax::is_player_win(&board, CellValue::Enemy) {
                     println!("すみません。AIの勝利です。");
+                    break;
+                }
+                if minimax::none_cell_not_exists(&board) {
+                    println!(
+                        "これで引き分けですかね。対戦ありがとうございました。"
+                    );
                     break;
                 }
             }
