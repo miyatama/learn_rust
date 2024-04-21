@@ -1,7 +1,7 @@
-use self::logics::minimax;
+use self::logics::tic_tac_toe;
 
 pub mod logics;
 
 fn main() {
-    println!("Hello, world!");
+    tic_tac_toe::run();
 }
