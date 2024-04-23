@@ -57,9 +57,6 @@ fn negmax(board: &Vec<CellValue>, player: CellValue, ply: u8) -> (Option<usize>,
     if ply <= 0 || none_cell_not_exists(board) {
         return (None, evaluate_score(board, player));
     }
-    if is_win_game(board, player) ==  GameBoardState::Win {
-        return (None, evaluate_score(board, player));
-    }
 
     let mut best_move: Option<usize> = None;
     let mut best_score = -100;
@@ -73,9 +70,9 @@ fn negmax(board: &Vec<CellValue>, player: CellValue, ply: u8) -> (Option<usize>,
         let mut new_board = board.clone();
         new_board[indexes[i]] = player;
         let (_, score) = negmax(&new_board, get_opponent(player), ply - 1);
-        if score > best_score {
+        if -score > best_score {
             best_move = Some(indexes[i]);
-            best_score = score;
+            best_score = -score;
         }
     }
     (best_move, best_score)
@@ -101,7 +98,7 @@ fn evaluate_score(board: &Vec<CellValue>, player: CellValue) -> i64 {
     match is_win_game(board, player) {
         GameBoardState::Win => 100 + none_cell_len(board),
         GameBoardState::Lose => -100 - none_cell_len(board),
-        GameBoardState::Draw => calculate_draw_score(board, CellValue::Enemy),
+        GameBoardState::Draw => calculate_draw_score(board, player),
     }
 }
 
