@@ -19,8 +19,7 @@ pub enum GameBoardState {
 
 pub fn best_move(board: &Vec<CellValue>) -> Option<usize> {
     let ply = 10u8;
-    let player = CellValue::Enemy;
-    let (best_move, _) = negmax(board, CellValue::Enemy, ply, None, get_player_min_score(player));
+    let (best_move, _) = negmax(board, CellValue::Enemy, ply);
     best_move
 }
 
@@ -54,14 +53,16 @@ pub fn none_cell_not_exists(board: &Vec<CellValue>) -> bool {
         .is_none()
 }
 
-
-fn negmax(board: &Vec<CellValue>, player: CellValue, ply: u8, next_move: Option<usize>, score: i64) -> (Option<usize>, i64) {
+fn negmax(board: &Vec<CellValue>, player: CellValue, ply: u8) -> (Option<usize>, i64) {
     if ply <= 0 || none_cell_not_exists(board) {
         return (None, evaluate_score(board, player));
     }
+    if is_win_game(board, player) ==  GameBoardState::Win {
+        return (None, evaluate_score(board, player));
+    }
 
-    let mut best_move = next_move;
-    let mut best_score = score;
+    let mut best_move: Option<usize> = None;
+    let mut best_score = -100;
     let indexes = board
         .iter()
         .enumerate()
@@ -71,11 +72,8 @@ fn negmax(board: &Vec<CellValue>, player: CellValue, ply: u8, next_move: Option<
     for i in 0..indexes.len() {
         let mut new_board = board.clone();
         new_board[indexes[i]] = player;
-        let (_, score) = negmax(&new_board, get_opponent(player), ply - 1, next_move, get_player_min_score(get_opponent(player)));
-        if player == CellValue::Enemy && score > best_score {
-            best_move = Some(indexes[i]);
-            best_score = score;
-        } else if player == CellValue::Player && score < best_score {
+        let (_, score) = negmax(&new_board, get_opponent(player), ply - 1);
+        if score > best_score {
             best_move = Some(indexes[i]);
             best_score = score;
         }
@@ -103,14 +101,14 @@ fn evaluate_score(board: &Vec<CellValue>, player: CellValue) -> i64 {
     match is_win_game(board, player) {
         GameBoardState::Win => 100 + none_cell_len(board),
         GameBoardState::Lose => -100 - none_cell_len(board),
-        GameBoardState::Draw => calculate_draw_score(board, player),
+        GameBoardState::Draw => calculate_draw_score(board, CellValue::Enemy),
     }
 }
 
 fn is_win_game(board: &Vec<CellValue>, player: CellValue) -> GameBoardState {
-    let player_win_game = contains_player_line(board, player);
-    let opponent_win_game = contains_player_line(board, get_opponent(player));
-    match (player_win_game, opponent_win_game) {
+    let ai_win = contains_player_line(board, player);
+    let player_win = contains_player_line(board, get_opponent(player));
+    match (ai_win, player_win) {
         (GameBoardState::Win, GameBoardState::Win) => GameBoardState::Draw,
         (GameBoardState::Win, _) => GameBoardState::Win,
         (_, GameBoardState::Win) => GameBoardState::Lose,
@@ -165,12 +163,4 @@ fn assignable_player_line_count(board: &Vec<CellValue>, player: CellValue) -> i6
 fn calculate_draw_score(board: &Vec<CellValue>, player: CellValue) -> i64 {
     assignable_player_line_count(board, player)
         - assignable_player_line_count(board, get_opponent(player))
-}
-
-fn get_player_min_score(player: CellValue) -> i64 {
-    if player == CellValue::Enemy {
-        -100
-    } else {
-        100
-    }
 }

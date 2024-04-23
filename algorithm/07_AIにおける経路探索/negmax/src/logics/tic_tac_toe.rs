@@ -36,9 +36,7 @@ pub fn run() {
                     break;
                 }
                 if negmax::none_cell_not_exists(&board) {
-                    println!(
-                        "引き分けですかね。対戦ありがとうございました。"
-                    );
+                    println!("引き分けですかね。対戦ありがとうございました。");
                     break;
                 }
 
@@ -57,9 +55,7 @@ pub fn run() {
                     break;
                 }
                 if negmax::none_cell_not_exists(&board) {
-                    println!(
-                        "これで引き分けですかね。対戦ありがとうございました。"
-                    );
+                    println!("これで引き分けですかね。対戦ありがとうございました。");
                     break;
                 }
             }
