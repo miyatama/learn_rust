@@ -59,7 +59,7 @@ pub fn print_board(board: &Vec<u8>) {
 }
 
 pub fn think(board: &Vec<u8>, evaluation: &Evaluation) -> Option<Vec<Direction>> {
-    search(board, u32::MAX - 1, evaluation)
+    search(board, evaluation)
 }
 
 pub fn apply_direction(board: &Vec<u8>, direction: Direction) -> Vec<u8> {
@@ -78,7 +78,7 @@ fn swap_space(board: &Vec<u8>, from: usize, to: usize) -> Vec<u8> {
     board.to_vec()
 }
 
-fn search(initial: &Vec<u8>, max_depth: u32, evaluation: &Evaluation) -> Option<Vec<Direction>> {
+fn search(initial: &Vec<u8>, evaluation: &Evaluation) -> Option<Vec<Direction>> {
     if is_goal(initial) {
         return Some(vec![]);
     }
@@ -153,7 +153,23 @@ fn calculate_cost(board: &Vec<u8>, evaluation: &Evaluation) -> u64 {
 }
 
 fn calculate_fair_evaluator_cost(board: &Vec<u8>) -> u64 {
-    0
+    let goal_positions = get_goal_cell_positions();
+    let mut board_positions = board
+        .clone()
+        .into_iter()
+        .enumerate()
+        .map(|(index, value)| (value, (index % 3, index / 3)))
+        .collect::<Vec<_>>();
+    board_positions.sort_by(|a, b| a.0.partial_cmp(&(b.0)).unwrap());
+    goal_positions
+        .iter()
+        .zip(board_positions.iter())
+        .map(|(a, b)| {
+            let x_delta = calc_delta_usize(a.1 .0, b.1 .0);
+            let y_delta = calc_delta_usize(a.1 .1, b.1 .1);
+            calc_squrt(x_delta * x_delta + y_delta * y_delta)
+        })
+        .sum()
 }
 
 fn calculate_good_evaluator_cost(board: &Vec<u8>) -> u64 {
@@ -186,6 +202,33 @@ fn calc_delta(a: u8, b: u8) -> u64 {
     }
 }
 
+fn calc_delta_usize(a: usize, b: usize) -> u64 {
+    if a > b {
+        (a - b) as u64
+    } else {
+        (b - a) as u64
+    }
+}
+
+fn calc_squrt(n: u64) -> u64 {
+    let mut factor = 0u64;
+    while factor.pow(2) < n {
+        factor += 1;
+        let val = factor.pow(2);
+        if val == n {
+            return factor;
+        }
+        if val > n {
+            break;
+        }
+    }
+    if factor > 0 {
+        factor - 1
+    } else {
+        factor
+    }
+}
+
 fn get_state(bh: &BinaryHeap<State>, board: &Vec<u8>) -> Option<State> {
     for state in bh {
         if equal_state(&state.board, board) {
@@ -215,6 +258,20 @@ fn get_valid_direction(board: &Vec<u8>) -> Vec<Direction> {
 
 fn get_goal() -> Vec<u8> {
     vec![1, 2, 3, 8, 0, 4, 7, 6, 5]
+}
+
+fn get_goal_cell_positions() -> Vec<(u8, (usize, usize))> {
+    vec![
+        (0, (1, 1)),
+        (1, (0, 0)),
+        (2, (1, 0)),
+        (3, (2, 0)),
+        (4, (2, 1)),
+        (5, (2, 2)),
+        (6, (1, 2)),
+        (7, (0, 2)),
+        (8, (0, 1)),
+    ]
 }
 
 fn equal_state(a: &Vec<u8>, b: &Vec<u8>) -> bool {
