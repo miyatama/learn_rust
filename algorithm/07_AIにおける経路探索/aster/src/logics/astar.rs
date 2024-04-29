@@ -173,7 +173,25 @@ fn calculate_fair_evaluator_cost(board: &Vec<u8>) -> u64 {
 }
 
 fn calculate_good_evaluator_cost(board: &Vec<u8>) -> u64 {
-    0
+    let p = calculate_fair_evaluator_cost(board);
+    let goal_board = get_goal();
+    let check_indexes = vec![1, 2, 5, 8, 7, 6, 3];
+    let s: u64 = check_indexes
+        .iter()
+        .map(|i| {
+            let cell_value = board[*i];
+            let collect_value = goal_board[*i];
+            let mut delta = 0;
+            if cell_value != collect_value {
+                delta = 2;
+            }
+            if cell_value == 0 {
+                delta = 1;
+            }
+            delta as u64
+        })
+        .sum();
+    p + s * 3
 }
 
 fn calculate_weak_evaluator_cost(board: &Vec<u8>) -> u64 {
@@ -499,8 +517,8 @@ mod tests {
     fn test_calculate_good_evaluator_cost_03() {
         let board = vec![2, 3, 8, 0, 4, 7, 6, 5, 1];
         let actual = calculate_good_evaluator_cost(&board);
-        // P(n) = 12, S(n) = 14より、12 + 3 * 14 = 54
-        let expect = 54;
+        // P(n) = 12, S(n) = 13より、12 + 3 * 13 = 54
+        let expect = 51;
         assert_eq!(actual, expect);
     }
 
