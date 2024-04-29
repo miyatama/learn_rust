@@ -205,11 +205,12 @@ fn calculate_weak_evaluator_cost(board: &Vec<u8>) -> u64 {
 }
 
 fn calculate_bad_evaluator_cost(board: &Vec<u8>) -> u64 {
-    let sum_delta = calc_delta(board[0], board[8])
+    let sum_delta: u64 = calc_delta(board[0], board[8])
         + calc_delta(board[2], board[6])
         + calc_delta(board[1], board[7])
         + calc_delta(board[3], board[5]);
-    16u64 - sum_delta
+
+    calc_delta_u64(16u64, sum_delta)
 }
 
 fn calc_delta(a: u8, b: u8) -> u64 {
@@ -217,6 +218,14 @@ fn calc_delta(a: u8, b: u8) -> u64 {
         (a - b) as u64
     } else {
         (b - a) as u64
+    }
+}
+
+fn calc_delta_u64(a: u64, b: u64) -> u64 {
+    if a > b {
+        a - b
+    } else {
+        b - a
     }
 }
 
@@ -576,6 +585,14 @@ mod tests {
         let board = vec![1, 7, 5, 2, 0, 3, 4, 6, 8];
         let actual = calculate_bad_evaluator_cost(&board);
         let expect = 6;
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calculate_bad_evaluator_cost_04() {
+        let board = vec![8, 3, 7, 2, 5, 6, 1, 4, 0];
+        let actual = calculate_bad_evaluator_cost(&board);
+        let expect = 3;
         assert_eq!(actual, expect);
     }
 }
