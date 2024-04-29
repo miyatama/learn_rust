@@ -161,7 +161,8 @@ fn calculate_good_evaluator_cost(board: &Vec<u8>) -> u64 {
 }
 
 fn calculate_weak_evaluator_cost(board: &Vec<u8>) -> u64 {
-    0
+    let goal_board = get_goal();
+    board.iter().zip(goal_board.iter()).filter(|(&a, &b)| a != b).collect::<Vec<_>>().len() as u64
 }
 
 fn calculate_bad_evaluator_cost(board: &Vec<u8>) -> u64 {
@@ -458,7 +459,7 @@ mod tests {
     fn test_calculate_weak_evaluator_cost_03() {
         let board = vec![2, 3, 8, 0, 4, 7, 6, 5, 1];
         let actual = calculate_weak_evaluator_cost(&board);
-        let expect = 8;
+        let expect = 9;
         assert_eq!(actual, expect);
     }
 
