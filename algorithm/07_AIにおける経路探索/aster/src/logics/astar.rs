@@ -162,11 +162,28 @@ fn calculate_good_evaluator_cost(board: &Vec<u8>) -> u64 {
 
 fn calculate_weak_evaluator_cost(board: &Vec<u8>) -> u64 {
     let goal_board = get_goal();
-    board.iter().zip(goal_board.iter()).filter(|(&a, &b)| a != b).collect::<Vec<_>>().len() as u64
+    board
+        .iter()
+        .zip(goal_board.iter())
+        .filter(|(&a, &b)| a != b)
+        .collect::<Vec<_>>()
+        .len() as u64
 }
 
 fn calculate_bad_evaluator_cost(board: &Vec<u8>) -> u64 {
-    0
+    let sum_delta = calc_delta(board[0], board[8])
+        + calc_delta(board[2], board[6])
+        + calc_delta(board[1], board[7])
+        + calc_delta(board[3], board[5]);
+    16u64 - sum_delta
+}
+
+fn calc_delta(a: u8, b: u8) -> u64 {
+    if a > b {
+        (a - b) as u64
+    } else {
+        (b - a) as u64
+    }
 }
 
 fn get_state(bh: &BinaryHeap<State>, board: &Vec<u8>) -> Option<State> {
