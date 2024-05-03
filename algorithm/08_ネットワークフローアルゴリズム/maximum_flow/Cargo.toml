@@ -1,5 +1,5 @@
 [package]
-name = "ford_fullkerson"
+name = "maximum_flow"
 version = "0.1.0"
 edition = "2021"
 

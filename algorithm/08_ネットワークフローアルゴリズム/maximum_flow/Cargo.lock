@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "ford_fullkerson"
+name = "maximum_flow"
 version = "0.1.0"
