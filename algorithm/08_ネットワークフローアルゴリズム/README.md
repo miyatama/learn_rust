@@ -225,13 +225,13 @@ stateDiagram-v2
   direction LR
 
   state "source" as s
-  state "s1" as s1
-  state "s2" as s2
-  state "s3" as s3
-  state "t1" as t1
-  state "t2" as t2
-  state "t3" as t3
-  state "t4" as t4
+  state "事務" as s1
+  state "エンジニア" as s2
+  state "社長" as s3
+  state "A" as t1
+  state "B" as t2
+  state "C" as t3
+  state "D" as t4
   state "shink" as t
 
   s --> s1: 0/1
@@ -248,4 +248,3 @@ stateDiagram-v2
   s3 --> t1: 0/1
   s3 --> t3: 0/1
 ```
-
