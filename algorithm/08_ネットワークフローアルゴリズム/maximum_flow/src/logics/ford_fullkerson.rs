@@ -65,7 +65,7 @@ fn process_path(graph: &Graph, path: &HashMap<u32, VertexInfo>) -> Graph {
                 edge.capacity - edge.flow
             }
             EdgeDirection::Backward => {
-                let edge = graph.get_edge(previous, vertex.id);
+                let edge = graph.get_edge(vertex.id, previous);
                 edge.flow
             }
         };
@@ -85,7 +85,7 @@ fn process_path(graph: &Graph, path: &HashMap<u32, VertexInfo>) -> Graph {
                 graph = graph.apply_flow(previous, vertex.id, delta);
             }
             EdgeDirection::Backward => {
-                graph = graph.apply_flow(previous, vertex.id, -delta);
+                graph = graph.apply_flow(vertex.id, previous, -delta);
             }
         }
         vertex = graph.get_vertex(previous);

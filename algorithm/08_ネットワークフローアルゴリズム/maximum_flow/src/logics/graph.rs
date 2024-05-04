@@ -113,9 +113,9 @@ impl Graph {
     }
 
     pub fn total(&self) -> (i64, i64) {
-        self.edges
-            .iter()
-            .fold((0i64, 0i64), |sum, edge| (sum.0 + edge.flow, sum.1 + edge.capacity))
+        self.edges.iter().fold((0i64, 0i64), |sum, edge| {
+            (sum.0 + edge.flow, sum.1 + edge.capacity)
+        })
     }
 }
 
