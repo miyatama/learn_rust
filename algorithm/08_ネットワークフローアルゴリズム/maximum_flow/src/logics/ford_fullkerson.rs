@@ -76,9 +76,19 @@ fn process_path(graph: &Graph, path: &HashMap<u32, VertexInfo>) -> Graph {
     }
 
     // apply delta
+    let mut active_path: Vec<String> = Vec::new();
     vertex = graph.get_shink_vertex();
     while vertex.vertex_type != VertexType::Source {
         let vertex_info = path.get(&vertex.id).unwrap();
+        active_path.push(format!(
+            "{}({})",
+            vertex.id,
+            if vertex_info.direction == EdgeDirection::Forward {
+                "F".to_string()
+            } else {
+                "B".to_string()
+            },
+        ));
         let previous = vertex_info.previous;
         match vertex_info.direction {
             EdgeDirection::Forward => {
@@ -90,5 +100,7 @@ fn process_path(graph: &Graph, path: &HashMap<u32, VertexInfo>) -> Graph {
         }
         vertex = graph.get_vertex(previous);
     }
+    active_path.push("0(F)".to_string());
+    println!("{}", active_path.join(" <- "));
     graph
 }

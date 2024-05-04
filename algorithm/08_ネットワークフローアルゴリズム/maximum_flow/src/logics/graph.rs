@@ -219,6 +219,94 @@ pub fn new_graph() -> Graph {
     }
 }
 
+pub fn new_graph2() -> Graph {
+    Graph {
+        vertexes: vec![
+            Vertex {
+                id: 0,
+                name: "s".to_string(),
+                vertex_type: VertexType::Source,
+            },
+            Vertex {
+                id: 1,
+                name: "1".to_string(),
+                vertex_type: VertexType::None,
+            },
+            Vertex {
+                id: 2,
+                name: "2".to_string(),
+                vertex_type: VertexType::None,
+            },
+            Vertex {
+                id: 3,
+                name: "3".to_string(),
+                vertex_type: VertexType::None,
+            },
+            Vertex {
+                id: 4,
+                name: "4".to_string(),
+                vertex_type: VertexType::None,
+            },
+            Vertex {
+                id: 9999,
+                name: "t".to_string(),
+                vertex_type: VertexType::Shink,
+            },
+        ],
+
+        edges: vec![
+            Edge {
+                from_id: 0,
+                to_id: 1,
+                flow: 0,
+                capacity: 3,
+            },
+            Edge {
+                from_id: 0,
+                to_id: 2,
+                flow: 2,
+                capacity: 2,
+            },
+            Edge {
+                from_id: 1,
+                to_id: 4,
+                flow: 0,
+                capacity: 2,
+            },
+            Edge {
+                from_id: 2,
+                to_id: 4,
+                flow: 2,
+                capacity: 3,
+            },
+            Edge {
+                from_id: 1,
+                to_id: 3,
+                flow: 0,
+                capacity: 2,
+            },
+            Edge {
+                from_id: 2,
+                to_id: 3,
+                flow: 0,
+                capacity: 2,
+            },
+            Edge {
+                from_id: 3,
+                to_id: 9999,
+                flow: 0,
+                capacity: 3,
+            },
+            Edge {
+                from_id: 4,
+                to_id: 9999,
+                flow: 2,
+                capacity: 2,
+            },
+        ],
+    }
+}
+
 pub fn show_graph(graph: &Graph) {
     // mermaid stateDiagram
     let (flow, capacity) = graph.total();
