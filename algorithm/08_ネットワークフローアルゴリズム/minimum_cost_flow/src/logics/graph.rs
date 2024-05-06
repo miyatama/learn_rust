@@ -94,6 +94,24 @@ impl Graph {
             .clone()
     }
 
+    pub fn get_forward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+        self.edges
+            .clone()
+            .into_iter()
+            .filter(|edge| edge.from_id == vertex_id)
+            .collect::<Vec<Edge>>()
+            .clone()
+    }
+
+    pub fn get_backward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+        self.edges
+            .clone()
+            .into_iter()
+            .filter(|edge| edge.to_id == vertex_id)
+            .collect::<Vec<Edge>>()
+            .clone()
+    }
+
     pub fn get_forward_edge(&self, from_id: u32, to_id: u32) -> Option<Edge> {
         self.edges
             .clone()

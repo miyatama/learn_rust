@@ -15,10 +15,10 @@ fn find_argumenting_path(graph: &Graph) -> Option<HashMap<u32, VertexInfo>> {
     let mut queue: VecDeque<u32> = VecDeque::new();
     let mut arrival_cost: HashMap<u32, i64> = HashMap::new();
     let source_vertex = graph.get_source_vertex();
-    queue.push_back(source_vertex.id);
+    queue.push_front(source_vertex.id);
     arrival_cost.insert(source_vertex.id, 0i64);
 
-    while let Some(from_id) = queue.pop_back() {
+    while let Some(from_id) = queue.pop_front() {
         let edges = graph.get_forward_edges(from_id);
         for i in 0..edges.len() {
             let edge = &edges[i];

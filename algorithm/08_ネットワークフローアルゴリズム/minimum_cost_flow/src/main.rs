@@ -1,4 +1,4 @@
-use self::logics::{ford_fullkerson, graph, minimal_cost_flow};
+use self::logics::{ford_fullkerson, graph, minimal_cost_flow, shortest_path};
 
 pub mod logics;
 
@@ -11,7 +11,19 @@ fn main() {
     graph::show_graph(&graph);
 
     println!("");
+    println!("最短パス");
+    let graph = shortest_path::minimal_cost_flow(&graph.clone());
+    minimal_cost_flow::show_result(&graph);
+    graph::show_graph(&graph);
+    println!("");
+
     println!("フォードファルカーソン法");
+    let graph = ford_fullkerson::minimal_cost_flow(&graph.clone());
+    minimal_cost_flow::show_result(&graph);
+    graph::show_graph(&graph);
+    println!("");
+
+    println!("エドモンズカープ法");
     let graph = ford_fullkerson::minimal_cost_flow(&graph.clone());
     minimal_cost_flow::show_result(&graph);
     graph::show_graph(&graph);
