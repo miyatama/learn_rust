@@ -319,6 +319,75 @@ pub fn get_routes() -> Vec<Route> {
         },
     ]
 }
+
+
+pub fn get_productions2() -> Vec<Production> {
+    vec![
+        Production {
+            id: 0,
+            supply: 600,
+            name: "生産拠点A".to_string(),
+        },
+        Production {
+            id: 1,
+            supply: 800,
+            name: "生産拠点B".to_string(),
+        },
+    ]
+}
+
+pub fn get_consumptions2() -> Vec<Consumption> {
+    vec![
+        Consumption {
+            id: 0,
+            name: "小売店A".to_string(),
+            demand: 300,
+        },
+        Consumption {
+            id: 1,
+            name: "小売店B".to_string(),
+            demand: 300,
+        },
+    ]
+}
+pub fn get_routes2() -> Vec<Route> {
+    vec![
+        Route {
+            from_type: BaseType::Production,
+            from_id: 0,
+            to_type: BaseType::Consumption,
+            to_id: 0,
+            cost_par_product: 7,
+            capacity: 200,
+        },
+        Route {
+            from_type: BaseType::Production,
+            from_id: 0,
+            to_type: BaseType::Consumption,
+            to_id: 1,
+            cost_par_product: 6,
+            capacity: 200,
+        },
+        Route {
+            from_type: BaseType::Production,
+            from_id: 1,
+            to_type: BaseType::Consumption,
+            to_id: 0,
+            cost_par_product: 4,
+            capacity: 280,
+        },
+        Route {
+            from_type: BaseType::Production,
+            from_id: 1,
+            to_type: BaseType::Consumption,
+            to_id: 1,
+            cost_par_product: 6,
+            capacity: 350,
+        },
+    ]
+
+}
+
 pub fn to_graph(
     productions: &Vec<Production>,
     distributions: &Vec<Distribution>,
