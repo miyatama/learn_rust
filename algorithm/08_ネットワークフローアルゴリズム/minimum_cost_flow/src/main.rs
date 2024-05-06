@@ -1,4 +1,4 @@
-use self::logics::{edmons_karp, ford_fullkerson, graph, minimal_cost_flow};
+use self::logics::{ford_fullkerson, graph, minimal_cost_flow};
 
 pub mod logics;
 
@@ -16,9 +16,4 @@ fn main() {
     minimal_cost_flow::show_result(&graph);
     graph::show_graph(&graph);
     println!("");
-
-    println!("エドモンズ・カープ法");
-    let graph = edmons_karp::minimal_cost_flow(&graph.clone());
-    minimal_cost_flow::show_result(&graph);
-    graph::show_graph(&graph);
 }

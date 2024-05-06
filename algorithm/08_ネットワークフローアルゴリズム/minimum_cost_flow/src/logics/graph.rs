@@ -31,6 +31,10 @@ impl Edge {
             cost: self.cost,
         }
     }
+
+    pub fn get_cost(&self) -> i64 {
+        self.cost * self.flow
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -90,22 +94,18 @@ impl Graph {
             .clone()
     }
 
-    pub fn get_forward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+    pub fn get_forward_edge(&self, from_id: u32, to_id: u32) -> Option<Edge> {
         self.edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.from_id == vertex_id)
-            .collect::<Vec<Edge>>()
-            .clone()
+            .find(|edge| edge.from_id == from_id && edge.to_id == to_id)
     }
 
-    pub fn get_backward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+    pub fn get_backward_edge(&self, from_id: u32, to_id: u32) -> Option<Edge> {
         self.edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.to_id == vertex_id)
-            .collect::<Vec<Edge>>()
-            .clone()
+            .find(|edge| edge.from_id == from_id && edge.to_id == to_id)
     }
 
     pub fn apply_flow(&self, from_id: u32, to_id: u32, delta: i64) -> Graph {
