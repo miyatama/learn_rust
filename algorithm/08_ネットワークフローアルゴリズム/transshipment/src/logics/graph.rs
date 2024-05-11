@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum VertexType {
     None,
@@ -179,17 +181,21 @@ pub fn show_graph(graph: &Graph, show_zero_flow: bool) {
     println!("```mermaid");
     println!("stateDiagram-v2");
     println!("  direction LR;");
+    let mut hs: HashSet<u32> = HashSet::new();
     let vs = &graph.vertexes;
     for i in 0..vs.len() {
-        println!("  state \"{}\" as v_{}", vs[i].name, vs[i].id);
+        if !hs.contains(&vs[i].id) {
+            println!("  state \"{}\" as v_{}", vs[i].name, vs[i].id);
+            hs.insert(vs[i].id);
+        }
     }
     let edges = &graph.edges;
     for i in 0..edges.len() {
         if show_zero_flow || edges[i].flow > 0 {
             println!(
                 "  v_{} --> v_{}: {}/{}",
-                edges[i].from_vertex_index,
-                edges[i].to_vertex_index,
+                &graph.vertexes[edges[i].from_vertex_index].id,
+                &graph.vertexes[edges[i].to_vertex_index].id,
                 edges[i].flow,
                 if edges[i].capacity >= i64::MAX {
                     "∞".to_string()
@@ -200,7 +206,8 @@ pub fn show_graph(graph: &Graph, show_zero_flow: bool) {
         } else {
             println!(
                 "  v_{} --> v_{}",
-                edges[i].from_vertex_index, edges[i].to_vertex_index
+                &graph.vertexes[edges[i].from_vertex_index].id,
+                &graph.vertexes[edges[i].to_vertex_index].id,
             );
         }
     }

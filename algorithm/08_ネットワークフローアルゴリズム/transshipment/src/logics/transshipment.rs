@@ -216,6 +216,22 @@ pub fn get_productions2() -> Vec<Production> {
         .collect::<Vec<Production>>()
 }
 
+pub fn get_distributions2() -> Vec<Distribution> {
+    let sources = vec![
+        (2000, "倉庫A".to_string(), 100, 20),
+        (2500, "倉庫B".to_string(), 120, 18),
+    ];
+    sources
+        .into_iter()
+        .map(|source| Distribution {
+            id: source.0,
+            name: source.1,
+            warehouse_size: source.2,
+            transship_cost: source.3,
+        })
+        .collect::<Vec<Distribution>>()
+}
+
 pub fn get_consumptions2() -> Vec<Consumption> {
     let sources = vec![
         (3000, 300, "小売店A".to_string()),
@@ -233,10 +249,14 @@ pub fn get_consumptions2() -> Vec<Consumption> {
 
 pub fn get_routes2() -> Vec<Route> {
     let sources = vec![
-        (1000, 3000, 7),
-        (1000, 3100, 6),
-        (1100, 3000, 4),
-        (1100, 3100, 6),
+        (1000, 2000, 3),
+        (1000, 2500, 1),
+        (1100, 2000, 3),
+        (1100, 2500, 1),
+        (2000, 3000, 4),
+        (2000, 3100, 6),
+        (2500, 3000, 10),
+        (2500, 3100, 6),
     ];
     sources
         .into_iter()
@@ -311,6 +331,8 @@ pub fn to_graph(
     let mut edges: Vec<Edge> = Vec::new();
     // source -> productions
     for i in 0..productions.len() {
+        eprintln!("始点 -> 生産拠点: {}({})", &productions[i].id, i + 1);
+
         edges.push(Edge {
             from_vertex_index: 0,
             to_vertex_index: i + 1,
@@ -355,7 +377,7 @@ pub fn to_graph(
             .find(|(_, value)| value.id == id)
             .unwrap()
             .0;
-        index + productions_size + distributions_size * 2
+        (index + 1) + productions_size + distributions_size * 2
     };
     let get_distribution_vertex_indexes =
         |id: u32, distributions: &Vec<Distribution>, productions_size: usize| -> (usize, usize) {
@@ -383,6 +405,14 @@ pub fn to_graph(
                 distributions.len(),
             );
 
+            eprintln!(
+                "卸コスト(生産拠点 -> 小売): {} to {}({} to {})",
+                production.id,
+                to_consumption_cost.id,
+                i + 1,
+                vertex_index
+            );
+
             edges.push(Edge {
                 from_vertex_index: i + 1,
                 to_vertex_index: vertex_index,
@@ -396,13 +426,15 @@ pub fn to_graph(
     // consumptions -> shink
     for j in 0..consumptions.len() {
         let consumption = consumptions[j].clone();
+        let index0 = get_consumption_vertex_index(
+            consumption.id,
+            &consumptions,
+            productions.len(),
+            distributions.len(),
+        );
+        eprintln!("小売 -> 終端: {}({})", consumption.id, index0,);
         edges.push(Edge {
-            from_vertex_index: get_consumption_vertex_index(
-                consumption.id,
-                &consumptions,
-                productions.len(),
-                distributions.len(),
-            ),
+            from_vertex_index: index0,
             to_vertex_index: shink_index,
             flow: 0,
             capacity: consumption.demand,
@@ -415,6 +447,10 @@ pub fn to_graph(
         let distribution = distributions[k].clone();
         let index1 = productions.len() + 2 * (k + 1) - 1;
         let index2 = productions.len() + 2 * (k + 1);
+        eprintln!(
+            "積み替えコスト: {} ({}, {})",
+            distribution.id, index1, index2
+        );
         edges.push(Edge {
             from_vertex_index: index1,
             to_vertex_index: index2,
@@ -432,29 +468,40 @@ pub fn to_graph(
 
     // 既存ルートの追加(倉庫を経由しないルートは存在しない)
     // production -> distribution -> consumption
+    eprintln!("既存ルートの追加(倉庫を経由しないルートは存在しない)");
     routes.iter().for_each(|route| {
         let from_production = is_production(route.from_id, &productions);
         let to_consumption = is_consumption(route.to_id, &consumptions);
 
         let (from_index, to_index, capacity) = if from_production {
-            let (index0, _) =
+            let index0 = get_production_vertex_index(route.from_id, &productions);
+            let (index1, _) =
                 get_distribution_vertex_indexes(route.to_id, &distributions, productions.len());
+            eprintln!(
+                "生産拠点 -> 倉庫: {} to {}({} to {})",
+                route.from_id, route.to_id, index0, index1
+            );
             (
-                get_production_vertex_index(route.from_id, &productions),
                 index0,
+                index1,
                 get_production(route.from_id, &productions).supply,
             )
         } else if to_consumption {
             let (_, index0) =
                 get_distribution_vertex_indexes(route.from_id, &distributions, productions.len());
+            let index1 = get_consumption_vertex_index(
+                route.to_id,
+                &consumptions,
+                productions.len(),
+                distributions.len(),
+            );
+            eprintln!(
+                "倉庫 -> 小売: {} to {}({} to {})",
+                route.from_id, route.to_id, index0, index1
+            );
             (
                 index0,
-                get_consumption_vertex_index(
-                    route.to_id,
-                    &consumptions,
-                    productions.len(),
-                    distributions.len(),
-                ),
+                index1,
                 get_consumption(route.to_id, &consumptions).demand,
             )
         } else {
@@ -462,6 +509,10 @@ pub fn to_graph(
                 get_distribution_vertex_indexes(route.from_id, &distributions, productions.len());
             let (index1, _) =
                 get_distribution_vertex_indexes(route.to_id, &distributions, productions.len());
+            eprintln!(
+                "倉庫間: {} to {}({} to {})",
+                route.from_id, route.to_id, index0, index1
+            );
             (index0, index1, i64::MAX)
         };
 
@@ -481,18 +532,57 @@ pub fn to_graph(
 }
 
 pub fn show_result(graph: &Graph) {
-    let total_capacity = graph.edges.iter().fold(0, |sum, edge| {
-        if edge.capacity >= i64::MAX || sum >= i64::MAX {
-            i64::MAX
-        } else {
-            sum + edge.capacity
-        }
-    });
-    let max_flow = graph.edges.iter().fold(0, |sum, edge| sum + edge.flow);
+    let total_capacity = graph
+        .edges
+        .iter()
+        .filter(|edge| edge.from_vertex_index == 0)
+        .fold(0, |sum, edge| {
+            if edge.capacity >= i64::MAX || sum >= i64::MAX {
+                i64::MAX
+            } else {
+                sum + edge.capacity
+            }
+        });
+    let max_flow = graph
+        .edges
+        .iter()
+        .filter(|edge| edge.from_vertex_index == 0)
+        .fold(0, |sum, edge| sum + edge.flow);
     let min_cost = graph
         .edges
         .iter()
         .fold(0, |sum, edge| sum + edge.cost * edge.flow);
     println!("最大フロー: {} / {}", max_flow, total_capacity);
     println!("最小コスト: {}", min_cost);
+}
+
+pub fn show_transshipment(
+    productions: &Vec<Production>,
+    distributions: &Vec<Distribution>,
+    consumptions: &Vec<Consumption>,
+    routes: &Vec<Route>,
+) {
+    println!("```mermaid");
+    println!("stateDiagram-v2");
+    println!("  direction LR;");
+    productions.iter().for_each(|value| {
+        println!(
+            "  state \"{}({})\" as v_{}",
+            value.name, value.supply, value.id
+        );
+    });
+    distributions.iter().for_each(|value| {
+        println!("  state \"{}\" as v_{}", value.name, value.id);
+    });
+    consumptions.iter().for_each(|value| {
+        println!(
+            "  state \"{}({})\" as v_{}",
+            value.name, value.demand, value.id
+        );
+    });
+    routes.iter().for_each(|route| {
+        println!("  v_{} --> v_{}", route.from_id, route.to_id);
+    });
+    println!("```");
+    println!("");
 }
