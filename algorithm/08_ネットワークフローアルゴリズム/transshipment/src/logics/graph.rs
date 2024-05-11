@@ -14,8 +14,8 @@ pub struct Vertex {
 
 #[derive(Clone, Debug)]
 pub struct Edge {
-    pub from_id: u32,
-    pub to_id: u32,
+    pub from_vertex_index: usize,
+    pub to_vertex_index: usize,
     pub flow: i64,
     pub cost: i64,
     pub capacity: i64,
@@ -24,8 +24,8 @@ pub struct Edge {
 impl Edge {
     pub fn add_flow(&self, delta: i64) -> Edge {
         Edge {
-            from_id: self.from_id,
-            to_id: self.to_id,
+            from_vertex_index: self.from_vertex_index,
+            to_vertex_index: self.to_vertex_index,
             flow: self.flow + delta,
             capacity: self.capacity,
             cost: self.cost,
@@ -44,33 +44,30 @@ pub struct Graph {
 }
 
 impl Graph {
-    pub fn get_vertex(&self, id: u32) -> Vertex {
-        self.vertexes
+    pub fn get_vertex(&self, index: usize) -> Vertex {
+        self.vertexes[index].clone()
+    }
+
+    pub fn get_edge(&self, from_vertex_index: usize, to_vertex_index: usize) -> Edge {
+        self.edges
             .clone()
             .into_iter()
-            .filter(|vertex| vertex.id == id)
+            .filter(|edge| {
+                edge.from_vertex_index == from_vertex_index
+                    && edge.to_vertex_index == to_vertex_index
+            })
             .next()
             .unwrap()
             .clone()
     }
 
-    pub fn get_edge(&self, from_id: u32, to_id: u32) -> Edge {
+    pub fn get_active_vertex_id(&self, from_vertex_index: usize) -> Vec<usize> {
         self.edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.from_id == from_id && edge.to_id == to_id)
-            .next()
-            .unwrap()
-            .clone()
-    }
-
-    pub fn get_active_vertex_id(&self, from_id: u32) -> Vec<u32> {
-        self.edges
-            .clone()
-            .into_iter()
-            .filter(|edge| edge.from_id == from_id && edge.flow > 0)
-            .map(|edge| edge.to_id)
-            .collect::<Vec<u32>>()
+            .filter(|edge| edge.from_vertex_index == from_vertex_index && edge.flow > 0)
+            .map(|edge| edge.to_vertex_index)
+            .collect::<Vec<usize>>()
             .clone()
     }
 
@@ -94,45 +91,61 @@ impl Graph {
             .clone()
     }
 
-    pub fn get_forward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+    pub fn get_forward_edges(&self, vertex_index: usize) -> Vec<Edge> {
         self.edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.from_id == vertex_id)
+            .filter(|edge| edge.from_vertex_index == vertex_index)
             .collect::<Vec<Edge>>()
             .clone()
     }
 
-    pub fn get_backward_edges(&self, vertex_id: u32) -> Vec<Edge> {
+    pub fn get_backward_edges(&self, vertex_index: usize) -> Vec<Edge> {
         self.edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.to_id == vertex_id)
+            .filter(|edge| edge.to_vertex_index == vertex_index)
             .collect::<Vec<Edge>>()
             .clone()
     }
 
-    pub fn get_forward_edge(&self, from_id: u32, to_id: u32) -> Option<Edge> {
-        self.edges
-            .clone()
-            .into_iter()
-            .find(|edge| edge.from_id == from_id && edge.to_id == to_id)
+    pub fn get_forward_edge(
+        &self,
+        from_vertex_index: usize,
+        to_vertex_index: usize,
+    ) -> Option<Edge> {
+        self.edges.clone().into_iter().find(|edge| {
+            edge.from_vertex_index == from_vertex_index && edge.to_vertex_index == to_vertex_index
+        })
     }
 
-    pub fn get_backward_edge(&self, from_id: u32, to_id: u32) -> Option<Edge> {
-        self.edges
-            .clone()
-            .into_iter()
-            .find(|edge| edge.from_id == from_id && edge.to_id == to_id)
+    pub fn get_backward_edge(
+        &self,
+        from_vertex_index: usize,
+        to_vertex_index: usize,
+    ) -> Option<Edge> {
+        self.edges.clone().into_iter().find(|edge| {
+            edge.from_vertex_index == from_vertex_index && edge.to_vertex_index == to_vertex_index
+        })
     }
 
-    pub fn apply_flow(&self, from_id: u32, to_id: u32, delta: i64) -> Graph {
-        let edge = self.get_edge(from_id, to_id).add_flow(delta);
+    pub fn apply_flow(
+        &self,
+        from_vertex_index: usize,
+        to_vertex_index: usize,
+        delta: i64,
+    ) -> Graph {
+        let edge = self
+            .get_edge(from_vertex_index, to_vertex_index)
+            .add_flow(delta);
         let mut edges = self
             .edges
             .clone()
             .into_iter()
-            .filter(|edge| edge.from_id != from_id || edge.to_id != to_id)
+            .filter(|edge| {
+                edge.from_vertex_index != from_vertex_index
+                    || edge.to_vertex_index != to_vertex_index
+            })
             .collect::<Vec<Edge>>()
             .clone();
         edges.push(edge);
@@ -157,11 +170,11 @@ pub enum EdgeDirection {
 
 #[derive(Clone, Debug)]
 pub struct VertexInfo {
-    pub previous: u32,
+    pub previous: usize,
     pub direction: EdgeDirection,
 }
 
-pub fn show_graph(graph: &Graph) {
+pub fn show_graph(graph: &Graph, show_zero_flow: bool) {
     // mermaid stateDiagram
     println!("```mermaid");
     println!("stateDiagram-v2");
@@ -172,13 +185,23 @@ pub fn show_graph(graph: &Graph) {
     }
     let edges = &graph.edges;
     for i in 0..edges.len() {
-        if edges[i].flow > 0 {
+        if show_zero_flow || edges[i].flow > 0 {
             println!(
                 "  v_{} --> v_{}: {}/{}",
-                edges[i].from_id, edges[i].to_id, edges[i].flow, edges[i].capacity
+                edges[i].from_vertex_index,
+                edges[i].to_vertex_index,
+                edges[i].flow,
+                if edges[i].capacity >= i64::MAX {
+                    "∞".to_string()
+                } else {
+                    edges[i].capacity.to_string()
+                },
             );
         } else {
-            println!("  v_{} --> v_{}", edges[i].from_id, edges[i].to_id);
+            println!(
+                "  v_{} --> v_{}",
+                edges[i].from_vertex_index, edges[i].to_vertex_index
+            );
         }
     }
     println!("```");
