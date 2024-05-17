@@ -35,7 +35,52 @@ fn main_logic<W: Write>(w: &mut W, n: u64, s: Vec<String>) {
 
 fn create_trie_tree(s: &Vec<String>) -> Vec<TrieNode> {
     let mut trie_nodes: Vec<TrieNode> = Vec::new();
-    for i in 0..s.len() {}
+    trie_nodes.push(TrieNode {
+        parent: 0,
+        childs: HashMap::new(),
+        node_value: '\0',
+        node_count: 0,
+        sub_total: 0,
+        terminate: false,
+    });
+
+    for i in 0..s.len() {
+        let chars = s[i].chars().collect::<Vec<char>>().clone();
+        let mut target_index = 0;
+        for j in 0..chars.len() {
+            let target_char = chars[j];
+            let terminate = j == (chars.len() - 1);
+            let node_count = if terminate { 1 } else { 0 };
+            let child = &trie_nodes[target_index].childs.get(&target_char);
+            match child {
+                None => {
+                    let index = trie_nodes.len();
+                    let mut trie_node = trie_nodes[target_index].clone();
+                    trie_node.childs.insert(chars[j], index);
+                    trie_nodes[target_index] = trie_node;
+
+                    eprintln!("add [{}]: {}", index, target_char);
+                    trie_nodes.push(TrieNode {
+                        parent: target_index,
+                        childs: HashMap::new(),
+                        node_value: chars[j],
+                        node_count: node_count,
+                        sub_total: 0,
+                        terminate: terminate,
+                    });
+                    target_index = index;
+                }
+                Some(&next_index) => {
+                    if terminate {
+                        let mut trie_node = trie_nodes[target_index].clone();
+                        trie_node.node_count += 1;
+                        trie_nodes[target_index] = trie_node;
+                    }
+                    target_index = next_index;
+                }
+            }
+        }
+    }
     trie_nodes.clone()
 }
 
@@ -104,7 +149,9 @@ mod tests {
         let expect = vec![
             TrieNode {
                 parent: 0,
-                childs: vec![('a', 1), ('e', 10)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('a', 1), ('e', 10)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: '\0',
                 node_count: 0,
                 sub_total: 0,
@@ -113,7 +160,9 @@ mod tests {
             // 1
             TrieNode {
                 parent: 0,
-                childs: vec![('b', 2), ('c', 4)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('b', 2), ('c', 4)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: 'a',
                 node_count: 1,
                 sub_total: 0,
@@ -140,7 +189,9 @@ mod tests {
             // 4
             TrieNode {
                 parent: 1,
-                childs: vec![('c', 5), ('e', 6)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('c', 5), ('e', 6)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: 'c',
                 node_count: 0,
                 sub_total: 0,
@@ -194,7 +245,9 @@ mod tests {
             // 10
             TrieNode {
                 parent: 0,
-                childs: vec![('x', 10)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('x', 11)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: 'e',
                 node_count: 0,
                 sub_total: 0,
@@ -203,7 +256,9 @@ mod tests {
             // 11
             TrieNode {
                 parent: 10,
-                childs: vec![('i', 11)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('i', 12)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: 'x',
                 node_count: 0,
                 sub_total: 0,
@@ -212,7 +267,9 @@ mod tests {
             // 12
             TrieNode {
                 parent: 11,
-                childs: vec![('t', 13)].into_iter().collect::<HashMap<char, usize>>(),
+                childs: vec![('t', 13)]
+                    .into_iter()
+                    .collect::<HashMap<char, usize>>(),
                 node_value: 'i',
                 node_count: 0,
                 sub_total: 0,
