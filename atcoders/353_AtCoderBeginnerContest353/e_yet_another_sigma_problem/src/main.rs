@@ -31,10 +31,9 @@ fn main() {
 
 fn main_logic<W: Write>(w: &mut W, _n: u64, s: Vec<String>) {
     let trie_nodes = create_trie_tree(&s);
-    print_trie_tree(&trie_nodes);
-    let mut result = 0;
+    let mut result = 0u128;
     for i in 1..trie_nodes.len() {
-        result += calc_combination(trie_nodes[i].sub_total, 2);
+        result += calc_combination(trie_nodes[i].sub_total, 2) as u128;
     }
     writeln!(w, "{}", result).unwrap();
 }
@@ -326,6 +325,26 @@ mod tests {
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["1"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
+
+    #[test]
+    fn test_main_logic07() {
+        let mut buff = Vec::<u8>::new();
+        let string_length = 1000;
+        let src = "a".to_string().repeat(string_length);
+        let n = 10000usize;
+        main_logic(
+            &mut buff,
+            n as u64,
+            vec![src.clone() ; n],
+        );
+
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").collect::<Vec<&str>>();
+        let expect = vec!["49995000000"];
         (0..expect.len()).for_each(|index| {
             assert_eq!(expect[index], actual[index]);
         });
