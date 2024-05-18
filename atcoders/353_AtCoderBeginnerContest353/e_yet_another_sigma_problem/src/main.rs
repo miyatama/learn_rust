@@ -29,7 +29,7 @@ fn main() {
     stdout.flush().unwrap();
 }
 
-fn main_logic<W: Write>(w: &mut W, n: u64, s: Vec<String>) {
+fn main_logic<W: Write>(w: &mut W, _n: u64, s: Vec<String>) {
     let trie_nodes = create_trie_tree(&s);
     print_trie_tree(&trie_nodes);
     let mut result = 0;
@@ -243,6 +243,89 @@ mod tests {
         let actual = String::from_utf8(buff).unwrap();
         let actual = actual.split("\n").collect::<Vec<&str>>();
         let expect = vec!["32"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
+
+    #[test]
+    fn test_main_logic03() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            3,
+            vec![
+                "a".to_string(),
+                "a".to_string(),
+                "a".to_string(),
+            ],
+        );
+
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").collect::<Vec<&str>>();
+        let expect = vec!["3"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
+
+    #[test]
+    fn test_main_logic04() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            3,
+            vec![
+                "a".to_string(),
+                "b".to_string(),
+                "c".to_string(),
+            ],
+        );
+
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").collect::<Vec<&str>>();
+        let expect = vec!["0"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
+
+    #[test]
+    fn test_main_logic05() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            3,
+            vec![
+                "xxx".to_string(),
+                "xxx".to_string(),
+                "xxx".to_string(),
+            ],
+        );
+
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").collect::<Vec<&str>>();
+        let expect = vec!["9"];
+        (0..expect.len()).for_each(|index| {
+            assert_eq!(expect[index], actual[index]);
+        });
+    }
+
+    #[test]
+    fn test_main_logic06() {
+        let mut buff = Vec::<u8>::new();
+        main_logic(
+            &mut buff,
+            2,
+            vec![
+                "xy".to_string(),
+                "xz".to_string(),
+            ],
+        );
+
+        let actual = String::from_utf8(buff).unwrap();
+        let actual = actual.split("\n").collect::<Vec<&str>>();
+        let expect = vec!["1"];
         (0..expect.len()).for_each(|index| {
             assert_eq!(expect[index], actual[index]);
         });
@@ -619,6 +702,162 @@ mod tests {
                 parent: 12,
                 childs: HashMap::new(),
                 node_value: 't',
+                node_count: 1,
+                sub_total: 1,
+                terminate: true,
+            },
+        ];
+
+        assert_eq!(expect.len(), actual.len());
+        for i in 0..expect.len() {
+            eprintln!("expect[{}]: {:?}", i, expect[i]);
+            eprintln!("actual[{}]: {:?}", i, actual[i]);
+            assert_eq!(expect[i].parent, actual[i].parent);
+            assert_eq!(expect[i].childs.len(), actual[i].childs.len());
+            for (key, value) in &expect[i].childs {
+                let actual_value = actual[i].childs.get(&key);
+                assert_eq!(true, actual_value.is_some());
+                assert_eq!(*value, *actual_value.unwrap());
+            }
+            assert_eq!(expect[i].node_value, actual[i].node_value);
+            assert_eq!(expect[i].node_count, actual[i].node_count);
+            assert_eq!(expect[i].sub_total, actual[i].sub_total);
+            assert_eq!(expect[i].terminate, actual[i].terminate);
+        }
+    }
+
+    #[test]
+    fn test_create_trie_tree03() {
+        let inputs = vec!["a".to_string(), "a".to_string(), "a".to_string()];
+        let actual = create_trie_tree(&inputs);
+        let expect = vec![
+            TrieNode {
+                parent: 0,
+                childs: vec![('a', 1)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: '\0',
+                node_count: 0,
+                sub_total: 3,
+                terminate: false,
+            },
+            // 1
+            TrieNode {
+                parent: 0,
+                childs: HashMap::new(),
+                node_value: 'a',
+                node_count: 3,
+                sub_total: 3,
+                terminate: true,
+            },
+        ];
+
+        assert_eq!(expect.len(), actual.len());
+        for i in 0..expect.len() {
+            eprintln!("expect[{}]: {:?}", i, expect[i]);
+            eprintln!("actual[{}]: {:?}", i, actual[i]);
+            assert_eq!(expect[i].parent, actual[i].parent);
+            assert_eq!(expect[i].childs.len(), actual[i].childs.len());
+            for (key, value) in &expect[i].childs {
+                let actual_value = actual[i].childs.get(&key);
+                assert_eq!(true, actual_value.is_some());
+                assert_eq!(*value, *actual_value.unwrap());
+            }
+            assert_eq!(expect[i].node_value, actual[i].node_value);
+            assert_eq!(expect[i].node_count, actual[i].node_count);
+            assert_eq!(expect[i].sub_total, actual[i].sub_total);
+            assert_eq!(expect[i].terminate, actual[i].terminate);
+        }
+    }
+
+    #[test]
+    fn test_create_trie_tree04() {
+        let inputs = vec!["abc".to_string(), "def".to_string(), "ghi".to_string()];
+        let actual = create_trie_tree(&inputs);
+        let expect = vec![
+            TrieNode {
+                parent: 0,
+                childs: vec![('a', 1), ('d', 4), ('g', 7)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: '\0',
+                node_count: 0,
+                sub_total: 3,
+                terminate: false,
+            },
+            // 1
+            TrieNode {
+                parent: 0,
+                childs: vec![('b', 2)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'a',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 2
+            TrieNode {
+                parent: 1,
+                childs: vec![('c', 3)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'b',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 3
+            TrieNode {
+                parent: 2,
+                childs: HashMap::new(),
+                node_value: 'c',
+                node_count: 1,
+                sub_total: 1,
+                terminate: true,
+            },
+            // 4
+            TrieNode {
+                parent: 0,
+                childs: vec![('e', 5)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'd',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 5
+            TrieNode {
+                parent: 4,
+                childs: vec![('f', 6)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'e',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 6
+            TrieNode {
+                parent: 5,
+                childs: HashMap::new(),
+                node_value: 'f',
+                node_count: 1,
+                sub_total: 1,
+                terminate: true,
+            },
+            // 7
+            TrieNode {
+                parent: 0,
+                childs: vec![('h', 8)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'g',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 8
+            TrieNode {
+                parent: 7,
+                childs: vec![('i', 9)].into_iter().collect::<HashMap<char, usize>>(),
+                node_value: 'h',
+                node_count: 0,
+                sub_total: 1,
+                terminate: false,
+            },
+            // 9
+            TrieNode {
+                parent: 8,
+                childs: HashMap::new(),
+                node_value: 'i',
                 node_count: 1,
                 sub_total: 1,
                 terminate: true,
