@@ -11,9 +11,9 @@ struct TrieNode {
     // 自身が保有する文字
     node_value: char,
     // 出現カウント
-    node_count: u32,
+    node_count: u128,
     // 子ノードを含めた出現数
-    sub_total: u32,
+    sub_total: u128,
     // 単語の終端
     terminate: bool,
 }
@@ -33,16 +33,16 @@ fn main_logic<W: Write>(w: &mut W, _n: u64, s: Vec<String>) {
     let trie_nodes = create_trie_tree(&s);
     let mut result = 0u128;
     for i in 1..trie_nodes.len() {
-        result += calc_combination(trie_nodes[i].sub_total, 2) as u128;
+        result += calc_combination(trie_nodes[i].sub_total, 2u128);
     }
     writeln!(w, "{}", result).unwrap();
 }
 
-fn calc_combination(factor1: u32, factor2: u32) -> u32 {
+fn calc_combination(factor1: u128, factor2: u128) -> u128 {
     calc_permutation(factor1, factor2) / calc_factorial(factor2)
 }
 
-fn calc_permutation(factor1: u32, factor2: u32) -> u32 {
+fn calc_permutation(factor1: u128, factor2: u128) -> u128 {
     if factor1 < factor2 {
         return 0;
     }
@@ -53,7 +53,7 @@ fn calc_permutation(factor1: u32, factor2: u32) -> u32 {
     result
 }
 
-fn calc_factorial(factor1: u32) -> u32 {
+fn calc_factorial(factor1: u128) -> u128 {
     if factor1 <= 2 {
         return 2;
     }
@@ -137,8 +137,8 @@ fn create_trie_tree(s: &Vec<String>) -> Vec<TrieNode> {
 
     // 単語数の設定
     let mut queue: VecDeque<usize> = VecDeque::new();
-    let mut summary: HashMap<usize, u32> = HashMap::new();
-    let get_child_summary = |indexes: &Vec<usize>, summary: &HashMap<usize, u32>| -> Option<u32> {
+    let mut summary: HashMap<usize, u128> = HashMap::new();
+    let get_child_summary = |indexes: &Vec<usize>, summary: &HashMap<usize, u128>| -> Option<u128> {
         if indexes.len() <= 0 {
             return None;
         }
