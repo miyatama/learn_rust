@@ -308,6 +308,15 @@ mod tests {
 
 ## 配列
 
+### よく使うやつ　
+
+| name | method |
+| :---- | :----- |
+| `Vec` | push() |
+| `HashSet` | insert(), contains() |
+| `HashMap` | insert(), get(), contains_key(), keys(), values() |
+| `VecDeque` | push_front(), push_back(), pop_front(), pop_back() |
+
 ### Uniq + Sum
 
 指定した数値以下の要素に対してUniq + Sum。
