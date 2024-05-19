@@ -1,5 +1,4 @@
 use proconio::input;
-use std::collections::{HashSet, VecDeque};
 use std::io::{self, BufWriter, Write};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -23,7 +22,6 @@ fn main() {
 fn main_logic<W: Write>(w: &mut W, k: u64, s: Vec<u64>, t: Vec<u64>) {
     let result = match k {
         1 => get_delta(s[0], t[0]) + get_delta(s[1], t[1]),
-        2 => 0,
         _ => get_k_many_move(k, &s, &t),
     };
     writeln!(w, "{}", result).unwrap();
@@ -33,82 +31,134 @@ fn get_k_many_move(k: u64, s: &Vec<u64>, t: &Vec<u64>) -> u64 {
     let start_big_tiles = get_neibor_big_tile(k, s);
     let terminate_big_tiles = get_neibor_big_tile(k, t);
 
+    let calc_big_tile_move = |k: u64, s: &BigTilePos, t: &BigTilePos| -> u64 {
+        if k == 2 {
+            calc_big_tile_arrival_count(s, t)
+        } else {
+            calc_big_tile_arrival_count_k2(s, t)
+        }
+    };
     // 大タイルへの移動を考える
-    let mut min_big_tile_move_count = u64::MAX;
+    let mut min_total_count = u64::MAX;
     let mut start_big_tiles_index = 0;
     let mut terminate_big_tiles_index = 0;
     for i in 0..start_big_tiles.len() {
         for j in 0..terminate_big_tiles.len() {
-            eprintln!("s[{}] -> t[{}], ({:?} => {:?}", i, j, &start_big_tiles[i], &terminate_big_tiles[j]);
-            match calc_big_tile_arrival_count(&start_big_tiles[i], &terminate_big_tiles[j]) {
-                Some(count) => {
-                    if count < min_big_tile_move_count {
-                        min_big_tile_move_count = count;
-                        start_big_tiles_index = i;
-                        terminate_big_tiles_index = j;
-                    }
-                }
-                None => {}
+            let count = calc_big_tile_move(k, &start_big_tiles[i], &terminate_big_tiles[j]);
+            eprintln!(
+                "s[{}] -> t[{}] - cost: {}, ({:?} => {:?}",
+                i, j, count, &start_big_tiles[i], &terminate_big_tiles[j]
+            );
+            let s_count = get_count_pos_to_neibor_big_tile(k, s[0], s[1], &start_big_tiles[i]);
+            let t_count = get_count_pos_to_neibor_big_tile(k, t[0], t[1], &terminate_big_tiles[j]);
+            let total_count = count + s_count + t_count;
+            if total_count < min_total_count {
+                min_total_count = total_count;
             }
         }
     }
-
-    let s_count =
-        get_count_pos_to_neibor_big_tile(k, s[0], s[1], &start_big_tiles[start_big_tiles_index]);
-    let t_count = get_count_pos_to_neibor_big_tile(
-        k,
-        t[0],
-        t[1],
-        &terminate_big_tiles[terminate_big_tiles_index],
-    );
-    min_big_tile_move_count * 2 + s_count + t_count
+    min_total_count
 }
 
 /**
  * 斜め移動の到達手数を求める
  */
-fn calc_big_tile_arrival_count(s: &BigTilePos, t: &BigTilePos) -> Option<u64> {
-    let moves: Vec<(i64, i64)> = vec![(1, 1), (1, -1), (-1, 1), (-1, -1)];
-    // 位置と手数を保持する
-    let mut queue: VecDeque<(BigTilePos, u64)> = VecDeque::new();
-    queue.push_front((s.clone(), 0));
-    let mut hs: HashSet<BigTilePos> = HashSet::new();
-    hs.insert(s.clone());
+fn calc_big_tile_arrival_count(s: &BigTilePos, t: &BigTilePos) -> u64 {
+    let mut total_move = 0;
+    let mut pos: BigTilePos = s.clone();
+    // 斜めで一気に近づく
+    let min_delta = *vec![get_delta(s.x, t.x), get_delta(s.y, t.y)]
+        .iter()
+        .min()
+        .unwrap();
+    pos.x = if s.x < t.x {
+        s.x + min_delta
+    } else {
+        s.x - min_delta
+    };
+    pos.y = if s.y < t.y {
+        s.y + min_delta
+    } else {
+        s.y - min_delta
+    };
+    total_move = min_delta;
+    eprintln!("after slash move({}): {:?}", min_delta, &pos);
 
-    // 始点と終点の関係を保持する
-    let x_direction = s.x <= t.x;
-    let y_direction = s.y <= t.y;
-    let limit_distance = calc_big_tile_distaince(&s, &t);
-
-    let mut max_loop = 10;
-
-    while let Some((pos, count)) = queue.pop_front() {
-        max_loop -= 1;
-        if max_loop <= 0 {
-            break;
-        }
-        if pos == *t {
-            return Some(count);
-        }
-
-        for i in 0..moves.len() {
-            match get_big_tile_pos_after_move(&pos, moves[i].0, moves[i].1) {
-                Some(new_pos) => {
-                    if x_direction == (s.x <= new_pos.x)
-                        && y_direction == (s.y <= new_pos.y)
-                        && !hs.contains(&new_pos)
-                        && limit_distance >= calc_big_tile_distaince(&s, &new_pos)
-                    {
-                        eprintln!("bfs - new position: {:?}", new_pos);
-                        queue.push_front((new_pos.clone(), count + 1));
-                    }
-                }
-                None => {}
-            }
-        }
+    // 横移動
+    if pos.x != t.x {
+        let delta = get_delta(pos.x, t.x);
+        total_move += delta;
+        pos.x = if pos.x < t.x {
+            pos.x + delta
+        } else {
+            pos.x - delta
+        };
+        eprintln!("after horizontal move({}): {:?}", delta, &pos);
     }
-    None
+    // 縦移動
+    if pos.y != t.y {
+        let delta = get_delta(pos.y, t.y);
+        total_move += delta;
+        pos.y = if pos.y < t.y {
+            pos.y + delta
+        } else {
+            pos.y - delta
+        };
+        eprintln!("after vertical move({}): {:?}", delta, &pos);
+    }
+
+    total_move * 2
 }
+
+fn calc_big_tile_arrival_count_k2(s: &BigTilePos, t: &BigTilePos) -> u64 {
+    let mut total_move = 0;
+    let mut pos: BigTilePos = s.clone();
+    // 斜めで一気に近づく
+    let min_delta = *vec![get_delta(s.x, t.x), get_delta(s.y, t.y)]
+        .iter()
+        .min()
+        .unwrap();
+    pos.x = if s.x < t.x {
+        s.x + min_delta
+    } else {
+        s.x - min_delta
+    };
+    pos.y = if s.y < t.y {
+        s.y + min_delta
+    } else {
+        s.y - min_delta
+    };
+    total_move = min_delta * 2;
+    eprintln!("after slash move({}): {:?}", min_delta, &pos);
+
+    // 横移動
+    if pos.x != t.x {
+        let delta = get_delta(pos.x, t.x);
+        let real_step = delta + delta / 2;
+        total_move += real_step;
+        pos.x = if pos.x < t.x {
+            pos.x + delta
+        } else {
+            pos.x - delta
+        };
+        eprintln!("after horizontal move({}): {:?}", delta, &pos);
+    }
+    // 縦移動
+    if pos.y != t.y {
+        let delta = get_delta(pos.y, t.y);
+        let real_step = delta + delta / 2;
+        total_move += real_step;
+        pos.y = if pos.y < t.y {
+            pos.y + delta
+        } else {
+            pos.y - delta
+        };
+        eprintln!("after vertical move({}): {:?}", delta, &pos);
+    }
+
+    total_move
+}
+
 
 /**
  * 隣接する大タイルの取得
@@ -212,7 +262,6 @@ fn calc_squrt(n: u64) -> Option<u64> {
     }
     return Some(factor);
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -351,61 +400,69 @@ mod tests {
     #[test]
     fn test_calc_big_tile_arrival_count_slash_01() {
         // 斜めのみの移動(右上)
-        let start_pos = BigTilePos{x: 0, y: 0};
-        let terminate_pos = BigTilePos{x: 3, y: 3};
+        let start_pos = BigTilePos { x: 0, y: 0 };
+        let terminate_pos = BigTilePos { x: 3, y: 3 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 3;
+        let expect = 6;
         assert_eq!(expect, actual);
     }
 
     #[test]
     fn test_calc_big_tile_arrival_count_slash_02() {
         // 斜めのみの移動(右下)
-        let start_pos = BigTilePos{x: 0, y: 4};
-        let terminate_pos = BigTilePos{x: 4, y: 0};
+        let start_pos = BigTilePos { x: 0, y: 4 };
+        let terminate_pos = BigTilePos { x: 4, y: 0 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 4;
+        let expect = 8;
         assert_eq!(expect, actual);
     }
 
     #[test]
     fn test_calc_big_tile_arrival_count_slash_03() {
         // 斜めのみの移動(左上)
-        let start_pos = BigTilePos{x: 4, y: 0};
-        let terminate_pos = BigTilePos{x: 0, y: 4};
+        let start_pos = BigTilePos { x: 4, y: 0 };
+        let terminate_pos = BigTilePos { x: 0, y: 4 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 4;
+        let expect = 8;
         assert_eq!(expect, actual);
     }
 
     #[test]
     fn test_calc_big_tile_arrival_count_slash_04() {
         // 斜めのみの移動(左下)
-        let start_pos = BigTilePos{x: 4, y: 0};
-        let terminate_pos = BigTilePos{x: 0, y: 4};
+        let start_pos = BigTilePos { x: 4, y: 0 };
+        let terminate_pos = BigTilePos { x: 0, y: 4 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 4;
+        let expect = 8;
         assert_eq!(expect, actual);
     }
-
 
     #[test]
     fn test_calc_big_tile_arrival_count_horizontal_01() {
         // 横の移動(右)
-        let start_pos = BigTilePos{x: 0, y: 0};
-        let terminate_pos = BigTilePos{x: 4, y: 0};
+        let start_pos = BigTilePos { x: 0, y: 0 };
+        let terminate_pos = BigTilePos { x: 4, y: 0 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 4;
+        let expect = 8;
         assert_eq!(expect, actual);
     }
 
     #[test]
     fn test_calc_big_tile_arrival_count_horizontal_02() {
         // 横の移動(左)
-        let start_pos = BigTilePos{x: 4, y: 4};
-        let terminate_pos = BigTilePos{x: 0, y: 4};
+        let start_pos = BigTilePos { x: 4, y: 4 };
+        let terminate_pos = BigTilePos { x: 0, y: 4 };
         let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
-        let expect = 4;
+        let expect = 8;
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_calc_big_tile_arrival_count_no_move() {
+        let start_pos = BigTilePos { x: 4, y: 4 };
+        let terminate_pos = BigTilePos { x: 4, y: 4 };
+        let actual = calc_big_tile_arrival_count(&start_pos, &terminate_pos);
+        let expect = 0;
         assert_eq!(expect, actual);
     }
 }
