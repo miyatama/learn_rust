@@ -15,18 +15,24 @@
 
 ```math
 cp = \begin{vmatrix}
-L_(i-1).x & L_(i-1).y & 1 \
+L_{i-1}.x & L_{i-1}.y & 1 \
 L_i.x & L_i.y & 1 \
 p.x & p.y & 1
 \end{vmatrix}
-cp = (L_1.x - L_(i_1).x)(p.y - L_(i-1).y) - (L_1.y - L_(i-1).y)(p.x - L_(i-1).x)
-direction = \left{
-\begin{array}{||}
+```
+
+```math
+cp = (L_1.x - L_{i_1}.x)(p.y - L_{i-1}.y) - (L_1.y - L_{i-1}.y)(p.x - L_{i-1}.x)
+```
+
+```math
+direction = \left\{
+\begin{array}{ll}
 共線 & (cp = 0) \
 右回り & (cp < 0) \
 左回り & (cp > 0)
 \end{array}
-\right
+\right.
 ```
 
 一番左端の要素から開始し、右回りのものだけを抽出することで凸包特性を保持する。
