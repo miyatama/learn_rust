@@ -15,11 +15,11 @@
 
 ```math
 cp = \begin{vmatrix}
-L_i-1.x & L_i-1.y & 1 \
+L_(i-1).x & L_(i-1).y & 1 \
 L_i.x & L_i.y & 1 \
 p.x & p.y & 1
 \end{vmatrix}
-cp = (L_1.x - L_i_1.x)(p.y - L_i-1.y) - (L_1.y - L_i-1.y)(p.x - L_i-1.x)
+cp = (L_1.x - L_(i_1).x)(p.y - L_(i-1).y) - (L_1.y - L_(i-1).y)(p.x - L_(i-1).x)
 direction = \left{
 \begin{array}{||}
 共線 & (cp = 0) \
