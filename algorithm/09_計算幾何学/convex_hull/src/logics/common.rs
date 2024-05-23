@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 #[derive(Debug, PartialEq)]
 pub enum CrossProductDirection {
     LeftRotate,
@@ -5,10 +7,22 @@ pub enum CrossProductDirection {
     Equally,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
+}
+
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(
+            other
+                .x
+                .partial_cmp(&self.x)
+                .unwrap()
+                .then_with(|| self.y.partial_cmp(&other.y).unwrap()),
+        )
+    }
 }
 
 /**
@@ -54,7 +68,7 @@ pub fn print_points(title: String, points: &Vec<Point>) {
     println!("```")
 }
 
-fn cross_product_direction(p1: &Point, p2: &Point, t: &Point) -> CrossProductDirection {
+pub fn cross_product_direction(p1: &Point, p2: &Point, t: &Point) -> CrossProductDirection {
     match (p2.x - p1.x) * (t.y - p1.y) - (p2.y - p1.y) * (t.x - p1.x) {
         cp if cp < 0.0 => CrossProductDirection::RightRotate,
         cp if cp > 0.0 => CrossProductDirection::LeftRotate,
