@@ -55,6 +55,7 @@ pub fn pentagram_with_noise(noise_count: u32) -> Vec<Point> {
         let in2 = common::in_triangle(&normal_data[1], &normal_data[4], &normal_data[3], &point);
         let in3 = common::in_triangle(&normal_data[1], &normal_data[3], &normal_data[2], &point);
         if in1 || in2 || in3 {
+            eprintln!("noise: {:?}", &point);
             noises.push(point.clone());
         }
     }

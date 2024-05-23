@@ -16,9 +16,8 @@ pub struct Point {
 impl PartialOrd for Point {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(
-            other
-                .x
-                .partial_cmp(&self.x)
+            self.x
+                .partial_cmp(&other.x)
                 .unwrap()
                 .then_with(|| self.y.partial_cmp(&other.y).unwrap()),
         )
@@ -79,6 +78,28 @@ pub fn cross_product_direction(p1: &Point, p2: &Point, t: &Point) -> CrossProduc
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_points_sort_01() {
+        let mut points = vec![
+            Point { x: 100.0, y: 100.0 },
+            Point { x: 100.0, y: 80.0 },
+            Point { x: 20.0, y: 20.0 },
+            Point { x: 20.0, y: 10.0 },
+            Point { x: -5.0, y: -5.0 },
+            Point { x: -5.0, y: -3.0 },
+        ];
+        points.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let expect = vec![
+            Point { x: -5.0, y: -5.0 },
+            Point { x: -5.0, y: -3.0 },
+            Point { x: 20.0, y: 10.0 },
+            Point { x: 20.0, y: 20.0 },
+            Point { x: 100.0, y: 80.0 },
+            Point { x: 100.0, y: 100.0 },
+        ];
+        assert_eq!(expect, points);
+    }
 
     #[test]
     fn test_in_triangle_01() {
