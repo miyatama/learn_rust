@@ -8,6 +8,11 @@
 
 <details><summary>Code</summary><div>
 
+```toml
+[dependencies]
+proconio = "0.4.5"
+```
+
 ```rust
 use proconio::input;
 use std::io::{self, BufWriter, Write};
@@ -302,6 +307,21 @@ mod tests {
         assert_eq!(expect, actual);
     }
 }
+```
+
+</div></details>
+
+## 実数
+
+### 配列から最小最大を取得
+
+<details><summary>Code</summary><div>
+
+```kotlin
+let f_array = vec![1.0, 2.0, 0.5, 8.0, 3.3, 4.2];
+let max = f_array.iter().fold(f64::MIN, |m, v| m.max(*v));
+let min = f_array.iter().fold(f64::MAX, |m, v| m.min(*v));
+eprintln!("max: {}, min: {}", max, min);
 ```
 
 </div></details>
@@ -858,6 +878,80 @@ mod tests {
             assert_eq!(expect[i].terminate, actual[i].terminate);
         }
     }
+}
+```
+
+</div></details>
+
+### ソート - マクロ
+
+出典: [Rust の構造体Vecをsort_byしやすくするマクロを書いた](https://vraisamis.hatenadiary.jp/entry/2019/08/09/022201)
+
+<details><summary>Code</summary><div>
+
+呼び出し
+
+```rust
+// struct vec
+v.sort_by(order_by!(x, y, z));
+v.sort_by(order_by!(x asc, y desc));
+v.sort_by(order_by!(z asc, x));
+
+// tuple vec
+v2.sort_by(order_by!(0, 1, 2));
+v2.sort_by(order_by!(0 desc, 1, 2));
+v2.sort_by(order_by!(2, 0, 1));
+```
+
+
+マクロ定義
+
+```rust
+macro_rules! order_by {
+    ($($x:tt)*) => {
+        |l, r| {
+            order_by_inner!(l, r, $($x)*)
+        }
+    }
+}
+macro_rules! order_by_inner {
+    () => {};
+    ($l:ident) => {std::cmp::Ordering::Equal};
+    ($l:ident , ) => {std::cmp::Ordering::Equal};
+    ($l:ident , $r:ident) => {std::cmp::Ordering::Equal};
+    ($l:ident , $r:ident , ) => {std::cmp::Ordering::Equal};
+
+    // last
+    ($l:ident , $r:ident , $x:tt asc) => {
+        $l.$x.cmp(&$r.$x)
+    };
+    ($l:ident , $r:ident , $x:tt desc) => {
+        $l.$x.cmp(&$r.$x).reverse()
+    };
+    ($l:ident , $r:ident , $x:tt) => {
+        order_by_inner!($l, $r, $x asc)
+    };
+
+    // mid
+    ($l:ident , $r:ident , $x:tt asc , $($p:tt)+) => {
+        match $l.$x.cmp(&$r.$x) {
+            std::cmp::Ordering::Equal => {
+                order_by_inner!($l, $r, $($p)+)
+            },
+            other => other
+        }
+    };
+    ($l:ident , $r:ident , $x:tt desc , $($p:tt)+) => {
+        match $l.$x.cmp(&$r.$x).reverse() {
+            std::cmp::Ordering::Equal => {
+                order_by_inner!($l, $r, $($p)+)
+            },
+            other => other
+        }
+    };
+    ($l:ident , $r:ident , $x:tt , $($p:tt)+) => {
+        order_by_inner!($l, $r, $x asc, $($p)+)
+    };
 }
 ```
 
