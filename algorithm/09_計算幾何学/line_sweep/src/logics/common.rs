@@ -43,7 +43,7 @@ impl PartialOrd for Line {
 }
 
 impl Line {
-    fn get_strat_point(&self) -> Point {
+    pub fn get_strat_point(&self) -> Point {
         if self.p1.partial_cmp(&self.p2).unwrap() == Ordering::Greater {
             self.p2.clone()
         } else {
@@ -51,7 +51,7 @@ impl Line {
         }
     }
 
-    fn get_end_point(&self) -> Point {
+    pub fn get_end_point(&self) -> Point {
         if self.p1.partial_cmp(&self.p2).unwrap() == Ordering::Greater {
             self.p1.clone()
         } else {
