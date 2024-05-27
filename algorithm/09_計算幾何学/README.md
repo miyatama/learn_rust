@@ -15,8 +15,8 @@
 
 ```math
 cp = \begin{vmatrix}
-L_{i-1}.x & L_{i-1}.y & 1 \
-L_i.x & L_i.y & 1 \
+L_{i-1}.x & L_{i-1}.y & 1 \\
+L_i.x & L_i.y & 1 \\
 p.x & p.y & 1
 \end{vmatrix}
 ```
@@ -127,21 +127,32 @@ y - b = m(x - a)
 ```math
 m = \Delta y - \Delta x \\
 \Delta y = y_2 - y_1 \\
+
 \Delta x = x_2 - x_1 \\
+
 ```
 
 として、
 
 ```math
 m = (y_2 - y_1) / (x_2 - x_1) \\
+
 m * (x_2 - x_1) =(y_2 - y_1) \\
+
 (\Delta y / \Delta x)(x_2 - x_1) =y_2 - y_1 \\
+
 \Delta y (x_2 - x_1) = \Delta x(y_2 - y_1) \\
+
 \Delta yx_2 - \Delta yx_1 = \Delta xy_2 - \Delta xy_1 \\
+
 \Delta yx_2 - \Delta yx_1 - \Delta xy_2 + \Delta xy_1 = 0 \\
+
 (y_2 - y_1)x_2 - (y_2 - y_1)x_1 - (x_2 - x_1)y_2 + (x_2 - x_1)y_1 = 0 \\
+
 x_2(y_2 - y_1) - x_1(y_2 - y_1) - y_2(x_2 - x_1) + y_1(x_2 - x_1) = 0 \\
+
 x_2(y_2 - y_1) - y_2(x_2 - x_1) - x_1(y_2 - y_1) + y_1(x_2 - x_1) = 0 \\
+
 x_2(y_2 - y_1) + y_2(x_1 - x_2) - x_1(y_2 - y_1) + y_1(x_2 - x_1) = 0
 ```
 
@@ -149,14 +160,17 @@ $`a, b, c`$を定義
 
 ```math
 a = y_2 - y_1 \\
-b = x_1 - x_2 \\
+
+b = x_1 - x_2
 ```
 
 として
 
 ```math
 x_2(y_2 - y_1) + y_2(x_1 - x_2) - x_1(y_2 - y_1) + y_1(x_2 - x_1) = 0 \\
+
 ax_2 + by_2 - x_1(y_2 - y_1) + y_1(x_2 - x_1) = 0 \\
+
 c = y_1(x_2 - x_1) - x_1(y_2 - y_1)
 ```
 
@@ -166,9 +180,13 @@ c = y_1(x_2 - x_1) - x_1(y_2 - y_1)
 
 ```math
 l_1 = [(l_1.x_1, l_1.y_1), (l_1.x_2, l_1.y_2)] \\
+
 l_2 = [(l_2.x_1, l_2.y_1), (l_2.x_2, l_2.y_2)] \\
+
 L_1 = (l_1.a, l_1.b, l_1.c) \\
-L_2 = (l_2.a, l_2.b, l_2.c) \\
+
+L_2 = (l_2.a, l_2.b, l_2.c)
+
 ```
 
 各係数からの交点$`x, y`$算出
@@ -180,7 +198,9 @@ l_1.ax + l_1.by + l_1.c = 0 \\
 l_2.ax + l_2.by + l_2.c = 0
 \end{array}
 \right. \\
+
 x = (l_1.b * l_2.c - l_2.b * l_1.c) / (l_1.a * l_2.b - l_2.a * l_1.b) \\
+
 y = (l_2.a * l_1.c - l_1.a * l_2.c) / (l_1.a * l_2.b - l_2.a * l_1.b)
 ```
 
@@ -189,9 +209,14 @@ y = (l_2.a * l_1.c - l_1.a * l_2.c) / (l_1.a * l_2.b - l_2.a * l_1.b)
 
 ```math
 t1 = l_1.a * l_2.x_1 + l_1.b * l_2.y_1 + l_1.c \\
+
 t2 = l_1.a * l_2.x_2 + l_1.b * l_2.y_2 + l_1.c \\
+
 t3 = l_2.a * l_1.x_1 + l_2.b * l_1.y_1 + l_2.c \\
+
 t4 = l_2.a * l_1.x_2 + l_2.b * l_1.y_2 + l_2.c \\
+
 ((t1 \geqq 0 \cap t2 \leqq 0) \cup (t1 \leqq 0 \cap t2 \geqq 0) \cap \\
+
 (t1 \geqq 0 \cap t2 \leqq 0) \cup (t1 \leqq 0 \cap t2 \geqq 0))
 ```
