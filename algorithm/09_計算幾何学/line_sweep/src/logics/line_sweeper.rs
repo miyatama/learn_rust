@@ -1,7 +1,40 @@
+use svg::node::element::Rectangle;
+use svg::Document;
 use super::common::{Line, Point};
 
 pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
     vec![]
+}
+
+/**
+ * 線分と交点を元にSVG文字列を生成
+ * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
+ */
+pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
+    let mut svg = Document::new()
+    .set("viewbox", (0, 0, 600, 600))
+    .set("width", 600)
+    .set("height", 600)
+    .set("style", "background-color: #F2F3F5");
+
+    // グラフの外枠
+    svg = svg.add(
+        Rectangle::new()
+        .set("x", 10)
+        .set("y", 10)
+        .set("width", 580)
+        .set("height", 580)
+        .set("fill", "#F5F5F5")
+        .set("stroke", "black")
+        .set("stroke-width", 3)
+    );
+
+    // グラフのx, y罫線を描画
+
+    // 線分の描画
+
+    // 交点の描画
+
 }
 
 fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
