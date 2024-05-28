@@ -1,9 +1,21 @@
-use svg::node::element::Rectangle;
-use svg::Document;
 use super::common::{Line, Point};
+use svg::node::element::Line as SvgLine;
+use svg::node::element::Rectangle as SvgRectangle;
+use svg::Document;
 
 pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
     vec![]
+}
+
+pub fn print_line_info(lines: &Vec<Line>) {
+    eprintln!("| no | start | end |");
+    eprintln!("| :---- | :---- | :---- |");
+    for i in 0..lines.len() {
+        let line = &lines[i];
+        let p1 = line.get_strat_point();
+        let p2 = line.get_end_point();
+        eprintln!("| {} | {:?} | {:?} |", i + 1, p1, p2);
+    }
 }
 
 /**
@@ -11,30 +23,95 @@ pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
  * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
  */
 pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
+    let svg_size = 600i64;
+    let n = 20i64;
+    let margin = 10i64;
+    let line_color = "#121212";
     let mut svg = Document::new()
-    .set("viewbox", (0, 0, 600, 600))
-    .set("width", 600)
-    .set("height", 600)
-    .set("style", "background-color: #F2F3F5");
+        .set(
+            "viewBox",
+            (
+                -margin,
+                -margin,
+                (svg_size + 2 * margin) as usize,
+                (svg_size + 2 * margin) as usize,
+            ),
+        )
+        .set("width", (svg_size + margin) as usize)
+        .set("height", (svg_size + margin) as usize)
+        .set("style", "background-color:#F2F3F5");
 
     // グラフの外枠
     svg = svg.add(
-        Rectangle::new()
-        .set("x", 10)
-        .set("y", 10)
-        .set("width", 580)
-        .set("height", 580)
-        .set("fill", "#F5F5F5")
-        .set("stroke", "black")
-        .set("stroke-width", 3)
+        SvgRectangle::new()
+            .set("x", 10)
+            .set("y", 10)
+            .set("width", 580)
+            .set("height", 580)
+            .set("fill", "#F5F5F5")
+            .set("stroke", line_color)
+            .set("stroke-width", 3),
     );
 
     // グラフのx, y罫線を描画
+    svg = svg.add(get_svg_line(300, 20, 300, 580, line_color));
+    svg = svg.add(get_svg_line(20, 300, 580, 300, line_color));
 
     // 線分の描画
+    // 線分の最小最大からx, yの範囲を求める
+    let max_range = lines
+        .iter()
+        .map(|line| {
+            vec![
+                line.p1.x.abs(),
+                line.p1.y.abs(),
+                line.p2.x.abs(),
+                line.p2.y.abs(),
+            ]
+        })
+        .flatten()
+        .fold(0.0f64, |m, v| m.max(v));
+    let graph_unit = (svg_size - (margin * 3 * 2)) as f64 / (max_range * 2.0);
+    let change_coordinate =
+        |x: f64, y: f64, range: f64, graph_unit: f64, margin: usize| -> (usize, usize) {
+            let x = x + range;
+            let y = if y > 0.0 {
+                (y - range).abs()
+            } else {
+                y.abs() + range
+            };
+            (
+                (x * graph_unit) as usize + margin,
+                (y * graph_unit) as usize + margin,
+            )
+        };
+    let graph_margin = (margin * 3) as usize;
+    eprintln!("graph unit: {}, shape range: {}", graph_unit, max_range);
+    for i in 0..lines.len() {
+        let line = &lines[i];
+        let (x1, y1) = change_coordinate(line.p1.x, line.p1.y, max_range, graph_unit, graph_margin);
+        let (x2, y2) = change_coordinate(line.p2.x, line.p2.y, max_range, graph_unit, graph_margin);
+        eprintln!(
+            "{}: {:?}, {:?} exchanged ({}, {}) to ({}, {})",
+            i, line.p1, line.p2, x1, y1, x2, y2
+        );
+        svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
+    }
 
-    // 交点の描画
+    // TODO 交点の描画
 
+    svg.to_string()
+}
+
+fn get_svg_line(x1: usize, y1: usize, x2: usize, y2: usize, line_color: &str) -> SvgLine {
+    SvgLine::new()
+        .set("x1", x1)
+        .set("y1", y1)
+        .set("x2", x2)
+        .set("y2", y2)
+        .set("stroke", line_color)
+        .set("stroke-width", 3)
+        .set("stroke-linecap", "round")
 }
 
 fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {

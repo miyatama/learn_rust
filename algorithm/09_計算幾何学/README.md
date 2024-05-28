@@ -220,3 +220,7 @@ t4 = l_2.a * l_1.x_2 + l_2.b * l_1.y_2 + l_2.c \\
 
 (t1 \geqq 0 \cap t2 \leqq 0) \cup (t1 \leqq 0 \cap t2 \geqq 0))
 ```
+
+元データ
+
+![元データ](./line_sweep_result_01.svg)
