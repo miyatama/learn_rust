@@ -1,21 +1,53 @@
 use super::common::{Line, Point};
+use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
 use svg::Document;
 
 pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
-    vec![]
+    let mut cross_points: Vec<Point> = Vec::new();
+    for i in 0..(lines.len() - 1) {
+        for j in i..lines.len() {
+            match get_cross_point(&lines[i], &lines[j]) {
+                None => {}
+                Some(point) => {
+                    cross_points.push(point.clone());
+                }
+            }
+        }
+    }
+    cross_points
 }
 
 pub fn print_line_info(lines: &Vec<Line>) {
+    eprintln!("lines \n");
     eprintln!("| no | start | end |");
     eprintln!("| :---- | :---- | :---- |");
     for i in 0..lines.len() {
         let line = &lines[i];
         let p1 = line.get_strat_point();
         let p2 = line.get_end_point();
-        eprintln!("| {} | {:?} | {:?} |", i + 1, p1, p2);
+        eprintln!(
+            "| {} | ({}, {}) | ({}, {}) |",
+            i + 1,
+            p1.x,
+            p1.y,
+            p2.x,
+            p2.y
+        );
     }
+    eprintln!("\n");
+}
+
+pub fn print_cross_point_info(points: &Vec<Point>) {
+    eprintln!("cross point\n");
+    eprintln!("| no | x | y |");
+    eprintln!("| :---- | :---- | :---- |");
+    for i in 0..points.len() {
+        let point = &points[i];
+        eprintln!("| {} | {} | {} |", i + 1, point.x, point.y);
+    }
+    eprintln!("\n");
 }
 
 /**
@@ -27,6 +59,7 @@ pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
     let n = 20i64;
     let margin = 10i64;
     let line_color = "#121212";
+    let point_color = "#fc1212";
     let mut svg = Document::new()
         .set(
             "viewBox",
@@ -91,14 +124,14 @@ pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
         let line = &lines[i];
         let (x1, y1) = change_coordinate(line.p1.x, line.p1.y, max_range, graph_unit, graph_margin);
         let (x2, y2) = change_coordinate(line.p2.x, line.p2.y, max_range, graph_unit, graph_margin);
-        eprintln!(
-            "{}: {:?}, {:?} exchanged ({}, {}) to ({}, {})",
-            i, line.p1, line.p2, x1, y1, x2, y2
-        );
         svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
     }
 
-    // TODO 交点の描画
+    for i in 0..cross_points.len() {
+        let point = &cross_points[i];
+        let (x, y) = change_coordinate(point.x, point.y, max_range, graph_unit, graph_margin);
+        svg = svg.add(get_svg_circle(x, y, point_color));
+    }
 
     svg.to_string()
 }
@@ -112,6 +145,14 @@ fn get_svg_line(x1: usize, y1: usize, x2: usize, y2: usize, line_color: &str) ->
         .set("stroke", line_color)
         .set("stroke-width", 3)
         .set("stroke-linecap", "round")
+}
+
+fn get_svg_circle(x: usize, y: usize, color: &str) -> SvgCircle {
+    SvgCircle::new()
+        .set("cx", x)
+        .set("cy", y)
+        .set("r", 3)
+        .set("fill", color)
 }
 
 fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
@@ -153,6 +194,11 @@ fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
         let y = (l2_factor.0 * l1_factor.2 - l1_factor.0 * l2_factor.2)
             / (l1_factor.0 * l2_factor.1 - l2_factor.0 * l1_factor.1);
 
+        // TODO NANになるケースの原因調査
+        if x.is_nan() || y.is_nan() {
+            eprintln!("cross point calc error: l1: {:?}, l2: {:?}", l1, l2);
+            return None;
+        }
         Some(Point { x: x, y: y })
     } else {
         None

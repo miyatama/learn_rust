@@ -224,3 +224,7 @@ t4 = l_2.a * l_1.x_2 + l_2.b * l_1.y_2 + l_2.c \\
 元データ
 
 ![元データ](./line_sweep_result_01.svg)
+
+交点の抽出
+
+![交点の抽出](./line_sweep_result_02.svg)
