@@ -7,7 +7,7 @@ use svg::Document;
 pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
     let mut cross_points: Vec<Point> = Vec::new();
     for i in 0..(lines.len() - 1) {
-        for j in i..lines.len() {
+        for j in (i + 1)..lines.len() {
             match get_cross_point(&lines[i], &lines[j]) {
                 None => {}
                 Some(point) => {
@@ -161,6 +161,11 @@ fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
     let l2_p1 = l2.get_strat_point();
     let l2_p2 = l2.get_end_point();
 
+    // まったく同じ線分のばあいはL2の先頭ポイントを返す
+    if l1_p1.x == l2_p1.x && l1_p1.y == l2_p1.y && l1_p2.x == l2_p2.x && l1_p2.y == l2_p2.y {
+        return Some(l2.p1.clone());
+    }
+
     // 2つの線分でX or Yが共通の場合はL2の先頭ポイントを返す
     if l1_p1.x == l1_p2.x && l1_p1.x == l2_p1.x && l2_p1.x == l2_p2.x {
         if l1_p2.y < l2_p1.y {
@@ -197,6 +202,9 @@ fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
         // TODO NANになるケースの原因調査
         if x.is_nan() || y.is_nan() {
             eprintln!("cross point calc error: l1: {:?}, l2: {:?}", l1, l2);
+            eprintln!("  ts: {}, {}, {}, {}", t1, t2, t3, t4);
+            eprintln!("  x: {}, y: {:?}", x, y);
+            eprintln!("  l1 factor: {:?}, l2 factor: {:?}", l1_factor, l2_factor);
             return None;
         }
         Some(Point { x: x, y: y })
@@ -381,6 +389,36 @@ mod tests {
         };
         let actual = get_cross_point(&l1, &l2);
         let expect = None;
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_cross_point_12() {
+        let l1 = Line {
+            p1: Point { x: -2.0, y: -2.0 },
+            p2: Point { x: 5.0, y: -4.0 },
+        };
+        let l2 = Line {
+            p1: Point { x: -2.0, y: -2.0 },
+            p2: Point { x: 5.0, y: -4.0 },
+        };
+        let actual = get_cross_point(&l1, &l2);
+        let expect = Some(Point { x: -2.0, y: -2.0 });
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_cross_point_13() {
+        let l1 = Line {
+            p1: Point { x: -2.0, y: -2.0 },
+            p2: Point { x: -2.0, y: -4.0 },
+        };
+        let l2 = Line {
+            p1: Point { x: -2.0, y: -2.5 },
+            p2: Point { x: -2.0, y: -3.5 },
+        };
+        let actual = get_cross_point(&l1, &l2);
+        let expect = Some(Point { x: -2.0, y: -2.5 });
         assert_eq!(expect, actual);
     }
 }
