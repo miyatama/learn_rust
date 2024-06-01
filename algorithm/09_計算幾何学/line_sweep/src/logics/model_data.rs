@@ -1,4 +1,4 @@
-use super::common::{self, Line, Point};
+use super::common::{Line, Point};
 use rand::Rng;
 
 pub fn sample_data() -> Vec<Line> {

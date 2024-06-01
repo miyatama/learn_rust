@@ -11,7 +11,10 @@ fn main() {
     let result = line_sweeper::create_svg(&lines, &cross_points);
     eprintln!("{}", result);
 
-    // let lines = model_data::sample_data_with_noise(20);
-    // let cross_points = line_sweeper::brute_force(&lines);
-    // graph_pinter::print(&lines, &cross_points);
+    let lines = model_data::sample_data_with_noise(20);
+    let cross_points = line_sweeper::brute_force(&lines);
+    let result = line_sweeper::create_svg(&lines, &cross_points);
+    let cross_points = line_sweeper::intersection(&lines);
+    let result = line_sweeper::create_svg(&lines, &cross_points);
+    eprintln!("{}", result);
 }

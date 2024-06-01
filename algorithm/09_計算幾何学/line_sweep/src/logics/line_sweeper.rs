@@ -1,4 +1,6 @@
 use super::common::{Line, Point};
+use std::cmp::Ordering;
+use std::collections::{BinaryHeap, VecDeque};
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
@@ -19,13 +21,164 @@ pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
     cross_points
 }
 
+pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
+    let mut lines = lines.clone();
+    lines.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let mut queue: Vec<Point> = Vec::new();
+
+    let get_queue = |point: &Point, queue: &Vec<Point>| -> Option<usize> {
+        for i in 0..queue.len() {
+            let queue_point = &queue[i];
+
+            if queue_point.x == point.x && queue_point.y == point.y {
+                return Some(i);
+            }
+        }
+        None
+    };
+
+    for i in 0..lines.len() {
+        let line = &lines[i];
+        let points = vec![line.get_start_point(), line.get_end_point()];
+        for j in 0..points.len() {
+            let point = &points[j];
+            match get_queue(&point, &queue) {
+                None => {
+                    if j == 0 {
+                        queue.push(point.clone());
+                    } else {
+                        queue.push(point.clone());
+                    }
+                }
+                Some(_) => {}
+            }
+        }
+    }
+
+    let mut queue: VecDeque<Point> = VecDeque::from(queue);
+    let push_queue = |point: &Point, quque: &VecDeque<Point>| -> VecDeque<Point> {
+        let mut vec = queue.into_iter().collect::<Vec<Point>>();
+        vec.push(point.clone());
+        vec.sort_by(|a, b| {
+            a.y.partial_cmp(b.y)
+                .unwrap()
+                .then_with(|| self_p1.x.partial_cmp(&other_p1.x).unwrap())
+        });
+        VecDeque::from(vec)
+    };
+    // 一番上の位置に関連する線分を保持する
+    let mut current_lines: Vec<Line> = Vec::new();
+    let mut retain_lines: Vec<Line> = lines.clone();
+    let get_retain_index = |line: &Line, retains: &Vec<Line>| -> Option<usize> {
+        for i in 0..retains.len() {
+            if retains[i] == line {
+                return Some(i);
+            }
+        }
+        None
+    };
+    let top_y = lines[0].get_start_point().y;
+    current_lines.push(lines[0].clone());
+    for i in 1..lines.len() {
+        let line = &lines[i];
+        let point = line.get_start_point();
+        if top_y <= point.y {
+            current_lines.push(line.clone());
+if let Some(index) = get_retain_index(&line, &retain_lines) {
+    retain_lines.remove(index);
+
+}
+        } else {
+            break;
+        }
+    }
+    while let Some(line_state) = queue.pop() {
+        let left_neiber_line = get_left_neighbor_line(&current_lines, &line_stata.point);
+        let right_neiber_line = get_right_neighbor_line(&current_lines, &line_stata.point);
+        if left_neiber_line.is_some() && right_neiber_line.is_some() {
+            match get_cross_point(&left_neiber_line.unwrap(), &right_neiber_line.unwrap()) {
+                None => {}
+                Some(point) => {
+                    queue = push_queue(&point, &queue);
+                }
+            }
+        }
+        if let Some(next_line_state) = queue.front() {
+        // 開始する線分を追加
+        let mut remove_indexes: Vec<usize> = Vec::new();
+        for i in 0..retain_lines.len() {
+            let line = &retain_lines[i];
+            let p1 = line.get_start_point();
+            if p1.y >= next_line_state.y {
+current_lines.push(line.clone());
+remove_indexes.push(i);
+            }
+        }
+        for i in 0..remove_indexes.len() {
+            retain_lines.remove(remove_indexes[i]);
+        }
+
+        // 終了する線分を削除
+        let mut remove_indexes: Vec<usize> = Vec::new();
+        for i in 0..current_lines.len() {
+            let line = &current_lines[i];
+            let p2 = line.get_end_point();
+            if p2.y > next_line_state.y {
+remove_indexes.push(i);
+            }
+        }
+        for i in 0..remove_indexes.len() {
+            current_lines.remove(remove_indexes[i]);
+        }
+        }
+        for i in 0..lines.len() {
+            let line = &lines[i]
+        }
+    }
+    vec![]
+}
+
+fn get_left_neighbor_line(lines: &Vec<Line>, point: &Point) -> Option<Line> {
+    let mut neighbor_index: usize = 0;
+    let mut distance: f64 = f64::MAX;
+    for i in 0..lines.len() {
+        let x = lines[i].calc_x(point.y);
+        if point.x >= x && distance > (point.x - x) {
+            distance = point.x - x;
+            neighbor_index = i;
+        }
+    }
+
+    if min_distance >= f64::MAX {
+        return None;
+    }
+    Some(neighbor_index)
+}
+
+fn get_right_neighbor_line(lines: &Vec<Line>, point: &Point) -> Option<Line> {
+    let mut neighbor_index: usize = 0;
+    let mut distance: f64 = f64::MAX;
+    for i in 0..lines.len() {
+        let x = lines[i].calc_x(point.y);
+        if point.x < x && distance > (x - point.x) {
+            distance = x - point.x;
+            neighbor_index = i;
+        }
+    }
+
+    if min_distance >= f64::MAX {
+        return None;
+    }
+    Some(neighbor_index)
+}
+
 pub fn print_line_info(lines: &Vec<Line>) {
     eprintln!("lines \n");
     eprintln!("| no | start | end |");
     eprintln!("| :---- | :---- | :---- |");
     for i in 0..lines.len() {
         let line = &lines[i];
-        let p1 = line.get_strat_point();
+        let p1 = line.get_start_point();
         let p2 = line.get_end_point();
         eprintln!(
             "| {} | ({}, {}) | ({}, {}) |",
@@ -156,9 +309,9 @@ fn get_svg_circle(x: usize, y: usize, color: &str) -> SvgCircle {
 }
 
 fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
-    let l1_p1 = l1.get_strat_point();
+    let l1_p1 = l1.get_start_point();
     let l1_p2 = l1.get_end_point();
-    let l2_p1 = l2.get_strat_point();
+    let l2_p1 = l2.get_start_point();
     let l2_p2 = l2.get_end_point();
 
     // まったく同じ線分のばあいはL2の先頭ポイントを返す
@@ -214,7 +367,7 @@ fn get_cross_point(l1: &Line, l2: &Line) -> Option<Point> {
 }
 
 fn calc_line_factor(line: &Line) -> (f64, f64, f64) {
-    let p1 = line.get_strat_point();
+    let p1 = line.get_start_point();
     let p2 = line.get_end_point();
     let a = p2.y - p1.y;
     let b = p1.x - p2.x;

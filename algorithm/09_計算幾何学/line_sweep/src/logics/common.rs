@@ -32,19 +32,24 @@ pub struct Line {
 }
 
 impl PartialOrd for Line {
+    // 並び順はy降順、x昇順
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let self_p1 = self.get_start_point();
+        let other_p1 = other.get_start_point();
         Some(
-            self.p1
-                .partial_cmp(&other.p1)
+            self_p1
+                .y
+                .partial_cmp(&other_p1.y)
                 .unwrap()
-                .then_with(|| self.p2.partial_cmp(&other.p2).unwrap()),
+                .then_with(|| self_p1.x.partial_cmp(&other_p1.x).unwrap()),
         )
     }
 }
 
 impl Line {
-    pub fn get_strat_point(&self) -> Point {
-        if self.p1.partial_cmp(&self.p2).unwrap() == Ordering::Greater {
+    // yが大きい方を優先
+    pub fn get_start_point(&self) -> Point {
+        if self.p1.y.partial_cmp(&self.p2.y).unwrap() == Ordering::Greater {
             self.p2.clone()
         } else {
             self.p1.clone()
@@ -52,11 +57,26 @@ impl Line {
     }
 
     pub fn get_end_point(&self) -> Point {
-        if self.p1.partial_cmp(&self.p2).unwrap() == Ordering::Greater {
+        if self.p1.y.partial_cmp(&self.p2.y).unwrap() == Ordering::Greater {
             self.p1.clone()
         } else {
             self.p2.clone()
         }
+    }
+
+    pub fn get_factors(&self) -> (f64, f64, f64) {
+        let p1 = self.get_start_point();
+        let p2 = self.get_end_point();
+        let a = p2.y - p1.y;
+        let b = p1.x - p2.x;
+
+        let c = p1.y * (p2.x - p1.x) - p1.x * (p2.y - p1.y);
+        (a, b, c)
+    }
+
+    pub fn calc_x(&self, y: f64) -> f64 {
+        let factors = self.get_factors();
+        ((factors.1 * y) * -1.0 + factors.2 * -1.0) / factors.0
     }
 }
 
