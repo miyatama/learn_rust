@@ -335,7 +335,8 @@ eprintln!("max: {}, min: {}", max, min);
 | `Vec` | push() |
 | `HashSet` | insert(), contains() |
 | `HashMap` | insert(), get(), contains_key(), keys(), values() |
-| `VecDeque` | push_front(), push_back(), pop_front(), pop_back() |
+| `VecDeque` | push_front(), push_back(), pop_front(), pop_back(), `VecDeque::from(vec![])`, `VecDeque.iter().collect()` |
+| `BinaryHeap` | push(), pop(), `BinaryHeap::from(vec![])` |
 
 ### Uniq + Sum
 
