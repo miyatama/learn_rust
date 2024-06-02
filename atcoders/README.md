@@ -958,6 +958,20 @@ macro_rules! order_by_inner {
 
 </div></details>
 
+### RangeからVecへの変換
+
+<details><summary>Code</summary><div>
+
+```rust
+let mut vec: Vec<u64> = (1u64..(values[1])).collect();
+let center: Vec<u64> = (values[1]..=values[2]).rev().collect();
+let tail : Vec<u64> = ((values[2] + 1)..=values[0]).collect();
+vec.extend(center);
+vec.extend(tail);
+```
+
+</div></details>
+
 ## 図形
 
 ### 三角形の範囲内判定
