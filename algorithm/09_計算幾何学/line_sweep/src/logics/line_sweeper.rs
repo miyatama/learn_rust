@@ -1,10 +1,35 @@
 use super::common::{Line, Point};
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, VecDeque};
+use std::collections::VecDeque;
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
 use svg::Document;
+
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
+enum PointType {
+    LineStart,
+    LineEnd,
+    CrossPoint,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+struct SearchLine {
+    point_type: PointType,
+    point: Point,
+    lines: Vec<Line>,
+}
+
+impl PartialOrd for SearchLine {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(
+            self.point
+                .partial_cmp(&other.point)
+                .unwrap()
+                .then_with(|| self.point_type.partial_cmp(&other.point_type).unwrap()),
+        )
+    }
+}
 
 pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
     let mut cross_points: Vec<Point> = Vec::new();
@@ -24,152 +49,251 @@ pub fn brute_force(lines: &Vec<Line>) -> Vec<Point> {
 pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
     let mut lines = lines.clone();
     lines.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    let mut queue: Vec<Point> = Vec::new();
+    let mut queue: Vec<SearchLine> = Vec::new();
 
-    let get_queue = |point: &Point, queue: &Vec<Point>| -> Option<usize> {
-        for i in 0..queue.len() {
-            let queue_point = &queue[i];
-
-            if queue_point.x == point.x && queue_point.y == point.y {
-                return Some(i);
+    let get_queue = |point: &Point, queue: &Vec<SearchLine>| -> Option<SearchLine> {
+        for i in (0..queue.len()).rev() {
+            let search_line = &queue[i].clone();
+            if search_line.point_type == PointType::CrossPoint {
+                continue;
+            }
+            if search_line.point.x == point.x && search_line.point.y == point.y {
+                return Some(search_line.clone());
             }
         }
         None
     };
 
+    // 全ての開始・終了地点を求める
     for i in 0..lines.len() {
         let line = &lines[i];
         let points = vec![line.get_start_point(), line.get_end_point()];
         for j in 0..points.len() {
             let point = &points[j];
+            let point_type = if j == 0 {
+                PointType::LineStart
+            } else {
+                PointType::LineEnd
+            };
             match get_queue(&point, &queue) {
                 None => {
-                    if j == 0 {
-                        queue.push(point.clone());
-                    } else {
-                        queue.push(point.clone());
-                    }
+                    queue.push(SearchLine {
+                        point_type: point_type,
+                        point: point.clone(),
+                        lines: vec![line.clone()],
+                    });
                 }
-                Some(_) => {}
+                Some(search_line) => {
+                    let mut cross_lines = search_line.lines.clone();
+                    cross_lines.push(line.clone());
+                    // すでに存在する場合(始点or終点で交差が発生)
+                    queue.push(SearchLine {
+                        point_type: PointType::CrossPoint,
+                        point: point.clone(),
+                        lines: cross_lines,
+                    });
+                }
             }
         }
     }
 
-    let mut queue: VecDeque<Point> = VecDeque::from(queue);
-    let push_queue = |point: &Point, quque: &VecDeque<Point>| -> VecDeque<Point> {
-        let mut vec = queue.into_iter().collect::<Vec<Point>>();
-        vec.push(point.clone());
-        vec.sort_by(|a, b| {
-            a.y.partial_cmp(b.y)
-                .unwrap()
-                .then_with(|| self_p1.x.partial_cmp(&other_p1.x).unwrap())
+    eprintln!("線分の開始・終了を元にした基準点");
+    for i in 0..queue.len() {
+        eprintln!("[{}]: {:?} - ({}, {})", i, queue[i].point_type, queue[i].point.x, queue[i].point.y);
+
+    }
+
+    let mut queue: VecDeque<SearchLine> = VecDeque::from(queue);
+    let push_queue = |point_type: PointType,
+                      point: &Point,
+                      lines: &Vec<Line>,
+                      queue: &VecDeque<SearchLine>|
+     -> VecDeque<SearchLine> {
+        let mut vec = queue
+            .into_iter()
+            .map(|search_line| search_line.clone())
+            .collect::<Vec<SearchLine>>();
+        vec.push(SearchLine {
+            point_type: point_type,
+            point: point.clone(),
+            lines: lines.clone(),
         });
+        vec.sort_by(|a, b| a.partial_cmp(&b).unwrap());
         VecDeque::from(vec)
     };
     // 一番上の位置に関連する線分を保持する
     let mut current_lines: Vec<Line> = Vec::new();
-    let mut retain_lines: Vec<Line> = lines.clone();
-    let get_retain_index = |line: &Line, retains: &Vec<Line>| -> Option<usize> {
-        for i in 0..retains.len() {
-            if retains[i] == line {
+    let get_current_lines_index = |a: &Line, lines: &Vec<Line>| -> Option<usize> {
+        for i in 0..lines.len() {
+            let b = lines[i].clone();
+
+            if a.p1.x == b.p1.x && a.p1.y == b.p1.y && a.p2.x == b.p2.x && a.p2.y == b.p2.y {
                 return Some(i);
             }
         }
         None
     };
-    let top_y = lines[0].get_start_point().y;
-    current_lines.push(lines[0].clone());
-    for i in 1..lines.len() {
-        let line = &lines[i];
-        let point = line.get_start_point();
-        if top_y <= point.y {
-            current_lines.push(line.clone());
-if let Some(index) = get_retain_index(&line, &retain_lines) {
-    retain_lines.remove(index);
-
-}
-        } else {
-            break;
+    let get_current_line_insert_index = |base_y: f64, a: f64, lines: &Vec<Line>| -> Option<usize> {
+        for i in 0..lines.len() {
+            let b = lines[i].calc_x(base_y);
+            if a < b {
+                return Some(i);
+            }
         }
-    }
-    while let Some(line_state) = queue.pop() {
-        let left_neiber_line = get_left_neighbor_line(&current_lines, &line_stata.point);
-        let right_neiber_line = get_right_neighbor_line(&current_lines, &line_stata.point);
-        if left_neiber_line.is_some() && right_neiber_line.is_some() {
-            match get_cross_point(&left_neiber_line.unwrap(), &right_neiber_line.unwrap()) {
+        None
+    };
+    // 未登録の線分を保持する
+    let mut retain_lines: Vec<Line> = lines.clone();
+    let get_retain_index = |line: &Line, retains: &Vec<Line>| -> Option<usize> {
+        for i in 0..retains.len() {
+            if retains[i] == *line {
+                return Some(i);
+            }
+        }
+        None
+    };
+    let mut cross_points: Vec<Point> = Vec::new();
+    while let Some(line_state) = queue.pop_front() {
+        eprintln!("{:?} - ({}, {})", line_state.point_type, line_state.point.x, line_state.point.y);
+        let mut left_side_line_index: Option<usize> = None;
+        let mut right_side_line_index: Option<usize> = None;
+        match line_state.point_type {
+            PointType::LineStart => {
+                // 開始する線分を追加する
+                let mut add_indexes: Vec<usize> = Vec::new();
+                let mut remove_indexes: Vec<usize> = Vec::new();
+                for i in 0..line_state.lines.len() {
+                    let line = &line_state.lines[i].clone();
+                    let p1 = line.get_start_point();
+                    match get_current_line_insert_index(p1.y, p1.x, &current_lines) {
+                        Some(index) => {
+                            current_lines.insert(i, line.clone());
+                            if let Some(remove_index) = get_retain_index(&line, &retain_lines) {
+                                remove_indexes.push(remove_index);
+                            }
+                            add_indexes.push(index);
+                        }
+                        None => {
+                            current_lines.push(line.clone());
+                            add_indexes.push(current_lines.len() - 1);
+                        }
+                    }
+                }
+                for i in 0..remove_indexes.len() {
+                    retain_lines.remove(remove_indexes[i]);
+                }
+                let min_index = add_indexes.iter().min().unwrap();
+                let max_index = add_indexes.iter().max().unwrap();
+                if *min_index != 0usize {
+                    left_side_line_index = Some(*min_index);
+                }
+                if *max_index != current_lines.len() - 1 {
+                    right_side_line_index = Some(*max_index);
+                }
+            }
+            PointType::LineEnd => {
+                // 終了する線分を削除
+                let mut remove_indexes = line_state
+                    .lines
+                    .iter()
+                    .map(|line| get_current_lines_index(line, &current_lines).unwrap())
+                    .collect::<Vec<usize>>();
+                for i in 0..remove_indexes.len() {
+                    current_lines.remove(remove_indexes[i]);
+                }
+                let min_index = remove_indexes.iter().min().unwrap();
+                let max_index = remove_indexes.iter().max().unwrap();
+                if *min_index > 0usize {
+                    right_side_line_index = Some(*min_index - 1);
+                }
+                if *max_index < current_lines.len() - 1 {
+                    left_side_line_index = Some(*max_index);
+                } else {
+                    left_side_line_index = Some(current_lines.len() - 1);
+                }
+            }
+            PointType::CrossPoint => {
+                // 交差による入れ替え
+                let calc_y = line_state.point.y + 1.0;
+                let mut sort_lines = line_state
+                    .lines
+                    .iter()
+                    .map(|line| (line.calc_x(calc_y), line.clone()))
+                    .collect::<Vec<(f64, Line)>>();
+                sort_lines.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+                let sort_lines = sort_lines
+                    .iter()
+                    .map(|(_, line)| line.clone())
+                    .collect::<Vec<Line>>();
+                let mut remove_indexes = line_state
+                    .lines
+                    .iter()
+                    .map(|line| get_current_lines_index(line, &current_lines).unwrap())
+                    .collect::<Vec<usize>>();
+                remove_indexes.sort_by(|a, b| b.partial_cmp(a).unwrap());
+                for i in 0..remove_indexes.len() {
+                    current_lines.remove(remove_indexes[i]);
+                }
+                let mut add_indexes: Vec<usize> = Vec::new();
+                for i in 0..sort_lines.len() {
+                    let line = &sort_lines[i].clone();
+                    let p1 = line.get_start_point();
+                    match get_current_line_insert_index(p1.y, p1.x, &current_lines) {
+                        Some(index) => {
+                            current_lines.insert(i, line.clone());
+                            add_indexes.push(index);
+                        }
+                        None => {
+                            current_lines.push(line.clone());
+                            add_indexes.push(current_lines.len() - 1);
+                        }
+                    }
+                }
+                let min_index = add_indexes.iter().min().unwrap();
+                let max_index = add_indexes.iter().max().unwrap();
+                if *min_index != 0 {
+                    left_side_line_index = Some(*min_index);
+                }
+                if *max_index != current_lines.len() - 1 {
+                    right_side_line_index = Some(*max_index);
+                }
+                cross_points.push(line_state.point.clone());
+            }
+        }
+
+        // 隣り合う線分の交差を追加
+        if let Some(left_side_line_index) = left_side_line_index {
+            let left_line1 = current_lines[left_side_line_index].clone();
+            let left_line2 = current_lines[left_side_line_index + 1].clone();
+            match get_cross_point(&left_line1, &left_line2) {
                 None => {}
                 Some(point) => {
-                    queue = push_queue(&point, &queue);
+                    queue = push_queue(
+                        PointType::CrossPoint,
+                        &point,
+                        &vec![left_line1.clone(), left_line2.clone()],
+                        &queue,
+                    );
                 }
             }
         }
-        if let Some(next_line_state) = queue.front() {
-        // 開始する線分を追加
-        let mut remove_indexes: Vec<usize> = Vec::new();
-        for i in 0..retain_lines.len() {
-            let line = &retain_lines[i];
-            let p1 = line.get_start_point();
-            if p1.y >= next_line_state.y {
-current_lines.push(line.clone());
-remove_indexes.push(i);
+        if let Some(right_side_line_index) = right_side_line_index {
+            let right_line1 = current_lines[right_side_line_index].clone();
+            let right_line2 = current_lines[right_side_line_index - 1].clone();
+            match get_cross_point(&right_line1, &right_line2) {
+                None => {}
+                Some(point) => {
+                    queue = push_queue(
+                        PointType::CrossPoint,
+                        &point,
+                        &vec![right_line1.clone(), right_line2.clone()],
+                        &queue,
+                    );
+                }
             }
         }
-        for i in 0..remove_indexes.len() {
-            retain_lines.remove(remove_indexes[i]);
-        }
-
-        // 終了する線分を削除
-        let mut remove_indexes: Vec<usize> = Vec::new();
-        for i in 0..current_lines.len() {
-            let line = &current_lines[i];
-            let p2 = line.get_end_point();
-            if p2.y > next_line_state.y {
-remove_indexes.push(i);
-            }
-        }
-        for i in 0..remove_indexes.len() {
-            current_lines.remove(remove_indexes[i]);
-        }
-        }
-        for i in 0..lines.len() {
-            let line = &lines[i]
-        }
     }
-    vec![]
-}
-
-fn get_left_neighbor_line(lines: &Vec<Line>, point: &Point) -> Option<Line> {
-    let mut neighbor_index: usize = 0;
-    let mut distance: f64 = f64::MAX;
-    for i in 0..lines.len() {
-        let x = lines[i].calc_x(point.y);
-        if point.x >= x && distance > (point.x - x) {
-            distance = point.x - x;
-            neighbor_index = i;
-        }
-    }
-
-    if min_distance >= f64::MAX {
-        return None;
-    }
-    Some(neighbor_index)
-}
-
-fn get_right_neighbor_line(lines: &Vec<Line>, point: &Point) -> Option<Line> {
-    let mut neighbor_index: usize = 0;
-    let mut distance: f64 = f64::MAX;
-    for i in 0..lines.len() {
-        let x = lines[i].calc_x(point.y);
-        if point.x < x && distance > (x - point.x) {
-            distance = x - point.x;
-            neighbor_index = i;
-        }
-    }
-
-    if min_distance >= f64::MAX {
-        return None;
-    }
-    Some(neighbor_index)
+    cross_points
 }
 
 pub fn print_line_info(lines: &Vec<Line>) {
@@ -573,5 +697,73 @@ mod tests {
         let actual = get_cross_point(&l1, &l2);
         let expect = Some(Point { x: -2.0, y: -2.5 });
         assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_intersection_01() {
+        // 開始点のテスト
+        // 開始点重複なし
+        let lines = vec![
+            Line {
+                p1: Point { x: -5.0, y: 5.0 },
+                p2: Point { x: -1.0, y: 1.0 },
+            },
+            Line {
+                p1: Point { x: -5.0, y: 4.0 },
+                p2: Point { x: -5.0, y: 1.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![];
+        assert_eq!(actual, expect);
+
+        // 開始点重複
+        let lines = vec![
+            Line {
+                p1: Point { x: -5.0, y: 5.0 },
+                p2: Point { x: -1.0, y: 1.0 },
+            },
+            Line {
+                p1: Point { x: -5.0, y: 5.0 },
+                p2: Point { x: -5.0, y: 1.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![Point { x: -5.0, y: 5.0 }];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_intersection_02() {
+        // 終点のテスト
+        // 重複なし
+        let lines = vec![
+            Line {
+                p1: Point { x: 1.0, y: -1.0 },
+                p2: Point { x: 5.0, y: -5.0 },
+            },
+            Line {
+                p1: Point { x: 5.0, y: -1.0 },
+                p2: Point { x: 5.0, y: -4.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![];
+        assert_eq!(actual, expect);
+
+        // 重複
+        let lines = vec![
+            Line {
+                p1: Point { x: 1.0, y: -1.0 },
+                p2: Point { x: 5.0, y: -5.0 },
+            },
+            Line {
+                p1: Point { x: 5.0, y: -1.0 },
+                p2: Point { x: 5.0, y: -5.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![Point { x: 5.0, y: -5.0 }];
+        assert_eq!(actual, expect);
     }
 }
