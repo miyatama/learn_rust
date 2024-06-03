@@ -16,10 +16,10 @@ pub struct Point {
 impl PartialOrd for Point {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(
-            self.x
-                .partial_cmp(&other.x)
+            self.y
+                .partial_cmp(&other.y)
                 .unwrap()
-                .then_with(|| self.y.partial_cmp(&other.y).unwrap()),
+                .then_with(|| self.x.partial_cmp(&other.x).unwrap()),
         )
     }
 }
@@ -49,18 +49,26 @@ impl PartialOrd for Line {
 impl Line {
     // yが大きい方を優先
     pub fn get_start_point(&self) -> Point {
-        if self.p1.y.partial_cmp(&self.p2.y).unwrap() == Ordering::Greater {
-            self.p2.clone()
-        } else {
-            self.p1.clone()
+        match (
+            self.p1.y.partial_cmp(&self.p2.y).unwrap(),
+            self.p1.x.partial_cmp(&self.p2.x).unwrap(),
+        ) {
+            (Ordering::Less, _) => self.p1.clone(),
+            (Ordering::Greater, _) => self.p2.clone(),
+            (_, Ordering::Less) => self.p1.clone(),
+            _ => self.p2.clone(),
         }
     }
 
     pub fn get_end_point(&self) -> Point {
-        if self.p1.y.partial_cmp(&self.p2.y).unwrap() == Ordering::Greater {
-            self.p1.clone()
-        } else {
-            self.p2.clone()
+        match (
+            self.p1.y.partial_cmp(&self.p2.y).unwrap(),
+            self.p1.x.partial_cmp(&self.p2.x).unwrap(),
+        ) {
+            (Ordering::Greater, _) => self.p1.clone(),
+            (Ordering::Less, _) => self.p2.clone(),
+            (_, Ordering::Greater) => self.p1.clone(),
+            _ => self.p2.clone(),
         }
     }
 
@@ -138,6 +146,7 @@ mod tests {
     #[test]
     fn test_points_sort_01() {
         let mut points = vec![
+            Point { x: 50.0, y: 100.0 },
             Point { x: 100.0, y: 100.0 },
             Point { x: 100.0, y: 80.0 },
             Point { x: 20.0, y: 20.0 },
@@ -152,6 +161,7 @@ mod tests {
             Point { x: 20.0, y: 10.0 },
             Point { x: 20.0, y: 20.0 },
             Point { x: 100.0, y: 80.0 },
+            Point { x: 50.0, y: 100.0 },
             Point { x: 100.0, y: 100.0 },
         ];
         assert_eq!(expect, points);
