@@ -127,7 +127,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         );
         let lines = &queue[i].lines;
         for j in 0..lines.len() {
-          eprintln!("  line[{}]: {:?}", j, lines[j]);
+            eprintln!("  line[{}]: {:?}", j, lines[j]);
         }
     }
 
@@ -148,6 +148,16 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         });
         vec.sort_by(|a, b| a.partial_cmp(&b).unwrap());
         VecDeque::from(vec)
+    };
+    let print_current_lines_xs = |y: &f64, lines: &Vec<Line>| {
+        eprintln!(
+            "  xs: {:?}",
+            lines
+                .iter()
+                .map(|line| line.calc_x(*y).to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        );
     };
     // 一番上の位置に関連する線分を保持する
     let mut current_lines: Vec<Line> = Vec::new();
@@ -182,10 +192,9 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
     };
     let mut cross_points: Vec<Point> = Vec::new();
     while let Some(line_state) = queue.pop_front() {
-        eprintln!(
-            "process queue: {:?} - ({}, {})",
-            line_state.point_type, line_state.point.x, line_state.point.y
-        );
+        eprintln!("process queue: {:?}", line_state.point_type,);
+        eprintln!("  ({}, {})", line_state.point.x, line_state.point.y);
+        print_current_lines_xs(&line_state.point.y, &current_lines);
         let mut left_side_line_index: Option<usize> = None;
         let mut right_side_line_index: Option<usize> = None;
         match line_state.point_type {
@@ -235,7 +244,10 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
                 }
                 let min_index = remove_indexes.iter().min().unwrap();
                 let max_index = remove_indexes.iter().max().unwrap();
-                if *min_index > 0 && current_lines.len() >= 2 && *min_index < (current_lines.len() - 1) {
+                if *min_index > 0
+                    && current_lines.len() >= 2
+                    && *min_index < (current_lines.len() - 1)
+                {
                     right_side_line_index = Some(*min_index - 1);
                 }
             }
@@ -295,7 +307,6 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
                 }
                 _ => {}
             }
-
         }
     }
     eprintln!("cross point len: {}", cross_points.len());
@@ -790,6 +801,31 @@ mod tests {
         ];
         let actual = intersection(&lines);
         let expect = vec![Point { x: 5.0, y: -5.0 }];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_intersection_05() {
+        let lines = vec![
+            Line {
+                p1: Point { x: 1.0, y: -4.0 },
+                p2: Point { x: -5.0, y: 2.0 },
+            },
+            Line {
+                p1: Point { x: -6.5, y: -2.3 },
+                p2: Point { x: -3.1, y: 1.1 },
+            },
+            Line {
+                p1: Point { x: -4.2, y: -3.3 },
+                p2: Point { x: -2.2, y: -1.3 },
+            },
+            Line {
+                p1: Point { x: -2.0, y: -3.0 },
+                p2: Point { x: -4.0, y: -1.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![Point { x: -3.0, y: -2.0 }, Point { x: -3.5, y: 1.8 }];
         assert_eq!(actual, expect);
     }
 }
