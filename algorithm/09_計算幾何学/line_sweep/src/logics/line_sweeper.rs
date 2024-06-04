@@ -127,7 +127,10 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         );
         let lines = &queue[i].lines;
         for j in 0..lines.len() {
-            eprintln!("  line[{}]: {:?}", j, lines[j]);
+            eprintln!(
+                "  line[{}]: id: {}, ({}, {}), ({}, {})",
+                j, lines[j].id, lines[j].p1.x, lines[j].p1.y, lines[j].p2.x, lines[j].p2.y
+            );
         }
     }
 
@@ -149,12 +152,12 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         vec.sort_by(|a, b| a.partial_cmp(&b).unwrap());
         VecDeque::from(vec)
     };
-    let print_current_lines_xs = |y: &f64, lines: &Vec<Line>| {
+    let print_current_lines = |lines: &Vec<Line>| {
         eprintln!(
-            "  xs: {:?}",
+            "  current lines: {:?}",
             lines
                 .iter()
-                .map(|line| line.calc_x(*y).to_string())
+                .map(|line| line.id.to_string())
                 .collect::<Vec<String>>()
                 .join(", ")
         );
@@ -192,9 +195,11 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
     };
     let mut cross_points: Vec<Point> = Vec::new();
     while let Some(line_state) = queue.pop_front() {
-        eprintln!("process queue: {:?}", line_state.point_type,);
-        eprintln!("  ({}, {})", line_state.point.x, line_state.point.y);
-        print_current_lines_xs(&line_state.point.y, &current_lines);
+        eprintln!(
+            "process queue: {:?}, ({}, {})",
+            line_state.point_type, line_state.point.x, line_state.point.y
+        );
+        print_current_lines(&current_lines);
         let mut left_side_line_index: Option<usize> = None;
         let mut right_side_line_index: Option<usize> = None;
         match line_state.point_type {
@@ -207,7 +212,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
                     let p1 = line.get_start_point();
                     match get_current_line_insert_index(p1.y, p1.x, &current_lines) {
                         Some(index) => {
-                            current_lines.insert(i, line.clone());
+                            current_lines.insert(index, line.clone());
                             if let Some(remove_index) = get_retain_index(&line, &retain_lines) {
                                 remove_indexes.push(remove_index);
                             }
@@ -243,12 +248,11 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
                     current_lines.remove(remove_indexes[i]);
                 }
                 let min_index = remove_indexes.iter().min().unwrap();
-                let max_index = remove_indexes.iter().max().unwrap();
-                if *min_index > 0
-                    && current_lines.len() >= 2
-                    && *min_index < (current_lines.len() - 1)
-                {
+                eprintln!("  removed min index: {}", *min_index);
+
+                if current_lines.len() >= 2 && *min_index > 0 && *min_index < current_lines.len() {
                     right_side_line_index = Some(*min_index - 1);
+                    eprintln!("  cross check index: {}", *min_index - 1);
                 }
             }
             PointType::CrossPoint => {
@@ -298,6 +302,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
             match get_cross_point(&line1, &line2) {
                 None => {}
                 Some(point) if point.y > line_state.point.y => {
+                    eprintln!("  new cross point: ({}, {})", point.x, point.y);
                     queue = push_queue(
                         PointType::CrossPoint,
                         &point,
@@ -308,6 +313,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
                 _ => {}
             }
         }
+        print_current_lines(&current_lines);
     }
     eprintln!("cross point len: {}", cross_points.len());
     // 重複点を削除
@@ -536,10 +542,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_01() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 100.0, y: 100.0 },
             p2: Point { x: 100.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 50.0 },
             p2: Point { x: 150.0, y: 50.0 },
         };
@@ -551,10 +559,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_02() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 100.0, y: 100.0 },
             p2: Point { x: 100.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 100.1 },
             p2: Point { x: 150.0, y: 100.1 },
         };
@@ -566,10 +576,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_03() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 100.0, y: 100.0 },
             p2: Point { x: 100.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 100.0 },
             p2: Point { x: 150.0, y: 100.0 },
         };
@@ -581,10 +593,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_04() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 100.0, y: 100.0 },
             p2: Point { x: 100.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 0.0 },
             p2: Point { x: 150.0, y: 0.0 },
         };
@@ -596,10 +610,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_05() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 50.0, y: 100.0 },
             p2: Point { x: 50.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 50.0 },
             p2: Point { x: 150.0, y: 50.0 },
         };
@@ -611,10 +627,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_06() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 150.0, y: 100.0 },
             p2: Point { x: 150.0, y: 0.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 50.0, y: 50.0 },
             p2: Point { x: 150.0, y: 50.0 },
         };
@@ -626,10 +644,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_07() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: 0.0, y: 0.0 },
             p2: Point { x: 10.0, y: 10.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 8.0, y: 1.0 },
             p2: Point { x: 9.0, y: 0.0 },
         };
@@ -641,10 +661,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_08() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -3.0, y: 4.0 },
             p2: Point { x: -3.0, y: -3.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: -3.0, y: 3.0 },
             p2: Point { x: -3.0, y: -5.0 },
         };
@@ -656,10 +678,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_09() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -1.0, y: 2.0 },
             p2: Point { x: 2.0, y: 2.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 0.0, y: 2.0 },
             p2: Point { x: 5.0, y: 2.0 },
         };
@@ -671,10 +695,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_10() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -6.0, y: 4.0 },
             p2: Point { x: 1.0, y: 4.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: 2.0, y: 4.0 },
             p2: Point { x: 4.0, y: 4.0 },
         };
@@ -686,10 +712,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_11() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -2.0, y: -2.0 },
             p2: Point { x: -2.0, y: -4.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: -2.0, y: 3.0 },
             p2: Point { x: -2.0, y: 1.0 },
         };
@@ -701,10 +729,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_12() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -2.0, y: -2.0 },
             p2: Point { x: 5.0, y: -4.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: -2.0, y: -2.0 },
             p2: Point { x: 5.0, y: -4.0 },
         };
@@ -716,10 +746,12 @@ mod tests {
     #[test]
     fn test_get_cross_point_13() {
         let l1 = Line {
+            id: 1,
             p1: Point { x: -2.0, y: -2.0 },
             p2: Point { x: -2.0, y: -4.0 },
         };
         let l2 = Line {
+            id: 2,
             p1: Point { x: -2.0, y: -2.5 },
             p2: Point { x: -2.0, y: -3.5 },
         };
@@ -734,10 +766,12 @@ mod tests {
         // 開始点重複なし
         let lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: -5.0, y: 5.0 },
                 p2: Point { x: -1.0, y: 1.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: -5.0, y: 4.0 },
                 p2: Point { x: -5.0, y: 1.0 },
             },
@@ -753,10 +787,12 @@ mod tests {
         // 開始点重複
         let lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: -5.0, y: 5.0 },
                 p2: Point { x: -1.0, y: 1.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: -5.0, y: 5.0 },
                 p2: Point { x: -5.0, y: 1.0 },
             },
@@ -772,10 +808,12 @@ mod tests {
         // 重複なし
         let lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: 1.0, y: -1.0 },
                 p2: Point { x: 5.0, y: -5.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: 5.0, y: -1.0 },
                 p2: Point { x: 5.0, y: -4.0 },
             },
@@ -791,10 +829,12 @@ mod tests {
         // 重複
         let lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: 1.0, y: -1.0 },
                 p2: Point { x: 5.0, y: -5.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: 5.0, y: -1.0 },
                 p2: Point { x: 5.0, y: -5.0 },
             },
@@ -808,24 +848,38 @@ mod tests {
     fn test_intersection_05() {
         let lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: 1.0, y: -4.0 },
                 p2: Point { x: -5.0, y: 2.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: -6.5, y: -2.3 },
                 p2: Point { x: -3.1, y: 1.1 },
             },
             Line {
+                id: 3,
                 p1: Point { x: -4.2, y: -3.3 },
                 p2: Point { x: -2.2, y: -1.3 },
             },
             Line {
+                id: 4,
                 p1: Point { x: -2.0, y: -3.0 },
                 p2: Point { x: -4.0, y: -1.0 },
             },
         ];
         let actual = intersection(&lines);
-        let expect = vec![Point { x: -3.0, y: -2.0 }, Point { x: -3.5, y: 1.8 }];
+        let expect = vec![
+            Point {
+                x: -2.9499999999999997,
+                y: -2.05,
+            },
+            Point {
+                x: -3.5999999999999996,
+                y: 0.5999999999999996,
+            },
+        ];
+
         assert_eq!(actual, expect);
     }
 }

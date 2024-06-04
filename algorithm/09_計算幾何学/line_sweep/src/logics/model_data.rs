@@ -4,26 +4,32 @@ use rand::Rng;
 pub fn sample_data() -> Vec<Line> {
     vec![
         Line {
+            id: 1,
             p1: Point { x: -5.1, y: 5.1 },
             p2: Point { x: -5.5, y: -5.2 },
         },
         Line {
+            id: 2,
             p1: Point { x: -4.0, y: 7.0 },
             p2: Point { x: -4.0, y: 3.0 },
         },
         Line {
+            id: 3,
             p1: Point { x: -1.0, y: 9.0 },
             p2: Point { x: -9.0, y: 1.0 },
         },
         Line {
+            id: 4,
             p1: Point { x: -7.0, y: 1.5 },
             p2: Point { x: 3.0, y: -4.0 },
         },
         Line {
+            id: 5,
             p1: Point { x: -1.0, y: -6.0 },
             p2: Point { x: 5.5, y: 2.0 },
         },
         Line {
+            id: 6,
             p1: Point { x: 7.0, y: 7.0 },
             p2: Point { x: 7.0, y: 3.0 },
         },
@@ -60,12 +66,15 @@ pub fn sample_data_with_noise(noise_count: u32) -> Vec<Line> {
             y: point_y,
         });
     }
+    let mut id = normal_data.iter().map(|line| line.id).max().unwrap() + 1;
     let mut noises: Vec<Line> = Vec::new();
     for i in (0..points.len()).step_by(2) {
         noises.push(Line {
+            id: id,
             p1: points[i].clone(),
             p2: points[i + 1].clone(),
         });
+        id += 1;
     }
 
     noises.extend(normal_data);

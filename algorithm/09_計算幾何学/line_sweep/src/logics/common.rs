@@ -27,6 +27,7 @@ impl PartialOrd for Point {
 // 線分
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
+    pub id: u32,
     pub p1: Point,
     pub p2: Point,
 }
@@ -171,18 +172,22 @@ mod tests {
     fn test_line_sort_01() {
         let mut lines = vec![
             Line {
+                id: 1,
                 p1: Point { x: 5.0, y: 5.0 },
                 p2: Point { x: 25.0, y: 5.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: 0.0, y: 5.0 },
                 p2: Point { x: 20.0, y: 5.0 },
             },
             Line {
+                id: 3,
                 p1: Point { x: -5.0, y: 10.0 },
                 p2: Point { x: -5.0, y: -5.0 },
             },
             Line {
+                id: 4,
                 p1: Point { x: -5.0, y: 20.0 },
                 p2: Point { x: -5.0, y: 2.0 },
             },
@@ -190,18 +195,22 @@ mod tests {
         lines.sort_by(|a, b| a.partial_cmp(b).unwrap());
         let expect = vec![
             Line {
+                id: 3,
                 p1: Point { x: -5.0, y: 10.0 },
                 p2: Point { x: -5.0, y: -5.0 },
             },
             Line {
+                id: 4,
                 p1: Point { x: -5.0, y: 20.0 },
                 p2: Point { x: -5.0, y: 2.0 },
             },
             Line {
+                id: 2,
                 p1: Point { x: 0.0, y: 5.0 },
                 p2: Point { x: 20.0, y: 5.0 },
             },
             Line {
+                id: 1,
                 p1: Point { x: 5.0, y: 5.0 },
                 p2: Point { x: 25.0, y: 5.0 },
             },
@@ -293,6 +302,54 @@ mod tests {
         ];
         let actual = cross_product_direction(&points[0], &points[1], &points[2]);
         let expect = CrossProductDirection::LeftRotate;
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_start_point_01() {
+        let line = Line {
+            id: 1,
+            p1: Point { x: 0.0, y: 0.0 },
+            p2: Point { x: 0.0, y: -1.0 },
+        };
+        let actual = line.get_start_point();
+        let expect = Point { x: 0.0, y: -1.0 };
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_start_point_02() {
+        let line = Line {
+            id: 1,
+            p1: Point { x: 0.0, y: 0.0 },
+            p2: Point { x: 1.0, y: 0.0 },
+        };
+        let actual = line.get_start_point();
+        let expect = Point { x: 0.0, y: 0.0 };
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_end_point_01() {
+        let line = Line {
+            id: 1,
+            p1: Point { x: 0.0, y: 0.0 },
+            p2: Point { x: 0.0, y: -1.0 },
+        };
+        let actual = line.get_end_point();
+        let expect = Point { x: 0.0, y: 0.0 };
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_get_end_point_02() {
+        let line = Line {
+            id: 1,
+            p1: Point { x: 0.0, y: 0.0 },
+            p2: Point { x: 1.0, y: 0.0 },
+        };
+        let actual = line.get_end_point();
+        let expect = Point { x: 1.0, y: 0.0 };
         assert_eq!(expect, actual);
     }
 }
