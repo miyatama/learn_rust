@@ -194,7 +194,13 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         None
     };
     let mut cross_points: Vec<Point> = Vec::new();
+    let mut max_loop_count = lines.len() * 2 + lines.len() * (lines.len() - 1);
     while let Some(line_state) = queue.pop_front() {
+        if max_loop_count <= 0 {
+            break;
+        }
+        max_loop_count -= 1;
+
         eprintln!(
             "process queue: {:?}, ({}, {})",
             line_state.point_type, line_state.point.x, line_state.point.y
@@ -316,6 +322,9 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         print_current_lines(&current_lines);
     }
     eprintln!("cross point len: {}", cross_points.len());
+    for i in 0..cross_points.len() {
+        eprintln!("[{}]: ({}, {})" , i, cross_points[i].x, cross_points[i].y);
+    }
     // 重複点を削除
     let mut after_duplicate_points: Vec<Point> = Vec::new();
     let mut already_point_x = f64::MAX;
@@ -880,6 +889,41 @@ mod tests {
             },
         ];
 
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_intersection_06() {
+        let lines = vec![
+            Line {
+                id: 1,
+                p1: Point { x: -8.0, y: -3.0 },
+                p2: Point { x: 4.0, y: 4.0 },
+            },
+            Line {
+                id: 2,
+                p1: Point { x: -6.0, y: 7.0 },
+                p2: Point { x: 6.0, y: 2.0 },
+            },
+            Line {
+                id: 3,
+                p1: Point { x: -5.0, y: 8.0 },
+                p2: Point { x: 5.0, y: 4.0 },
+            },
+            Line {
+                id: 4,
+                p1: Point { x: 3.0, y: 1.0 },
+                p2: Point { x: 3.0, y: 5.0 },
+            },
+        ];
+        let actual = intersection(&lines);
+        let expect = vec![
+            Point { x: 3.5, y: 2.6 },
+            Point { x: 3.5, y: 2.8 },
+            Point { x: 4.2, y: 3.1 },
+            Point { x: 3.5, y: 3.3 },
+            Point { x: 3.1, y: 3.7 },
+        ];
         assert_eq!(actual, expect);
     }
 }
