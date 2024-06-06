@@ -1,6 +1,6 @@
 use super::common::{Line, Point};
 use std::cmp::Ordering;
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
@@ -195,6 +195,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
     };
     let mut cross_points: Vec<Point> = Vec::new();
     let mut max_loop_count = lines.len() * 2 + lines.len() * (lines.len() - 1);
+    let mut already_crosses: HashSet<(u32, u32)> = HashSet::new();
     while let Some(line_state) = queue.pop_front() {
         if max_loop_count <= 0 {
             break;
@@ -263,6 +264,15 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
             }
             PointType::CrossPoint => {
                 // 交差による入れ替え
+                eprintln!(
+                    "   swap lines: {:?}",
+                    line_state
+                        .lines
+                        .iter()
+                        .map(|line| line.id.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                );
                 let mut exchange_indexes = line_state
                     .lines
                     .iter()
@@ -305,16 +315,22 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
         for i in 0..cross_check_line_indexes.len() {
             let line1 = current_lines[cross_check_line_indexes[i].0].clone();
             let line2 = current_lines[cross_check_line_indexes[i].1].clone();
+            let already = already_crosses.contains(&(line1.id, line2.id))
+                || already_crosses.contains(&(line2.id, line1.id));
             match get_cross_point(&line1, &line2) {
                 None => {}
-                Some(point) if point.y > line_state.point.y => {
-                    eprintln!("  new cross point: ({}, {})", point.x, point.y);
+                Some(point) if point.y > line_state.point.y && !already => {
+                    eprintln!(
+                        "  new cross point: ({}, {}) - lines {} and {}",
+                        point.x, point.y, line1.id, line2.id
+                    );
                     queue = push_queue(
                         PointType::CrossPoint,
                         &point,
                         &vec![line1.clone(), line2.clone()],
                         &queue,
                     );
+                    already_crosses.insert((line1.id, line2.id));
                 }
                 _ => {}
             }
@@ -323,7 +339,7 @@ pub fn intersection(lines: &Vec<Line>) -> Vec<Point> {
     }
     eprintln!("cross point len: {}", cross_points.len());
     for i in 0..cross_points.len() {
-        eprintln!("[{}]: ({}, {})" , i, cross_points[i].x, cross_points[i].y);
+        eprintln!("[{}]: ({}, {})", i, cross_points[i].x, cross_points[i].y);
     }
     // 重複点を削除
     let mut after_duplicate_points: Vec<Point> = Vec::new();
@@ -902,13 +918,13 @@ mod tests {
             },
             Line {
                 id: 2,
-                p1: Point { x: -6.0, y: 7.0 },
+                p1: Point { x: -6.0, y: 6.0 },
                 p2: Point { x: 6.0, y: 2.0 },
             },
             Line {
                 id: 3,
                 p1: Point { x: -5.0, y: 8.0 },
-                p2: Point { x: 5.0, y: 4.0 },
+                p2: Point { x: 5.0, y: 3.0 },
             },
             Line {
                 id: 4,
@@ -918,11 +934,20 @@ mod tests {
         ];
         let actual = intersection(&lines);
         let expect = vec![
-            Point { x: 3.5, y: 2.6 },
-            Point { x: 3.5, y: 2.8 },
-            Point { x: 4.2, y: 3.1 },
-            Point { x: 3.5, y: 3.3 },
-            Point { x: 3.1, y: 3.7 },
+            Point { x: 3.0, y: 3.0 },
+            Point {
+                x: 2.5454545454545454,
+                y: 3.1515151515151514,
+            },
+            Point {
+                x: 3.0,
+                y: 3.4166666666666665,
+            },
+            Point {
+                x: 3.5384615384615383,
+                y: 3.730769230769231,
+            },
+            Point { x: 3.0, y: 4.0 },
         ];
         assert_eq!(actual, expect);
     }
