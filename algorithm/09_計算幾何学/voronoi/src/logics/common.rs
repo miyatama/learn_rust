@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point {
-    id: u32,
-    x: f64,
-    y: f64,
+    pub id: u32,
+    pub x: f64,
+    pub y: f64,
 }
 
 impl PartialOrd for Point {
@@ -20,9 +20,9 @@ impl PartialOrd for Point {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
-    id: u32,
-    p1: Point,
-    p2: Point,
+    pub id: u32,
+    pub p1: Point,
+    pub p2: Point,
 }
 
 impl PartialOrd for Line {
@@ -65,11 +65,4 @@ impl Line {
             _ => self.p2.clone(),
         }
     }
-}
-
-#[derive(Debug)]
-pub struct TreeNode {
-    pub is_leaf: Boolean,
-    pub site: point,
-    pub children: Vec<TreeNode>,
 }

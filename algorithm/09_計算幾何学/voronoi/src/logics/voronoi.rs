@@ -1,4 +1,4 @@
-use super::common::{Line, Point, TreeNode};
+use super::common::{Line, Point};
 use std::collections::VecDeque;
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
@@ -8,7 +8,7 @@ use svg::Document;
 #[derive(Debug)]
 struct Event {
     site: Option<Point>,
-    eventType: EventType,
+    event_type: EventType,
 }
 
 #[derive(Debug)]
@@ -32,7 +32,7 @@ impl Arc {
      * 放物線の最低点を返す
      */
     pub fn get_v(&self) -> f64 {
-        (self.sub_line - self.focal_point) / 2.0
+        (self.sub_line - self.focal_point.y) / 2.0
     }
 
     pub fn get_cross_points(&self, b: Arc) -> f64 {
@@ -41,6 +41,7 @@ impl Arc {
         // y = (x^2 - 2xh + h^2 + 4pk) / 4p
         // k = self.focal_point.y
         // h = self.focal_point.x
+        0.0
     }
 
     pub fn get_x_range(&self, x_upper_limit: f64) -> (f64, f64) {
@@ -51,6 +52,7 @@ impl Arc {
         //   k = self.focal_point.y
         //   h = self.focal_point.x
         //   y = self.focal_point.y
+        (0.0, 0.0)
     }
 }
 
@@ -62,23 +64,23 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<L
     if points.len() <= 1 {
         return create_point_one_voronoi(width, height);
     } else if points.len() <= 2 {
-        return create_point_twe_voronoi(width, height);
+        return create_point_twe_voronoi(width, height, &points);
     }
-    points.sort_by(|a, b| a.partial_cmp(&b).unwarp());
+    points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
 
     // サイトイベントを登録
     let mut queue: VecDeque<Event> = VecDeque::new();
     points.iter().for_each(|point| {
         queue.push_back(Event {
             site: Some(point.clone()),
-            eventType: EventType::Site,
+            event_type: EventType::Site,
         })
     });
 
     let base_line_y: f64 = f64::MIN;
     let beach_line: Vec<Arc> = Vec::new();
     while let Some(event) = queue.pop_front() {
-        match (event.eventType, event.site) {
+        match (event.event_type, event.site) {
             (EventType::Site, Some(site)) => {
                 // 汀線追加
 
@@ -86,7 +88,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<L
             }
             (EventType::Circle, _) => {}
             _ => {
-                eprintln!("unknown event: {:?}", event);
             }
         }
     }
@@ -150,11 +151,11 @@ fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Line> {
     ]
 }
 
-fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<Line> {
+fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec<Line> {
     let delta_y = get_delta(points[0].y, points[1].y);
     let delta_x = get_delta(points[0].x, points[1].x);
-    let min_y = min(points[0].y, points[1].y);
-    let min_x = min(points[0].x, points[1].x);
+    let min_y = min_f64(points[0].y, points[1].y);
+    let min_x = min_f64(points[0].x, points[1].x);
     match (delta_y, delta_x) {
         (0.0, _) => {
             // 縦線
@@ -272,13 +273,26 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
             vec![
                 Line {
                     id: 0,
-                    p1: Point { x: 0.0, y: 0.0 },
-                    p2: Point { x: width, y: 0.0 },
+                    p1: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: 0.0,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: width,
+                        y: 0.0,
+                    },
                 },
                 Line {
                     id: 0,
-                    p1: Point { x: width, y: 0.0 },
+                    p1: Point {
+                        id: 0,
+                        x: width,
+                        y: 0.0,
+                    },
                     p2: Point {
+                        id: 0,
                         x: width,
                         y: center_y,
                     },
@@ -286,10 +300,12 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
                 Line {
                     id: 0,
                     p1: Point {
+                        id: 0,
                         x: width,
                         y: center_y,
                     },
                     p2: Point {
+                        id: 0,
                         x: 0.0,
                         y: center_y,
                     },
@@ -297,18 +313,25 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
                 Line {
                     id: 0,
                     p1: Point {
-                        x: 0.0,
-                        y: center_y,
-                    },
-                    p2: Point { x: 0.0, y: 0.0 },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
+                        id: 0,
                         x: 0.0,
                         y: center_y,
                     },
                     p2: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: 0.0,
+                    },
+                },
+                Line {
+                    id: 0,
+                    p1: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: center_y,
+                    },
+                    p2: Point {
+                        id: 0,
                         x: width,
                         y: center_y,
                     },
@@ -316,10 +339,12 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
                 Line {
                     id: 0,
                     p1: Point {
+                        id: 0,
                         x: width,
                         y: center_y,
                     },
                     p2: Point {
+                        id: 0,
                         x: width,
                         y: height,
                     },
@@ -327,15 +352,25 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
                 Line {
                     id: 0,
                     p1: Point {
+                        id: 0,
                         x: width,
                         y: height,
                     },
-                    p2: Point { x: 0.0, y: height },
+                    p2: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: height,
+                    },
                 },
                 Line {
                     id: 0,
-                    p1: Point { x: 0.0, y: height },
+                    p1: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: height,
+                    },
                     p2: Point {
+                        id: 0,
                         x: 0.0,
                         y: center_y,
                     },
@@ -348,68 +383,133 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: Vec<Point>) -> Vec<
             let center_y = delta_y / 2.0 + min_y;
             let center_x = delta_x / 2.0 + min_x;
             let b = a * center_x - center_y;
-            let max_y = min(height, b);
-            let min_y = max(0.0, a * width + b);
+            let max_y = min_f64(height, b);
+            let min_y = max_f64(0.0, a * width + b);
             let max_x = (max_y - b) / a;
             let min_x = (min_y - b) / a;
             vec![
                 Line {
                     id: 0,
-                p1: Point{ x: 0.0, y: 0.0, },
-                p2: Point { x: 0.0, y: height, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: 0.0,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: height,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: 0.0, y: height, },
-                p2: Point { x: max_x, y: height, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: height,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: max_x,
+                        y: height,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: max_x, y: height, },
-                p2: Point { x: min_x, y: 0.0, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: max_x,
+                        y: height,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: min_x,
+                        y: 0.0,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: min_x, y: 0.0, },
-                p2: Point { x: 0.0, y: 0.0, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: min_x,
+                        y: 0.0,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: 0.0,
+                        y: 0.0,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: max_x, y: height, },
-                p2: Point { x: width, y: height, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: max_x,
+                        y: height,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: width,
+                        y: height,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: width, y: height, },
-                p2: Point { x: width, y: 0.0, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: width,
+                        y: height,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: width,
+                        y: 0.0,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: width, y: 0.0, },
-                p2: Point { x: min_x, y: 0.0, },
-                }
-
+                    p1: Point {
+                        id: 0,
+                        x: width,
+                        y: 0.0,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: min_x,
+                        y: 0.0,
+                    },
+                },
                 Line {
                     id: 0,
-                p1: Point{ x: min_x, y: 0.0, },
-                p2: Point { x: max_x, y: height, },
-                }
+                    p1: Point {
+                        id: 0,
+                        x: min_x,
+                        y: 0.0,
+                    },
+                    p2: Point {
+                        id: 0,
+                        x: max_x,
+                        y: height,
+                    },
+                },
             ]
         }
     }
 }
 
-fn min(a: f64, b: f64) -> f64 {
+fn min_f64(a: f64, b: f64) -> f64 {
     if a > b {
         b
     } else {
         a
+    }
+}
+
+fn max_f64(a: f64, b: f64) -> f64 {
+    if a > b {
+       a 
+    } else {
+      b 
     }
 }
 
@@ -425,7 +525,7 @@ fn get_delta(a: f64, b: f64) -> f64 {
  * 線分と交点を元にSVG文字列を生成
  * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
  */
-pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
+pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, lines: &Vec<Line>) -> String {
     let svg_size = 600i64;
     let n = 20i64;
     let margin = 10i64;
@@ -494,8 +594,8 @@ pub fn create_svg(lines: &Vec<Line>, cross_points: &Vec<Point>) -> String {
         svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
     }
 
-    for i in 0..cross_points.len() {
-        let point = &cross_points[i];
+    for i in 0..points.len() {
+        let point = &points[i];
         let (x, y) = change_coordinate(point.x, point.y, max_range, graph_unit, graph_margin);
         svg = svg.add(get_svg_circle(x, y, point_color));
     }
