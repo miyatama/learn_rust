@@ -1,4 +1,4 @@
-use self::logics::common::{Point};
+use self::logics::common::Point;
 use self::logics::model_data::{self};
 use self::logics::voronoi::{self};
 

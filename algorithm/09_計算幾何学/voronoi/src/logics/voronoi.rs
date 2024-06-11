@@ -87,68 +87,35 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<L
                 // 基準線の更新
             }
             (EventType::Circle, _) => {}
-            _ => {
-            }
+            _ => {}
         }
     }
     vec![]
 }
 
 fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Line> {
-    vec![
-        Line {
+    create_rect_lines(&vec![
+        Point {
             id: 1,
-            p2: Point {
-                id: 1,
-                x: 0.0,
-                y: 0.0,
-            },
-            p1: Point {
-                id: 1,
-                x: width,
-                y: 0.0,
-            },
+            x: 0.0,
+            y: 0.0,
         },
-        Line {
-            id: 2,
-            p2: Point {
-                id: 1,
-                x: width,
-                y: 0.0,
-            },
-            p1: Point {
-                id: 1,
-                x: width,
-                y: height,
-            },
+        Point {
+            id: 1,
+            x: width,
+            y: 0.0,
         },
-        Line {
-            id: 3,
-            p2: Point {
-                id: 1,
-                x: 0.0,
-                y: height,
-            },
-            p1: Point {
-                id: 1,
-                x: width,
-                y: height,
-            },
+        Point {
+            id: 1,
+            x: width,
+            y: height,
         },
-        Line {
-            id: 3,
-            p2: Point {
-                id: 1,
-                x: 0.0,
-                y: 0.0,
-            },
-            p1: Point {
-                id: 1,
-                x: 0.0,
-                y: height,
-            },
+        Point {
+            id: 1,
+            x: 0.0,
+            y: height,
         },
-    ]
+    ])
 }
 
 fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec<Line> {
@@ -160,222 +127,102 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
         (0.0, _) => {
             // 縦線
             let center_x = delta_x / 2.0 + min_x;
-            vec![
-                Line {
+            let mut left_lines = create_rect_lines(&vec![
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: center_x,
-                        y: 0.0,
-                    },
+                    x: 0.0,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: center_x,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: center_x,
-                        y: height,
-                    },
+                    x: center_x,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: center_x,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
+                    x: center_x,
+                    y: height,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
+                    x: 0.0,
+                    y: height,
                 },
-                Line {
+            ]);
+            let right_lines = create_rect_lines(&vec![
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: center_x,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
+                    x: center_x,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
+                    x: width,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: center_x,
-                        y: height,
-                    },
+                    x: width,
+                    y: height,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: center_x,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: center_x,
-                        y: 0.0,
-                    },
+                    x: center_x,
+                    y: height,
                 },
-            ]
+            ]);
+            left_lines.extend(right_lines);
+            left_lines
         }
         (_, 0.0) => {
             // 横線
             let center_y = delta_y / 2.0 + min_y;
-            vec![
-                Line {
+            let mut top_lines = create_rect_lines(&vec![
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
+                    x: 0.0,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: center_y,
-                    },
+                    x: width,
+                    y: 0.0,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: center_y,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: center_y,
-                    },
+                    x: width,
+                    y: center_y,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: center_y,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
+                    x: 0.0,
+                    y: center_y,
                 },
-                Line {
+            ]);
+            let bottom_lines = create_rect_lines(&vec![
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: center_y,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: center_y,
-                    },
+                    x: 0.0,
+                    y: center_y,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: center_y,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
+                    x: width,
+                    y: center_y,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
+                    x: width,
+                    y: height,
                 },
-                Line {
+                Point {
                     id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: center_y,
-                    },
+                    x: 0.0,
+                    y: height,
                 },
-            ]
+            ]);
+            top_lines.extend(bottom_lines);
+            top_lines
         }
         (y, x) => {
             // 線対象
@@ -387,114 +234,158 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
             let min_y = max_f64(0.0, a * width + b);
             let max_x = (max_y - b) / a;
             let min_x = (min_y - b) / a;
-            vec![
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: max_x,
-                        y: height,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: max_x,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: min_x,
-                        y: 0.0,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: min_x,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: 0.0,
-                        y: 0.0,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: max_x,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: height,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: width,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: min_x,
-                        y: 0.0,
-                    },
-                },
-                Line {
-                    id: 0,
-                    p1: Point {
-                        id: 0,
-                        x: min_x,
-                        y: 0.0,
-                    },
-                    p2: Point {
-                        id: 0,
-                        x: max_x,
-                        y: height,
-                    },
-                },
-            ]
+
+            // 斜め45度線のみ三角形に分離する
+            if is_triangle_line(width, height, min_x, min_y, max_x, max_y) {
+                if min_x == 0.0 && min_y == height && max_x == width && max_y == 0.0 {
+                    // 右肩下がり
+                    let mut left_lines = create_triangle_lines(&vec![
+                        Point {
+                            id: 0,
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                        Point {
+                            id: 1,
+                            x: 0.0,
+                            y: height,
+                        },
+                        Point {
+                            id: 3,
+                            x: width,
+                            y: 0.0,
+                        },
+                    ]);
+                    let righg_lines = create_triangle_lines(&vec![
+                        Point {
+                            id: 0,
+                            x: 0.0,
+                            y: height,
+                        },
+                        Point {
+                            id: 1,
+                            x: width,
+                            y: height,
+                        },
+                        Point {
+                            id: 3,
+                            x: width,
+                            y: 0.0,
+                        },
+                    ]);
+                    left_lines.extend(righg_lines);
+                    left_lines
+                } else {
+                    // 右肩上がり
+                    let mut left_lines = create_triangle_lines(&vec![
+                        Point {
+                            id: 0,
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                        Point {
+                            id: 1,
+                            x: width,
+                            y: height,
+                        },
+                        Point {
+                            id: 3,
+                            x: width,
+                            y: 0.0,
+                        },
+                    ]);
+                    let righg_lines = create_triangle_lines(&vec![
+                        Point {
+                            id: 0,
+                            x: 0.0,
+                            y: height,
+                        },
+                        Point {
+                            id: 1,
+                            x: width,
+                            y: height,
+                        },
+                        Point {
+                            id: 3,
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                    ]);
+                    left_lines.extend(righg_lines);
+                    left_lines
+                }
+            } else {
+                // 台形2つに分離
+                vec![]
+            }
         }
     }
+}
+
+fn create_triangle_lines(points: &Vec<Point>) -> Vec<Line> {
+    vec![
+        Line {
+            id: 0,
+            p1: points[0].clone(),
+            p2: points[1].clone(),
+        },
+        Line {
+            id: 1,
+            p1: points[1].clone(),
+            p2: points[2].clone(),
+        },
+        Line {
+            id: 2,
+            p1: points[2].clone(),
+            p2: points[0].clone(),
+        },
+    ]
+}
+
+fn create_rect_lines(points: &Vec<Point>) -> Vec<Line> {
+    vec![
+        Line {
+            id: 0,
+            p1: points[0].clone(),
+            p2: points[1].clone(),
+        },
+        Line {
+            id: 1,
+            p1: points[1].clone(),
+            p2: points[2].clone(),
+        },
+        Line {
+            id: 2,
+            p1: points[2].clone(),
+            p2: points[3].clone(),
+        },
+        Line {
+            id: 2,
+            p1: points[3].clone(),
+            p2: points[0].clone(),
+        },
+    ]
+}
+
+fn is_triangle_line(
+    width: f64,
+    height: f64,
+    min_x: f64,
+    min_y: f64,
+    max_x: f64,
+    max_y: f64,
+) -> bool {
+    // 右肩下がりの斜線
+    if min_x == 0.0 && min_y == height && max_x == width && max_y == 0.0 {
+        return true;
+    }
+
+    // 右肩上がりの斜線
+    if min_x == 0.0 && min_y == 0.0 && max_x == width && max_y == height {
+        return true;
+    }
+
+    false
 }
 
 fn min_f64(a: f64, b: f64) -> f64 {
@@ -507,9 +398,9 @@ fn min_f64(a: f64, b: f64) -> f64 {
 
 fn max_f64(a: f64, b: f64) -> f64 {
     if a > b {
-       a 
+        a
     } else {
-      b 
+        b
     }
 }
 
