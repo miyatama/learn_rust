@@ -18,6 +18,13 @@ impl PartialOrd for Point {
     }
 }
 
+#[derive(Debug)]
+pub enum LinePointDirection {
+    Left,
+    Right,
+    Equal,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
     pub id: u32,
@@ -63,6 +70,34 @@ impl Line {
             (Ordering::Less, _) => self.p2.clone(),
             (_, Ordering::Greater) => self.p1.clone(),
             _ => self.p2.clone(),
+        }
+    }
+
+    /**
+     * ax + by + c = 0のa, b, cを算出
+     */
+    pub fn get_factors(&self) -> (f64, f64, f64) {
+        let p1 = self.get_start_point();
+        let p2 = self.get_end_point();
+        let a = p2.y - p1.y;
+        let b = p1.x - p2.x;
+
+        let c = p1.y * (p2.x - p1.x) - p1.x * (p2.y - p1.y);
+        (a, b, c)
+    }
+
+    pub fn calc_x(&self, y: f64) -> f64 {
+        let factors = self.get_factors();
+        ((factors.1 * y) * -1.0 + factors.2 * -1.0) / factors.0
+    }
+
+    pub fn get_point_direction(&self, point: &Point) -> LinePointDirection {
+        let factors = self.get_factors(l1);
+        let direction = factors.0 * point.x + factors.1 * point.y + factors.2;
+        match direction {
+            true if value > 0 => LinePointDirection::Left,
+            true if value < 0 => LinePointDirection::Right,
+            _ => LinePointDirection::Equal,
         }
     }
 }

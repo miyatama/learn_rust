@@ -123,203 +123,92 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
     let delta_x = get_delta(points[0].x, points[1].x);
     let min_y = min_f64(points[0].y, points[1].y);
     let min_x = min_f64(points[0].x, points[1].x);
-    match (delta_y, delta_x) {
-        (0.0, _) => {
-            // 縦線
-            let center_x = delta_x / 2.0 + min_x;
-            let mut left_lines = create_rect_lines(&vec![
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: center_x,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: center_x,
-                    y: height,
-                },
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: height,
-                },
-            ]);
-            let right_lines = create_rect_lines(&vec![
-                Point {
-                    id: 0,
-                    x: center_x,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: height,
-                },
-                Point {
-                    id: 0,
-                    x: center_x,
-                    y: height,
-                },
-            ]);
-            left_lines.extend(right_lines);
-            left_lines
-        }
-        (_, 0.0) => {
-            // 横線
-            let center_y = delta_y / 2.0 + min_y;
-            let mut top_lines = create_rect_lines(&vec![
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: 0.0,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: center_y,
-                },
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: center_y,
-                },
-            ]);
-            let bottom_lines = create_rect_lines(&vec![
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: center_y,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: center_y,
-                },
-                Point {
-                    id: 0,
-                    x: width,
-                    y: height,
-                },
-                Point {
-                    id: 0,
-                    x: 0.0,
-                    y: height,
-                },
-            ]);
-            top_lines.extend(bottom_lines);
-            top_lines
-        }
-        (y, x) => {
-            // 線対象
-            let a = -1.0 / (delta_y / delta_x);
-            let center_y = delta_y / 2.0 + min_y;
-            let center_x = delta_x / 2.0 + min_x;
-            let b = a * center_x - center_y;
-            let max_y = min_f64(height, b);
-            let min_y = max_f64(0.0, a * width + b);
-            let max_x = (max_y - b) / a;
-            let min_x = (min_y - b) / a;
+    let a = -1.0 / (delta_y / delta_x);
+    let center_y = delta_y / 2.0 + min_y;
+    let center_x = delta_x / 2.0 + min_x;
+    let b = a * center_x - center_y;
+    let max_y = min_f64(height, b);
+    let min_y = max_f64(0.0, a * width + b);
+    let max_x = (max_y - b) / a;
+    let min_x = (min_y - b) / a;
+    let min_point = Point {
+        id: 0,
+        x: min_x,
+        y: min_y,
+    };
+    let max_point = Point {
+        id: 0,
+        x: max_x,
+        y: max_y,
+    };
+    let left_top = Point {
+        id: 0,
+        x: 0.0,
+        y: height,
+    };
+    let left_bottom = Point {
+        id: 0,
+        x: 0.0,
+        y: 0.0,
+    };
+    let right_top = Point {
+        id: 0,
+        x: width,
+        y: height,
+    };
+    let right_bottom = Point {
+        id: 0,
+        x: width,
+        y: 0.0,
+    };
+    let all_points = vec![left_top, left_bottom, right_top, right_bottom];
+    let split_line = Line {
+        id: 0,
+        p1: min_point,
+        p2: max_point,
+    };
 
-            // 斜め45度線のみ三角形に分離する
-            if is_triangle_line(width, height, min_x, min_y, max_x, max_y) {
-                if min_x == 0.0 && min_y == height && max_x == width && max_y == 0.0 {
-                    // 右肩下がり
-                    let mut left_lines = create_triangle_lines(&vec![
-                        Point {
-                            id: 0,
-                            x: 0.0,
-                            y: 0.0,
-                        },
-                        Point {
-                            id: 1,
-                            x: 0.0,
-                            y: height,
-                        },
-                        Point {
-                            id: 3,
-                            x: width,
-                            y: 0.0,
-                        },
-                    ]);
-                    let righg_lines = create_triangle_lines(&vec![
-                        Point {
-                            id: 0,
-                            x: 0.0,
-                            y: height,
-                        },
-                        Point {
-                            id: 1,
-                            x: width,
-                            y: height,
-                        },
-                        Point {
-                            id: 3,
-                            x: width,
-                            y: 0.0,
-                        },
-                    ]);
-                    left_lines.extend(righg_lines);
-                    left_lines
-                } else {
-                    // 右肩上がり
-                    let mut left_lines = create_triangle_lines(&vec![
-                        Point {
-                            id: 0,
-                            x: 0.0,
-                            y: 0.0,
-                        },
-                        Point {
-                            id: 1,
-                            x: width,
-                            y: height,
-                        },
-                        Point {
-                            id: 3,
-                            x: width,
-                            y: 0.0,
-                        },
-                    ]);
-                    let righg_lines = create_triangle_lines(&vec![
-                        Point {
-                            id: 0,
-                            x: 0.0,
-                            y: height,
-                        },
-                        Point {
-                            id: 1,
-                            x: width,
-                            y: height,
-                        },
-                        Point {
-                            id: 3,
-                            x: 0.0,
-                            y: 0.0,
-                        },
-                    ]);
-                    left_lines.extend(righg_lines);
-                    left_lines
+    let create_polygon_line =
+        |min_point: &Point, max_point: &Point, use_points: &Vec<Point>| -> Vec<Line> {
+            let mut lines: Vec<Line> = Vec::new();
+            lines.push(Line {
+                id: 0,
+                p1: min_point.clone(),
+                p2: max_point.clone(),
+            });
+
+            let mut base_x = max_point.x;
+            let mut base_y = 0.0;
+            // max_pointと同一xを持つポイントを利用
+            match use_points.iter().position(|point| point.x == max_point.x) {
+                Some(index) => {}
+                None => {
+                    // 真横
                 }
-            } else {
-                // 台形2つに分離
-                vec![]
             }
-        }
-    }
+        };
+
+    // (min_x, min_y) -> (max_x, max_y)の左回り
+    // 線分から右側(上)だけを抽出して構築
+    let mut lines1 = create_polygon_line(
+        &min_point,
+        &max_point,
+        &target_points
+            .iter()
+            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Right)
+            .collect::<Vec<Point>>(),
+    );
+
+    // (max_x, max_y) -> (min_x, min_y)の右回り
+    // 線分から左側(下)だけを抽出して構築
+    let lines1 = create_polygon_line(
+        &min_point,
+        &max_point,
+        &target_points
+            .iter()
+            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Left)
+            .collect::<Vec<Point>>(),
+    );
 }
 
 fn create_triangle_lines(points: &Vec<Point>) -> Vec<Line> {
@@ -365,27 +254,6 @@ fn create_rect_lines(points: &Vec<Point>) -> Vec<Line> {
             p2: points[0].clone(),
         },
     ]
-}
-
-fn is_triangle_line(
-    width: f64,
-    height: f64,
-    min_x: f64,
-    min_y: f64,
-    max_x: f64,
-    max_y: f64,
-) -> bool {
-    // 右肩下がりの斜線
-    if min_x == 0.0 && min_y == height && max_x == width && max_y == 0.0 {
-        return true;
-    }
-
-    // 右肩上がりの斜線
-    if min_x == 0.0 && min_y == 0.0 && max_x == width && max_y == height {
-        return true;
-    }
-
-    false
 }
 
 fn min_f64(a: f64, b: f64) -> f64 {
