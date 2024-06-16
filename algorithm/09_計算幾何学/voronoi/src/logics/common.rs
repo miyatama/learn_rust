@@ -2,7 +2,6 @@ use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point {
-    pub id: u32,
     pub x: f64,
     pub y: f64,
 }
@@ -18,7 +17,7 @@ impl PartialOrd for Point {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum LinePointDirection {
     Left,
     Right,
@@ -27,7 +26,6 @@ pub enum LinePointDirection {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Line {
-    pub id: u32,
     pub p1: Point,
     pub p2: Point,
 }
@@ -92,12 +90,22 @@ impl Line {
     }
 
     pub fn get_point_direction(&self, point: &Point) -> LinePointDirection {
-        let factors = self.get_factors(l1);
+        let factors = self.get_factors();
         let direction = factors.0 * point.x + factors.1 * point.y + factors.2;
-        match direction {
-            true if value > 0 => LinePointDirection::Left,
-            true if value < 0 => LinePointDirection::Right,
-            _ => LinePointDirection::Equal,
+        if direction > 0.0 {
+            LinePointDirection::Left
+        } else if direction < 0.0 {
+            LinePointDirection::Right
+        } else {
+            LinePointDirection::Equal
         }
     }
+}
+
+/**
+ * 凸法の線分集合
+ */
+#[derive(Debug, Clone, PartialEq)]
+pub struct Polygon {
+    pub lines: Vec<Line>,
 }

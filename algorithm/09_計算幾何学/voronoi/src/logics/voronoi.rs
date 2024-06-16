@@ -1,4 +1,4 @@
-use super::common::{Line, Point};
+use super::common::{Line, LinePointDirection, Point, Polygon};
 use std::collections::VecDeque;
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
@@ -59,7 +59,7 @@ impl Arc {
 /**
  * 点の集合からボロノイ辺を作成する
  */
-pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<Line> {
+pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<Polygon> {
     let mut points = points.clone();
     if points.len() <= 1 {
         return create_point_one_voronoi(width, height);
@@ -93,138 +93,178 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<L
     vec![]
 }
 
-fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Line> {
-    create_rect_lines(&vec![
+fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Polygon> {
+    let lines = create_rect_lines(&vec![
+        Point { x: 0.0, y: 0.0 },
+        Point { x: width, y: 0.0 },
         Point {
-            id: 1,
-            x: 0.0,
-            y: 0.0,
-        },
-        Point {
-            id: 1,
-            x: width,
-            y: 0.0,
-        },
-        Point {
-            id: 1,
             x: width,
             y: height,
         },
-        Point {
-            id: 1,
-            x: 0.0,
-            y: height,
-        },
-    ])
+        Point { x: 0.0, y: height },
+    ]);
+    vec![Polygon { lines: lines }]
 }
 
-fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec<Line> {
-    let delta_y = get_delta(points[0].y, points[1].y);
-    let delta_x = get_delta(points[0].x, points[1].x);
-    let min_y = min_f64(points[0].y, points[1].y);
-    let min_x = min_f64(points[0].x, points[1].x);
-    let a = -1.0 / (delta_y / delta_x);
-    let center_y = delta_y / 2.0 + min_y;
-    let center_x = delta_x / 2.0 + min_x;
-    let b = a * center_x - center_y;
-    let max_y = min_f64(height, b);
-    let min_y = max_f64(0.0, a * width + b);
-    let max_x = (max_y - b) / a;
-    let min_x = (min_y - b) / a;
-    let min_point = Point {
-        id: 0,
-        x: min_x,
-        y: min_y,
+fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec<Polygon> {
+    let mut points = points.clone();
+    points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
+    let delta_y = get_delta(points[1].y, points[0].y);
+    let delta_x = get_delta(points[1].x, points[0].x);
+    let split_line = if delta_y == 0.0 {
+        eprintln!("縦線で分割");
+        // 縦線
+        let x = delta_x / 2.0 + min_f64(points[0].x, points[1].x);
+        Line {
+            p1: Point { x: x, y: 0.0 },
+            p2: Point { x: x, y: height },
+        }
+    } else if delta_x == 0.0 {
+        eprintln!("横線で分割");
+        // 横線
+        let y = delta_y / 2.0 + min_f64(points[0].y, points[1].y);
+        Line {
+            p1: Point { x: 0.0, y: y },
+            p2: Point { x: width, y: y },
+        }
+    } else {
+        let center_y = delta_y / 2.0 + points[0].y;
+        let center_x = delta_x / 2.0 + points[0].x;
+        eprintln!("split line center: ({}, {})", center_x, center_y);
+        let a = -1.0 / (delta_y / delta_x);
+        let b = center_y - a * center_x;
+        eprintln!("slope: {}, section: {}", a, b);
+        // 右肩上がり
+        let (min_y, max_y) = if a > 0.0 {
+            eprintln!("right up");
+            (max_f64(0.0, b), min_f64(height, a * width + b))
+        } else {
+            eprintln!("right down");
+            (min_f64(height, b), max_f64(0.0, a * width + b))
+        };
+        let max_x = (max_y - b) / a;
+        let min_x = (min_y - b) / a;
+        // -0.0の対応
+        let (min_x, min_y, max_x, max_y) = { (min_x.abs(), min_y.abs(), max_x.abs(), max_y.abs()) };
+
+        let min_point = Point { x: min_x, y: min_y };
+        let max_point = Point { x: max_x, y: max_y };
+        eprintln!("min point: {:?}", min_point);
+        eprintln!("max point: {:?}", max_point);
+        Line {
+            p1: min_point,
+            p2: max_point,
+        }
     };
-    let max_point = Point {
-        id: 0,
-        x: max_x,
-        y: max_y,
-    };
-    let left_top = Point {
-        id: 0,
-        x: 0.0,
-        y: height,
-    };
-    let left_bottom = Point {
-        id: 0,
-        x: 0.0,
-        y: 0.0,
-    };
+    eprintln!("split line: {:?}", &split_line);
+    let min_point = split_line.p1.clone();
+    let max_point = split_line.p2.clone();
+    let left_top = Point { x: 0.0, y: height };
+    let left_bottom = Point { x: 0.0, y: 0.0 };
     let right_top = Point {
-        id: 0,
         x: width,
         y: height,
     };
-    let right_bottom = Point {
-        id: 0,
-        x: width,
-        y: 0.0,
-    };
+    let right_bottom = Point { x: width, y: 0.0 };
     let all_points = vec![left_top, left_bottom, right_top, right_bottom];
-    let split_line = Line {
-        id: 0,
-        p1: min_point,
-        p2: max_point,
-    };
 
     let create_polygon_line =
-        |min_point: &Point, max_point: &Point, use_points: &Vec<Point>| -> Vec<Line> {
+        |min_point: &Point, max_point: &Point, use_points: &Vec<&Point>| -> Vec<Line> {
+            eprintln!("create_polygon_line: {:?}", use_points);
+            let mut indexes: Vec<usize> = Vec::new();
+            // max_pointからの距離が近い準に並べる
+            let mut x = max_point.x;
+            let mut y = max_point.y;
+            for i in 0..use_points.len() {
+                let mut min_distance = f64::MAX;
+                let mut min_distance_index = 0usize;
+                for j in 0..use_points.len() {
+                    if indexes.iter().any(|value| *value == j) {
+                        continue;
+                    }
+
+                    let distance = get_distance(use_points[j].x, x, use_points[j].y, y);
+                    if distance < min_distance {
+                        min_distance = distance;
+                        min_distance_index = j;
+                    }
+                }
+                x = use_points[min_distance_index].x;
+                y = use_points[min_distance_index].y;
+                indexes.push(min_distance_index);
+            }
+
+            // min -> maxのラインが初期ライン
             let mut lines: Vec<Line> = Vec::new();
             lines.push(Line {
-                id: 0,
                 p1: min_point.clone(),
                 p2: max_point.clone(),
             });
+            let mut x = max_point.x;
+            let mut y = max_point.y;
 
-            let mut base_x = max_point.x;
-            let mut base_y = 0.0;
-            // max_pointと同一xを持つポイントを利用
-            match use_points.iter().position(|point| point.x == max_point.x) {
-                Some(index) => {}
-                None => {
-                    // 真横
+            for i in 0..indexes.len() {
+                let index = indexes[i];
+                let point = use_points[index];
+                if x == point.x && y == point.y {
+                    continue;
                 }
+
+                lines.push(Line {
+                    p1: Point { x: x, y: y },
+                    p2: point.clone(),
+                });
+                x = point.x;
+                y = point.y;
             }
+
+            // 最終ポイントからminへのラインを追加
+            if x != min_point.x || y != min_point.y {
+                lines.push(Line {
+                    p1: Point { x: x, y: y },
+                    p2: min_point.clone(),
+                });
+            }
+
+            lines
         };
 
     // (min_x, min_y) -> (max_x, max_y)の左回り
     // 線分から右側(上)だけを抽出して構築
-    let mut lines1 = create_polygon_line(
+    let lines1 = create_polygon_line(
         &min_point,
         &max_point,
-        &target_points
+        &all_points
             .iter()
-            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Right)
-            .collect::<Vec<Point>>(),
+            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Left)
+            .collect::<Vec<&Point>>(),
     );
 
     // (max_x, max_y) -> (min_x, min_y)の右回り
     // 線分から左側(下)だけを抽出して構築
-    let lines1 = create_polygon_line(
+    let lines2 = create_polygon_line(
         &min_point,
         &max_point,
-        &target_points
+        &all_points
             .iter()
-            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Left)
-            .collect::<Vec<Point>>(),
+            .filter(|point| split_line.get_point_direction(point) != LinePointDirection::Right)
+            .collect::<Vec<&Point>>(),
     );
+
+    vec![Polygon { lines: lines1 }, Polygon { lines: lines2 }]
 }
 
 fn create_triangle_lines(points: &Vec<Point>) -> Vec<Line> {
     vec![
         Line {
-            id: 0,
             p1: points[0].clone(),
             p2: points[1].clone(),
         },
         Line {
-            id: 1,
             p1: points[1].clone(),
             p2: points[2].clone(),
         },
         Line {
-            id: 2,
             p1: points[2].clone(),
             p2: points[0].clone(),
         },
@@ -234,22 +274,18 @@ fn create_triangle_lines(points: &Vec<Point>) -> Vec<Line> {
 fn create_rect_lines(points: &Vec<Point>) -> Vec<Line> {
     vec![
         Line {
-            id: 0,
             p1: points[0].clone(),
             p2: points[1].clone(),
         },
         Line {
-            id: 1,
             p1: points[1].clone(),
             p2: points[2].clone(),
         },
         Line {
-            id: 2,
             p1: points[2].clone(),
             p2: points[3].clone(),
         },
         Line {
-            id: 2,
             p1: points[3].clone(),
             p2: points[0].clone(),
         },
@@ -272,19 +308,21 @@ fn max_f64(a: f64, b: f64) -> f64 {
     }
 }
 
+fn get_distance(x1: f64, x2: f64, y1: f64, y2: f64) -> f64 {
+    let x_delta = get_delta(x1, x2);
+    let y_delta = get_delta(y1, y2);
+    ((x_delta * x_delta) + (y_delta * y_delta)).sqrt()
+}
+
 fn get_delta(a: f64, b: f64) -> f64 {
-    if a > b {
-        a - b
-    } else {
-        b - a
-    }
+    a - b
 }
 
 /**
  * 線分と交点を元にSVG文字列を生成
  * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
  */
-pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, lines: &Vec<Line>) -> String {
+pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<Polygon>) -> String {
     let svg_size = 600i64;
     let n = 20i64;
     let margin = 10i64;
@@ -316,46 +354,43 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, lines: &Vec<Line
             .set("stroke-width", 3),
     );
 
-    // 線分の描画
-    // 線分の最小最大からx, yの範囲を求める
-    let max_range = lines
-        .iter()
-        .map(|line| {
-            vec![
-                line.p1.x.abs(),
-                line.p1.y.abs(),
-                line.p2.x.abs(),
-                line.p2.y.abs(),
-            ]
-        })
-        .flatten()
-        .fold(0.0f64, |m, v| m.max(v));
-    let graph_unit = (svg_size - (margin * 3 * 2)) as f64 / (max_range * 2.0);
+    let scale_width = (580.0 / width).floor();
+    let scale_height = (580.0 / width).floor();
     let change_coordinate =
-        |x: f64, y: f64, range: f64, graph_unit: f64, margin: usize| -> (usize, usize) {
-            let x = x + range;
-            let y = if y > 0.0 {
-                (y - range).abs()
-            } else {
-                y.abs() + range
-            };
+        |x: f64, y: f64, scale_width: f64, scale_height: f64, margin: usize| -> (usize, usize) {
             (
-                (x * graph_unit) as usize + margin,
-                (y * graph_unit) as usize + margin,
+                (x * scale_width) as usize + margin,
+                (y * scale_height) as usize + margin,
             )
         };
-    let graph_margin = (margin * 3) as usize;
-    eprintln!("graph unit: {}, shape range: {}", graph_unit, max_range);
-    for i in 0..lines.len() {
-        let line = &lines[i];
-        let (x1, y1) = change_coordinate(line.p1.x, line.p1.y, max_range, graph_unit, graph_margin);
-        let (x2, y2) = change_coordinate(line.p2.x, line.p2.y, max_range, graph_unit, graph_margin);
-        svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
-    }
 
+    let graph_margin = margin as usize;
+    for i in 0..polygons.len() {
+        let polygon = &polygons[i];
+        for j in 0..polygon.lines.len() {
+            // x: margin + (x * scale).floor()
+            // y: margin + (y * scale).floor()
+            let line = &polygon.lines[j];
+            let (x1, y1) = change_coordinate(
+                line.p1.x,
+                line.p1.y,
+                scale_width,
+                scale_height,
+                graph_margin,
+            );
+            let (x2, y2) = change_coordinate(
+                line.p2.x,
+                line.p2.y,
+                scale_width,
+                scale_height,
+                graph_margin,
+            );
+            svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
+        }
+    }
     for i in 0..points.len() {
         let point = &points[i];
-        let (x, y) = change_coordinate(point.x, point.y, max_range, graph_unit, graph_margin);
+        let (x, y) = change_coordinate(point.x, point.y, scale_width, scale_height, graph_margin);
         svg = svg.add(get_svg_circle(x, y, point_color));
     }
 
@@ -379,4 +414,413 @@ fn get_svg_circle(x: usize, y: usize, color: &str) -> SvgCircle {
         .set("cy", y)
         .set("r", 3)
         .set("fill", color)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calc_voronoi_lines_point_one() {
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 50.0, y: 50.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let expect = vec![Polygon {
+            lines: vec![
+                Line {
+                    p1: Point { x: 0.0, y: 0.0 },
+                    p2: Point { x: width, y: 0.0 },
+                },
+                Line {
+                    p1: Point { x: width, y: 0.0 },
+                    p2: Point {
+                        x: width,
+                        y: height,
+                    },
+                },
+                Line {
+                    p1: Point {
+                        x: width,
+                        y: height,
+                    },
+                    p2: Point { x: 0.0, y: height },
+                },
+                Line {
+                    p1: Point { x: 0.0, y: height },
+                    p2: Point { x: 0.0, y: 0.0 },
+                },
+            ],
+        }];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_horizontal_split() {
+        // 横線のテスト
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 50.0, y: 10.0 }, Point { x: 50.0, y: 30.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let half_y = 20.0;
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: Point { x: 0.0, y: half_y },
+                        p2: Point {
+                            x: width,
+                            y: half_y,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: half_y,
+                        },
+                        p2: Point {
+                            x: width,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: height,
+                        },
+                        p2: Point { x: 0.0, y: height },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: height },
+                        p2: Point { x: 0.0, y: half_y },
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: Point { x: 0.0, y: half_y },
+                        p2: Point {
+                            x: width,
+                            y: half_y,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: half_y,
+                        },
+                        p2: Point { x: width, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: width, y: 0.0 },
+                        p2: Point { x: 0.0, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: 0.0 },
+                        p2: Point { x: 0.0, y: half_y },
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_vertical_split() {
+        // 縦線のテスト
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 10.0, y: 20.0 }, Point { x: 30.0, y: 20.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let half_x = 20.0;
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: Point { x: half_x, y: 0.0 },
+                        p2: Point {
+                            x: half_x,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: half_x,
+                            y: height,
+                        },
+                        p2: Point { x: 0.0, y: height },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: height },
+                        p2: Point { x: 0.0, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: 0.0 },
+                        p2: Point { x: half_x, y: 0.0 },
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: Point { x: half_x, y: 0.0 },
+                        p2: Point {
+                            x: half_x,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: half_x,
+                            y: height,
+                        },
+                        p2: Point {
+                            x: width,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: height,
+                        },
+                        p2: Point { x: width, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: width, y: 0.0 },
+                        p2: Point { x: half_x, y: 0.0 },
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_diagonal_split_up() {
+        // 45°斜めの分割(右肩下がり)
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 25.0, y: 25.0 }, Point { x: 75.0, y: 75.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let min_point = Point { x: 0.0, y: height };
+        let max_point = Point { x: width, y: 0.0 };
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point { x: 0.0, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: 0.0 },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point {
+                            x: width,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: height,
+                        },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_diagonal_split_down() {
+        // 45°斜めの分割(右肩上がり)
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 25.0, y: 75.0 }, Point { x: 75.0, y: 25.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let min_point = Point { x: 0.0, y: 0.0 };
+        let max_point = Point {
+            x: width,
+            y: height,
+        };
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point { x: 0.0, y: height },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: height },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point { x: width, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: width, y: 0.0 },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_diagonal_right_down_01() {
+        // 斜めの分割(右上・右肩下がり)
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 70.0, y: 80.0 }, Point { x: 90.0, y: 90.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let min_point = Point { x: 72.5, y: height };
+        let max_point = Point { x: width, y: 45.0 };
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point { x: width, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: width, y: 0.0 },
+                        p2: Point { x: 0.0, y: 0.0 },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: 0.0 },
+                        p2: Point { x: 0.0, y: height },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: height },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point {
+                            x: width,
+                            y: height,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: height,
+                        },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_calc_voronoi_lines_point_two_diagonal_right_down_02() {
+        // 斜めの分割(中央付近・右肩下がり・a=2.0)
+        let width = 100.0;
+        let height = 100.0;
+        let points = vec![Point { x: 55.0, y: 60.0 }, Point { x: 45.0, y: 40.0 }];
+        let actual = calc_voronoi_lines(width, height, &points);
+        let min_point = Point { x: 0.0, y: 75.0};
+        let max_point = Point { x: width, y: 25.0 };
+        let expect = vec![
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                    },
+                    Line {
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                        },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+            Polygon {
+                lines: vec![
+                    Line {
+                        p1: min_point.clone(),
+                        p2: max_point.clone(),
+                    },
+                    Line {
+                        p1: max_point.clone(),
+                        p2: Point { x: width, y: height },
+                    },
+                    Line {
+                        p1: Point { x: width, y: height },
+                        p2: Point { x: 0.0, y: height },
+                    },
+                    Line {
+                        p1: Point { x: 0.0, y: height },
+                        p2: min_point.clone(),
+                    },
+                ],
+            },
+        ];
+        assert_eq!(actual, expect);
+    }
 }
