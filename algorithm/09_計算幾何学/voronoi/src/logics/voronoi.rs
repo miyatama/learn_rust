@@ -34,8 +34,8 @@ impl Arc {
         (sub_line - self.focal_point.y) / 2.0
     }
 
-    pub fn get_cross_points(&self, b: Arc) -> f64 {
-        let p = self.get_v();
+    pub fn get_cross_points(&self, b: Arc, base_line: f64) -> f64 {
+        let p = self.get_v(base_line);
         // 4p(y - k) = (x - h)^2 より
         // y = (x^2 - 2xh + h^2 + 4pk) / 4p
         // k = self.focal_point.y
@@ -77,7 +77,21 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     }
 
     let mut base_line_y: f64 = f64::MAX;
-    let beach_line: Vec<Arc> = Vec::new();
+    let mut line_points: Vec<Point> = Vec::new();
+    // x順に追加
+    let add_line_points = |point: &Point, line_points: &Vec<Point>| -> Vec<Point> {
+        for i in 0..line_points.len() {
+            if point.x < line_points[i].x {
+                let mut new_line_points = line_points.clone();
+                new_line_points.insert(i, point.clone());
+                return new_line_points;
+            }
+        }
+        let mut new_line_points = line_points.clone();
+        new_line_points.push(point.clone());
+        return new_line_points;
+    };
+    let mut beach_line: Vec<Arc> = Vec::new();
     while let Some(event) = queue.pop_front() {
         match (event.event_type, event.site) {
             (EventType::Site, Some(site)) => {
@@ -85,11 +99,12 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 base_line_y = site.y;
                 eprintln!("  base line: {}", base_line_y);
 
+                line_points = add_line_points(&site, &line_points);
                 // 汀線に焦点を追加して並べ替え
                 beach_line.push(Arc {
                     focal_point: site.clone(),
                 });
-                beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x));
+                beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
 
                 // 基準線の更新
             }
@@ -102,13 +117,26 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
 fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Polygon> {
     let lines = create_rect_lines(&vec![
-        Point { x: 0.0, y: 0.0 },
-        Point { x: width, y: 0.0 },
+        Point {
+            x: 0.0,
+            y: 0.0,
+            ..Default::default()
+        },
+        Point {
+            x: width,
+            y: 0.0,
+            ..Default::default()
+        },
         Point {
             x: width,
             y: height,
+            ..Default::default()
         },
-        Point { x: 0.0, y: height },
+        Point {
+            x: 0.0,
+            y: height,
+            ..Default::default()
+        },
     ]);
     vec![Polygon { lines: lines }]
 }
@@ -123,16 +151,32 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
         // 縦線
         let x = delta_x / 2.0 + min_f64(points[0].x, points[1].x);
         Line {
-            p1: Point { x: x, y: 0.0 },
-            p2: Point { x: x, y: height },
+            p1: Point {
+                x: x,
+                y: 0.0,
+                ..Default::default()
+            },
+            p2: Point {
+                x: x,
+                y: height,
+                ..Default::default()
+            },
         }
     } else if delta_x == 0.0 {
         eprintln!("横線で分割");
         // 横線
         let y = delta_y / 2.0 + min_f64(points[0].y, points[1].y);
         Line {
-            p1: Point { x: 0.0, y: y },
-            p2: Point { x: width, y: y },
+            p1: Point {
+                x: 0.0,
+                y: y,
+                ..Default::default()
+            },
+            p2: Point {
+                x: width,
+                y: y,
+                ..Default::default()
+            },
         }
     } else {
         let center_y = delta_y / 2.0 + points[0].y;
@@ -154,8 +198,16 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
         // -0.0の対応
         let (min_x, min_y, max_x, max_y) = { (min_x.abs(), min_y.abs(), max_x.abs(), max_y.abs()) };
 
-        let min_point = Point { x: min_x, y: min_y };
-        let max_point = Point { x: max_x, y: max_y };
+        let min_point = Point {
+            x: min_x,
+            y: min_y,
+            ..Default::default()
+        };
+        let max_point = Point {
+            x: max_x,
+            y: max_y,
+            ..Default::default()
+        };
         eprintln!("min point: {:?}", min_point);
         eprintln!("max point: {:?}", max_point);
         Line {
@@ -166,13 +218,26 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
     eprintln!("split line: {:?}", &split_line);
     let min_point = split_line.p1.clone();
     let max_point = split_line.p2.clone();
-    let left_top = Point { x: 0.0, y: height };
-    let left_bottom = Point { x: 0.0, y: 0.0 };
+    let left_top = Point {
+        x: 0.0,
+        y: height,
+        ..Default::default()
+    };
+    let left_bottom = Point {
+        x: 0.0,
+        y: 0.0,
+        ..Default::default()
+    };
     let right_top = Point {
         x: width,
         y: height,
+        ..Default::default()
     };
-    let right_bottom = Point { x: width, y: 0.0 };
+    let right_bottom = Point {
+        x: width,
+        y: 0.0,
+        ..Default::default()
+    };
     let all_points = vec![left_top, left_bottom, right_top, right_bottom];
 
     let create_polygon_line =
@@ -218,7 +283,11 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
                 }
 
                 lines.push(Line {
-                    p1: Point { x: x, y: y },
+                    p1: Point {
+                        x: x,
+                        y: y,
+                        ..Default::default()
+                    },
                     p2: point.clone(),
                 });
                 x = point.x;
@@ -228,7 +297,11 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
             // 最終ポイントからminへのラインを追加
             if x != min_point.x || y != min_point.y {
                 lines.push(Line {
-                    p1: Point { x: x, y: y },
+                    p1: Point {
+                        x: x,
+                        y: y,
+                        ..Default::default()
+                    },
                     p2: min_point.clone(),
                 });
             }
@@ -431,31 +504,61 @@ mod tests {
     fn test_calc_voronoi_lines_point_one() {
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 50.0, y: 50.0 }];
+        let points = vec![Point {
+            x: 50.0,
+            y: 50.0,
+            ..Default::default()
+        }];
         let actual = calc_voronoi_lines(width, height, &points);
         let expect = vec![Polygon {
             lines: vec![
                 Line {
-                    p1: Point { x: 0.0, y: 0.0 },
-                    p2: Point { x: width, y: 0.0 },
+                    p1: Point {
+                        x: 0.0,
+                        y: 0.0,
+                        ..Default::default()
+                    },
+                    p2: Point {
+                        x: width,
+                        y: 0.0,
+                        ..Default::default()
+                    },
                 },
                 Line {
-                    p1: Point { x: width, y: 0.0 },
+                    p1: Point {
+                        x: width,
+                        y: 0.0,
+                        ..Default::default()
+                    },
                     p2: Point {
                         x: width,
                         y: height,
+                        ..Default::default()
                     },
                 },
                 Line {
                     p1: Point {
                         x: width,
                         y: height,
+                        ..Default::default()
                     },
-                    p2: Point { x: 0.0, y: height },
+                    p2: Point {
+                        x: 0.0,
+                        y: height,
+                        ..Default::default()
+                    },
                 },
                 Line {
-                    p1: Point { x: 0.0, y: height },
-                    p2: Point { x: 0.0, y: 0.0 },
+                    p1: Point {
+                        x: 0.0,
+                        y: height,
+                        ..Default::default()
+                    },
+                    p2: Point {
+                        x: 0.0,
+                        y: 0.0,
+                        ..Default::default()
+                    },
                 },
             ],
         }];
@@ -467,65 +570,122 @@ mod tests {
         // 横線のテスト
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 50.0, y: 10.0 }, Point { x: 50.0, y: 30.0 }];
+        let points = vec![
+            Point {
+                x: 50.0,
+                y: 10.0,
+                ..Default::default()
+            },
+            Point {
+                x: 50.0,
+                y: 30.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
         let half_y = 20.0;
         let expect = vec![
             Polygon {
                 lines: vec![
                     Line {
-                        p1: Point { x: 0.0, y: half_y },
+                        p1: Point {
+                            x: 0.0,
+                            y: half_y,
+                            ..Default::default()
+                        },
                         p2: Point {
                             x: width,
                             y: half_y,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: half_y,
+                            ..Default::default()
                         },
                         p2: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
-                        p2: Point { x: 0.0, y: height },
+                        p2: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: height },
-                        p2: Point { x: 0.0, y: half_y },
+                        p1: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: half_y,
+                            ..Default::default()
+                        },
                     },
                 ],
             },
             Polygon {
                 lines: vec![
                     Line {
-                        p1: Point { x: 0.0, y: half_y },
+                        p1: Point {
+                            x: 0.0,
+                            y: half_y,
+                            ..Default::default()
+                        },
                         p2: Point {
                             x: width,
                             y: half_y,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: half_y,
+                            ..Default::default()
                         },
-                        p2: Point { x: width, y: 0.0 },
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: 0.0 },
-                        p2: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: 0.0 },
-                        p2: Point { x: 0.0, y: half_y },
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: half_y,
+                            ..Default::default()
+                        },
                     },
                 ],
             },
@@ -538,65 +698,122 @@ mod tests {
         // 縦線のテスト
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 10.0, y: 20.0 }, Point { x: 30.0, y: 20.0 }];
+        let points = vec![
+            Point {
+                x: 10.0,
+                y: 20.0,
+                ..Default::default()
+            },
+            Point {
+                x: 30.0,
+                y: 20.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
         let half_x = 20.0;
         let expect = vec![
             Polygon {
                 lines: vec![
                     Line {
-                        p1: Point { x: half_x, y: 0.0 },
+                        p1: Point {
+                            x: half_x,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                         p2: Point {
                             x: half_x,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: half_x,
                             y: height,
+                            ..Default::default()
                         },
-                        p2: Point { x: 0.0, y: height },
+                        p2: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: height },
-                        p2: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: 0.0 },
-                        p2: Point { x: half_x, y: 0.0 },
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: half_x,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                 ],
             },
             Polygon {
                 lines: vec![
                     Line {
-                        p1: Point { x: half_x, y: 0.0 },
+                        p1: Point {
+                            x: half_x,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                         p2: Point {
                             x: half_x,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: half_x,
                             y: height,
+                            ..Default::default()
                         },
                         p2: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
-                        p2: Point { x: width, y: 0.0 },
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: 0.0 },
-                        p2: Point { x: half_x, y: 0.0 },
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: half_x,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                 ],
             },
@@ -609,10 +826,29 @@ mod tests {
         // 45°斜めの分割(右肩下がり)
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 25.0, y: 25.0 }, Point { x: 75.0, y: 75.0 }];
+        let points = vec![
+            Point {
+                x: 25.0,
+                y: 25.0,
+                ..Default::default()
+            },
+            Point {
+                x: 75.0,
+                y: 75.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
-        let min_point = Point { x: 0.0, y: height };
-        let max_point = Point { x: width, y: 0.0 };
+        let min_point = Point {
+            x: 0.0,
+            y: height,
+            ..Default::default()
+        };
+        let max_point = Point {
+            x: width,
+            y: 0.0,
+            ..Default::default()
+        };
         let expect = vec![
             Polygon {
                 lines: vec![
@@ -622,10 +858,18 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: 0.0, y: 0.0 },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
@@ -641,12 +885,14 @@ mod tests {
                         p2: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                         p2: min_point.clone(),
                     },
@@ -661,12 +907,28 @@ mod tests {
         // 45°斜めの分割(右肩上がり)
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 25.0, y: 75.0 }, Point { x: 75.0, y: 25.0 }];
+        let points = vec![
+            Point {
+                x: 25.0,
+                y: 75.0,
+                ..Default::default()
+            },
+            Point {
+                x: 75.0,
+                y: 25.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
-        let min_point = Point { x: 0.0, y: 0.0 };
+        let min_point = Point {
+            x: 0.0,
+            y: 0.0,
+            ..Default::default()
+        };
         let max_point = Point {
             x: width,
             y: height,
+            ..Default::default()
         };
         let expect = vec![
             Polygon {
@@ -677,10 +939,18 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: 0.0, y: height },
+                        p2: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: height },
+                        p1: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
@@ -693,10 +963,18 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: width, y: 0.0 },
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: 0.0 },
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
@@ -710,10 +988,29 @@ mod tests {
         // 斜めの分割(右上・右肩下がり)
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 70.0, y: 80.0 }, Point { x: 90.0, y: 90.0 }];
+        let points = vec![
+            Point {
+                x: 70.0,
+                y: 80.0,
+                ..Default::default()
+            },
+            Point {
+                x: 90.0,
+                y: 90.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
-        let min_point = Point { x: 72.5, y: height };
-        let max_point = Point { x: width, y: 45.0 };
+        let min_point = Point {
+            x: 72.5,
+            y: height,
+            ..Default::default()
+        };
+        let max_point = Point {
+            x: width,
+            y: 45.0,
+            ..Default::default()
+        };
         let expect = vec![
             Polygon {
                 lines: vec![
@@ -723,18 +1020,42 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: width, y: 0.0 },
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: 0.0 },
-                        p2: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: 0.0 },
-                        p2: Point { x: 0.0, y: height },
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: height },
+                        p1: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
@@ -750,12 +1071,14 @@ mod tests {
                         p2: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                         p2: min_point.clone(),
                     },
@@ -770,10 +1093,29 @@ mod tests {
         // 斜めの分割(中央付近・右肩下がり・a=2.0)
         let width = 100.0;
         let height = 100.0;
-        let points = vec![Point { x: 55.0, y: 60.0 }, Point { x: 45.0, y: 40.0 }];
+        let points = vec![
+            Point {
+                x: 55.0,
+                y: 60.0,
+                ..Default::default()
+            },
+            Point {
+                x: 45.0,
+                y: 40.0,
+                ..Default::default()
+            },
+        ];
         let actual = calc_voronoi_lines(width, height, &points);
-        let min_point = Point { x: 0.0, y: 75.0 };
-        let max_point = Point { x: width, y: 25.0 };
+        let min_point = Point {
+            x: 0.0,
+            y: 75.0,
+            ..Default::default()
+        };
+        let max_point = Point {
+            x: width,
+            y: 25.0,
+            ..Default::default()
+        };
         let expect = vec![
             Polygon {
                 lines: vec![
@@ -783,14 +1125,30 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: width, y: 0.0 },
+                        p2: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: 0.0 },
-                        p2: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: width,
+                            y: 0.0,
+                            ..Default::default()
+                        },
+                        p2: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: 0.0 },
+                        p1: Point {
+                            x: 0.0,
+                            y: 0.0,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
@@ -806,17 +1164,27 @@ mod tests {
                         p2: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
                     },
                     Line {
                         p1: Point {
                             x: width,
                             y: height,
+                            ..Default::default()
                         },
-                        p2: Point { x: 0.0, y: height },
+                        p2: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                     },
                     Line {
-                        p1: Point { x: 0.0, y: height },
+                        p1: Point {
+                            x: 0.0,
+                            y: height,
+                            ..Default::default()
+                        },
                         p2: min_point.clone(),
                     },
                 ],
