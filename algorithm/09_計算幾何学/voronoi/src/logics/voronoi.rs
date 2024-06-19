@@ -22,17 +22,16 @@ enum EventType {
  */
 #[derive(Debug)]
 struct Arc {
+    // 焦点
     focal_point: Point,
-    // 準線のy位置
-    sub_line: f64,
 }
 
 impl Arc {
     /**
      * 放物線の最低点を返す
      */
-    pub fn get_v(&self) -> f64 {
-        (self.sub_line - self.focal_point.y) / 2.0
+    pub fn get_v(&self, sub_line: f64) -> f64 {
+        (sub_line - self.focal_point.y) / 2.0
     }
 
     pub fn get_cross_points(&self, b: Arc) -> f64 {
@@ -70,19 +69,27 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
     // サイトイベントを登録
     let mut queue: VecDeque<Event> = VecDeque::new();
-    points.iter().for_each(|point| {
+    for i in (0..points.len()).rev() {
         queue.push_back(Event {
-            site: Some(point.clone()),
+            site: Some(points[i].clone()),
             event_type: EventType::Site,
         })
-    });
+    }
 
-    let base_line_y: f64 = f64::MIN;
+    let mut base_line_y: f64 = f64::MAX;
     let beach_line: Vec<Arc> = Vec::new();
     while let Some(event) = queue.pop_front() {
         match (event.event_type, event.site) {
             (EventType::Site, Some(site)) => {
-                // 汀線追加
+                eprintln!("site event: {:?}", site);
+                base_line_y = site.y;
+                eprintln!("  base line: {}", base_line_y);
+
+                // 汀線に焦点を追加して並べ替え
+                beach_line.push(Arc {
+                    focal_point: site.clone(),
+                });
+                beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x));
 
                 // 基準線の更新
             }
@@ -765,7 +772,7 @@ mod tests {
         let height = 100.0;
         let points = vec![Point { x: 55.0, y: 60.0 }, Point { x: 45.0, y: 40.0 }];
         let actual = calc_voronoi_lines(width, height, &points);
-        let min_point = Point { x: 0.0, y: 75.0};
+        let min_point = Point { x: 0.0, y: 75.0 };
         let max_point = Point { x: width, y: 25.0 };
         let expect = vec![
             Polygon {
@@ -776,26 +783,14 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point {
-                            x: width,
-                            y: 0.0,
-                        },
+                        p2: Point { x: width, y: 0.0 },
                     },
                     Line {
-                        p1: Point {
-                            x: width,
-                            y: 0.0,
-                        },
-                        p2: Point {
-                            x: 0.0,
-                            y: 0.0,
-                        },
+                        p1: Point { x: width, y: 0.0 },
+                        p2: Point { x: 0.0, y: 0.0 },
                     },
                     Line {
-                        p1: Point {
-                            x: 0.0,
-                            y: 0.0,
-                        },
+                        p1: Point { x: 0.0, y: 0.0 },
                         p2: min_point.clone(),
                     },
                 ],
@@ -808,10 +803,16 @@ mod tests {
                     },
                     Line {
                         p1: max_point.clone(),
-                        p2: Point { x: width, y: height },
+                        p2: Point {
+                            x: width,
+                            y: height,
+                        },
                     },
                     Line {
-                        p1: Point { x: width, y: height },
+                        p1: Point {
+                            x: width,
+                            y: height,
+                        },
                         p2: Point { x: 0.0, y: height },
                     },
                     Line {
