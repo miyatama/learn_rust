@@ -100,11 +100,18 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 eprintln!("  base line: {}", base_line_y);
 
                 line_points = add_line_points(&site, &line_points);
-                // 汀線に焦点を追加して並べ替え
-                beach_line.push(Arc {
+                // 焦点を追加した状態の汀線を作る
+                let mut new_beach_line: Vec<Arc> = Vec::new();
+                new_beach_line.push(Arc {
                     focal_point: site.clone(),
                 });
-                beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
+                new_beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
+
+                // CircleEventの有無を確認
+
+                // 汀線の更新
+
+                
 
                 // 基準線の更新
             }
