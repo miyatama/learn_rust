@@ -338,6 +338,9 @@ eprintln!("max: {}, min: {}", max, min);
 | `VecDeque` | push_front(), push_back(), pop_front(), pop_back(), `VecDeque::from(vec![])`, `VecDeque.iter().collect()` |
 | `BinaryHeap` | push(), pop(), `BinaryHeap::from(vec![])` |
 
+
+</div></details>
+
 ### Uniq + Sum
 
 指定した数値以下の要素に対してUniq + Sum。
