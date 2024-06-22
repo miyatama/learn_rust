@@ -105,13 +105,12 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 new_beach_line.push(Arc {
                     focal_point: site.clone(),
                 });
-                new_beach_line.sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
+                new_beach_line
+                    .sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
 
                 // CircleEventの有無を確認
 
                 // 汀線の更新
-
-                
 
                 // 基準線の更新
             }

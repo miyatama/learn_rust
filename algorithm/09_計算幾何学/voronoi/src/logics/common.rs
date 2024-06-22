@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Point {
-    pub id: u64,
+    pub id: u32,
     pub x: f64,
     pub y: f64,
 }
