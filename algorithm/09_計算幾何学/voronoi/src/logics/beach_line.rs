@@ -1,4 +1,5 @@
 use super::common::Point;
+use std::collections::HashMap;
 
 /**
  * 汀線
@@ -7,6 +8,65 @@ use super::common::Point;
 pub struct BeachLine {
     pub base_y: f64,
     pub factors: Vec<BeachLineFactor>,
+}
+
+/**
+ * 放物線の弧(汀線の要素)
+ */
+#[derive(Debug)]
+struct Arc {
+    // 焦点
+    focal_point: Point,
+}
+
+impl Arc {
+    /**
+     * 放物線の最低点を返す
+     */
+    pub fn get_v(&self, sub_line: f64) -> f64 {
+        (sub_line - self.focal_point.y) / 2.0
+    }
+
+    pub fn get_cross_points(&self, b: Arc, base_line: f64) -> f64 {
+        let p = self.get_v(base_line);
+        // v = (h, k)
+        //   = (self.point.x, self.point.y - base_line / 2 + base_line)
+        // p = 焦点から放物線の最低点までの距離
+        //   = self.point.y - base_line / 2
+        // 4p(y - k) = (x - h)^2
+        // より
+        // y = (x^2 - 2xh1 + h1^2 + 4p1k1) / 4p1
+        // y = (x^2 - 2xh2 + h2^2 + 4p2k2) / 4p2
+        // 
+        // 焦点のy位置が同じ場合はx距離の半分が交差
+        // 焦点のy位置が異なる場合は別途計算
+        0.0
+    }
+
+    /**
+     * 放物線のx範囲
+     * x_min: 最小x範囲
+     * y_min: 最小y範囲(準線)
+     * x_max: 最大x範囲
+     * y_max: 最大y範囲
+     */
+    pub fn get_x_range(&self, x_min: f64, y_min: f64, x_max: f64, y_max: f64) -> (f64, f64) {
+        // 焦点のy位置でx範囲を計算する
+        // v = (h, k)
+        //   = (self.point.x, self.point.y - y_min / 2 + y_min)
+        // p = 焦点から放物線の最低点までの距離
+        //   = self.point.y - y_min / 2
+        // 4p(y - k) = (x - h)^2 より
+        // x = sqrt(4p(y - k)) + h
+        let p = self.get_v(y_min);
+        let (h, k) = (self.focal_point.x, self.focal_point.y - y_min / 2.0 + y_min);
+        let x_range = (4.0 * p * (y_max - k)).sqrt();
+        let min = h - x_range;
+        let min = if min < x_min { x_min } else { min };
+        let max = x_range + h;
+        let max = if max > x_max { x_max } else { max };
+        (min, max)
+    }
 }
 
 /**
@@ -21,8 +81,52 @@ pub enum BeachLineFactor {
 
 pub fn create_beach_line(base_y: f64, points: &Vec<Point>, width: f64) -> BeachLine {
     let mut factors: Vec<BeachLineFactor> = Vec::new();
-    let max_y = points.iter().map(|point| point.y).fold(f64::MIN, |m, v| m.max(v));
-    let arcs = points.iter().map(|point| BeachLineFactor::Arc(point.id)).collect::<Vec<BeachLineFactor>>();
+    let pointIdIndex: HashMap<u32, usize> = points
+        .iter()
+        .enumerate()
+        .map(|(index, point)| (point.id, index))
+        .collect::<HashMap<_, _>>();
+    let max_y = points
+        .iter()
+        .map(|point| point.y)
+        .fold(f64::MIN, |m, v| m.max(v));
+    for i in 0..points.len() {
+        let point = points[i].clone();
+        let arc = Arc { focal_point: point.clone() };
+        let (min_x, max_x) = arc.get_x_range(0.0, base_y, width, max_y);
+        let v = arc.get_v(base_y);
+        let mut assign = true;
+        for j in 0..factors.len() {
+            match factors[j] {
+                BeachLineFactor::Arc(id) => {
+                    let arc1 = Arc {
+                        focal_point: points[*pointIdIndex.get(&id).unwrap()].clone(),
+                    };
+                    let (x1, x2) = arc1.get_x_range(0.0, base_y, width, max_y);
+                    let v1 = arc1.get_v(base_y);
+                    // 完全に包む放物線が存在する場合
+                    if x1 <= min_x && x2 >= max_x && v <= v1 {
+                        assign = false;
+                    }
+                }
+                BeachLineFactor::CrossPoint(_, _) => {}
+            }
+        }
+        if !assign {
+            continue;
+        }
+        // 交点を持つ要素を抽出
+        let mut cross_ids: Vec<usize> = Vec::new();
+        for j in 0..factors.len() {
+
+        }
+            factors.push(BeachLineFactor::Arc(point.id));
+    }
+    let arcs = points
+        .iter()
+        .map(|point| BeachLineFactor::Arc(point.id))
+        .collect::<Vec<BeachLineFactor>>();
+
     BeachLine {
         base_y: base_y,
         factors: factors,
@@ -107,10 +211,7 @@ mod tests {
         let actual = create_beach_line(base_y, &points, width);
         let expect = BeachLine {
             base_y: base_y,
-            factors: vec![
-                BeachLineFactor::Arc(1),
-                BeachLineFactor::Arc(2),
-            ],
+            factors: vec![BeachLineFactor::Arc(1), BeachLineFactor::Arc(2)],
         };
         assert_eq!(expect, actual);
     }
@@ -137,9 +238,7 @@ mod tests {
         let actual = create_beach_line(base_y, &points, width);
         let expect = BeachLine {
             base_y: base_y,
-            factors: vec![
-                BeachLineFactor::Arc(2),
-            ],
+            factors: vec![BeachLineFactor::Arc(2)],
         };
         assert_eq!(expect, actual);
     }

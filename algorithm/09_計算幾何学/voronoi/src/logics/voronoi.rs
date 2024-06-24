@@ -18,44 +18,6 @@ enum EventType {
 }
 
 /**
- * 放物線の弧(汀線の要素)
- */
-#[derive(Debug)]
-struct Arc {
-    // 焦点
-    focal_point: Point,
-}
-
-impl Arc {
-    /**
-     * 放物線の最低点を返す
-     */
-    pub fn get_v(&self, sub_line: f64) -> f64 {
-        (sub_line - self.focal_point.y) / 2.0
-    }
-
-    pub fn get_cross_points(&self, b: Arc, base_line: f64) -> f64 {
-        let p = self.get_v(base_line);
-        // 4p(y - k) = (x - h)^2 より
-        // y = (x^2 - 2xh + h^2 + 4pk) / 4p
-        // k = self.focal_point.y
-        // h = self.focal_point.x
-        0.0
-    }
-
-    pub fn get_x_range(&self, x_upper_limit: f64) -> (f64, f64) {
-        // 焦点のy位置でx範囲を計算する
-        // 4p(y - k) = (x - h)^2 より
-        // x = sqrt(4p(y - k)) + h
-        // x = h
-        //   k = self.focal_point.y
-        //   h = self.focal_point.x
-        //   y = self.focal_point.y
-        (0.0, 0.0)
-    }
-}
-
-/**
  * 点の集合からボロノイ辺を作成する
  */
 pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<Polygon> {
@@ -91,7 +53,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         new_line_points.push(point.clone());
         return new_line_points;
     };
-    let mut beach_line: Vec<Arc> = Vec::new();
+    let mut beach_line: Vec<Point> = Vec::new();
     while let Some(event) = queue.pop_front() {
         match (event.event_type, event.site) {
             (EventType::Site, Some(site)) => {
@@ -101,12 +63,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
                 line_points = add_line_points(&site, &line_points);
                 // 焦点を追加した状態の汀線を作る
-                let mut new_beach_line: Vec<Arc> = Vec::new();
-                new_beach_line.push(Arc {
-                    focal_point: site.clone(),
-                });
-                new_beach_line
-                    .sort_by(|a, b| a.focal_point.x.partial_cmp(&b.focal_point.x).unwrap());
 
                 // CircleEventの有無を確認
 
