@@ -29,63 +29,56 @@ impl Arc {
 
     /**
      * 放物線の交差を計算
-     *  */
-    pub fn get_cross_points(&self, b: Arc, base_line: f64) -> f64 {
-        let p = self.get_v(base_line);
-        // v = (h, k)
-        //   = (self.point.x, self.point.y - base_line / 2 + base_line)
-        // p = 焦点から放物線の最低点までの距離
-        //   = self.point.y - base_line / 2
-        // 4p(y - k) = (x - h)^2
-        // より
-        // y = (x^2 - 2xh1 + h1^2 + 4p1k1) / 4p1
-        // y = (x^2 - 2xh2 + h2^2 + 4p2k2) / 4p2
-        //
-        // 焦点のy位置が同じ場合はx距離の半分が交差
-        // 焦点のy位置が異なる場合は別途計算
+     * 参考: https://www.mathartroom.com/processing/voronoi_diagram/
+     */
+    pub fn get_cross_points(&self, b: Arc, sub_line: f64) -> Point {
+        let quadratic_func = |x: f64, point: &Point, sub_line: f64| -> f64 {
+            -(x - point.x).powf(2.0) / 2.0 / (sub_line - point.y) + (sub_line + point.y) / 2.0
+        };
+        let focus1 = self.focal_point.clone();
+        let focus2 = b.focal_point.clone();
 
-        // 参考コード
-        /**
-        // 左から見て母点index1の放物線と母点index2の放物線が交わる交点の位置を計算する関数
-        PVector getIntersection (
-          ArrayList<PVector> generating_points,
-          int index1, // 左の母点
-          int index2, // 右の母点
-          float rho // 準線の位置
-        ){
-          PVector intersect = new PVector(0.0,0.0);
+        let use_self = focus1.x < focus2.x || (focus1.x == focus2.x && focus1.y > focus2.y);
+        let a = focus2.y - focus1.y;
+        let b = (sub_line - focus1.y) * focus2.x - (sub_line - focus2.y) * focus1.x;
+        let c = (sub_line - focus1.y) * focus2.x.powf(2.0)
+            - (sub_line - focus2.y) * focus1.x.powf(2.0)
+            + (focus1.y - focus2.y) * (sub_line - focus1.y) * (sub_line - focus2.y);
 
-          float x1 = (float) generating_points.get(index1).x;
-          float y1 = (float) generating_points.get(index1).y;
-          float x2 = (float) generating_points.get(index2).x;
-          float y2 = (float) generating_points.get(index2).y;
-
-          float a = y2 - y1;
-          float b = (rho-y1)*x2-(rho-y2)*x1;
-          float c = (rho-y1)*pow(x2,2)-(rho-y2)*pow(x1,2)+(y1-y2)*(rho-y1)*(rho-y2);
-
-          if( abs(y1 - rho) < 0.001 ){
-            intersect.x = x1;
-            intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-          } else if( abs(y2 - rho) < 0.001 ){
-            intersect.x = x2;
-            intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-          } else if( abs(a) < 0.001 ){
-            intersect.x = c/b/2.0;
-            intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-          } else if ( index1 < index2 ){
-            intersect.x = (b-sqrt(pow(b,2)-a*c))/a;
-            intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-          } else {
-            intersect.x = (b-sqrt(pow(b,2)-a*c))/a;
-            intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-          }
-
-          return intersect;
-
-        }
-                 */
-        0.0
+        return if (focus1.y - sub_line).abs() < 0.001 {
+            Point {
+                x: focus1.x,
+                y: quadratic_func(focus1.x, &focus2, sub_line),
+                ..Default::default()
+            }
+        } else if (focus2.y - sub_line).abs() < 0.001 {
+            Point {
+                x: focus2.x,
+                y: quadratic_func(focus2.x, &focus1, sub_line),
+                ..Default::default()
+            }
+        } else if a.abs() < 0.001 {
+            let x = c / b / 2.0;
+            Point {
+                x: x,
+                y: quadratic_func(x, &focus1, sub_line),
+                ..Default::default()
+            }
+        } else if use_self {
+            let x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+            Point {
+                x: x,
+                y: quadratic_func(x, &focus1, sub_line),
+                ..Default::default()
+            }
+        } else {
+            let x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+            Point {
+                x: x,
+                y: quadratic_func(x, &focus2, sub_line),
+                ..Default::default()
+            }
+        };
     }
 
     /**
