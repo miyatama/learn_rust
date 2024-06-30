@@ -151,53 +151,56 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
             }
         }
         println!("calculate next circle event timing");
-        /*
 
         next_circle_event_timing = last_event_timing;
-        for(int j=1; j<intersection_num; j++){
-          // 3つの母点のindexを取得
-          int[] circle_point_index = new int[3];
-          circle_point_index[0] = intersections.get(2*(j-1));
-          circle_point_index[1] = intersections.get(2*j);
-          circle_point_index[2] = intersections.get(2*j+1);
-          // 選択された隣り合った2つの交点のindexが異なる場合計算する
-          if( circle_point_index[0] != circle_point_index[2] ){
-            // 選択された3点を通る円の中心と半径を算出する
-            PVector circle_center;
-            float circle_radius;
-            // 関数を挿入
-            PVector[] circle_point = new PVector[3];
-            for(int k=0; k<3; k++){
-              circle_point[k] = generating_points.get(circle_point_index[k]).copy();
+        for j in 1..intersection_num {
+            // 3つの母点のindexを取得
+            let mut circle_point_index = vec![0; 3];
+            circle_point_index[0] = intersections.get(2 * (j - 1));
+            circle_point_index[1] = intersections.get(2 * j);
+            circle_point_index[2] = intersections.get(2 * j + 1);
+            // 選択された隣り合った2つの交点のindexが異なる場合計算する
+            if circle_point_index[0] != circle_point_index[2] {
+                // 選択された3点を通る円の中心と半径を算出する
+                let mut circle_center: Point = Point {};
+                let mut circle_radius = 0.0;
+                // 関数を挿入
+                let mut circle_point: Vec<Point> = vec![Point { x: 0.0, y: 0.0 }; 3];
+                for k in 0..3 {
+                    circle_point[k] = generating_points.get(circle_point_index[k]).clone();
+                }
+                circle_center = getCercleCenter(circle_point);
+                circle_radius = circle_point[0].dist(circle_center.copy());
+                // 「円の中心のy座標＋半径」の値が現状のイベントタイミング以上かつ次のサークルイベント発生タイミングより小さい値であれば、
+                // 次のサークルイベント発生タイミングを「円の中心のy座標＋半径」の値に更新する
+                if event_type == 0
+                    && exception_index.indexOf(circle_point_index[1]) == -1
+                    && (circle_center.y + circle_radius) > present_event_timing - 0.001
+                    && circle_center.y + circle_radius <= next_circle_event_timing
+                {
+                    next_circle_event_timing = circle_center.y + circle_radius;
+                } else if event_type == 1
+                    && present_event_timing < circle_center.y + circle_radius
+                    && circle_center.y + circle_radius < next_circle_event_timing
+                {
+                    next_circle_event_timing = circle_center.y + circle_radius;
+                } else {
+                }
             }
-            circle_center = getCercleCenter(circle_point);
-            circle_radius = circle_point[0].dist(circle_center.copy());
-            // 「円の中心のy座標＋半径」の値が現状のイベントタイミング以上かつ次のサークルイベント発生タイミングより小さい値であれば、
-            // 次のサークルイベント発生タイミングを「円の中心のy座標＋半径」の値に更新する
-            if( event_type == 0 && exception_index.indexOf(circle_point_index[1]) == -1 && (circle_center.y + circle_radius) > present_event_timing - 0.001 && circle_center.y + circle_radius <= next_circle_event_timing ){
-              next_circle_event_timing = circle_center.y + circle_radius;
-            } else if( event_type == 1 && present_event_timing < circle_center.y + circle_radius && circle_center.y + circle_radius < next_circle_event_timing ){
-              next_circle_event_timing = circle_center.y + circle_radius;
-            } else {
-            }
-          }
         }
-             */
 
         println!("calculate present event timing");
-        /*
         previous_event_timing = present_event_timing;
-        if( next_circle_event_timing >= site_event_timing.get(next_generating_point_index) ){
-          present_event_timing = site_event_timing.get(next_generating_point_index);
-          event_type = 0;
+        if next_circle_event_timing >= site_event_timing.get(next_generating_point_index) {
+            present_event_timing = site_event_timing.get(next_generating_point_index);
+            event_type = 0;
         } else {
-          present_event_timing = next_circle_event_timing;
-          event_type = 1;
+            present_event_timing = next_circle_event_timing;
+            event_type = 1;
         }
-        if( abs( present_event_timing - previous_event_timing ) > 0.001 ){
-          exception_index.clear();
+        if (present_event_timing - previous_event_timing).abs() > 0.001 {
+            exception_index.clear();
         }
-              */
     }
 }
 
