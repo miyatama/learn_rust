@@ -99,15 +99,15 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
                 // 新たな交点の位置を挿入
                 if medial_insert_flag == 1 {
                     // 新しく追加される母点のx座標がある交点の位置のx座標が一致する場合
-                    intersections.push(2 * insert_position + 1, next_generating_point_index);
-                    intersections.push(2 * (insert_position + 1), next_generating_point_index);
+                    intersections.insert(2 * insert_position + 1, next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1), next_generating_point_index);
                 } else if insert_position == 0 {
                     // 挿入位置が一番左側の場合
                     let outer_index = intersections.get(0);
-                    intersections.push(0, outer_index);
-                    intersections.push(1, next_generating_point_index);
-                    intersections.push(2, next_generating_point_index);
-                    intersections.push(3, outer_index);
+                    intersections.insert(0, outer_index);
+                    intersections.insert(1, next_generating_point_index);
+                    intersections.insert(2, next_generating_point_index);
+                    intersections.insert(3, outer_index);
                 } else if insert_position == intersection_num {
                     // 挿入位置が一番右側の場合
                     let inner_index = intersections.get(2 * (insert_position - 1) + 1);
@@ -119,10 +119,10 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
                     // 挿入位置が配列の位置の間
                     let inner_index = intersections.get(2 * (insert_position - 1) + 1);
                     let outer_index = intersections.get(2 * insert_position);
-                    intersections.push(2 * insert_position, inner_index);
-                    intersections.push(2 * insert_position + 1, next_generating_point_index);
-                    intersections.push(2 * (insert_position + 1), next_generating_point_index);
-                    intersections.push(2 * (insert_position + 1) + 1, outer_index);
+                    intersections.insert(2 * insert_position, inner_index);
+                    intersections.insert(2 * insert_position + 1, next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1), next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1) + 1, outer_index);
                 }
                 // 次の母点にindexを更新
                 next_generating_point_index += 1;
