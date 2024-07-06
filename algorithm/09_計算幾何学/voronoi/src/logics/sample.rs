@@ -1,7 +1,36 @@
-#[derive(Debug)]
+use std::cmp::Ordering;
+
+#[derive(Debug, Clone, PartialEq)]
 struct Point {
     x: f64,
     y: f64,
+}
+
+impl Point {
+    fn dist(&self, point: &Point) -> f64 {
+        let x = if self.x > point.x {
+            self.x - point.x
+        } else {
+            point.x - self.x
+        };
+        let y = if self.y > point.y {
+            self.y - point.y
+        } else {
+            point.y - self.y
+        };
+        (x.powf(2.0) + y.powf(2.0)).sqrt()
+    }
+}
+
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(
+            self.y
+                .partial_cmp(&other.y)
+                .unwrap()
+                .then_with(|| self.x.partial_cmp(&other.x).unwrap()),
+        )
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -34,11 +63,11 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
     });
 
     // 1: y昇順
-    points.sort();
+    points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
 
     let last_event_timing = 2.0 * height;
     // 汀線の状態を保持する。ポイントIDを汀線順に並べる。
-    let mut intersections: Vec<u32> = Vec::new();
+    let mut intersections: Vec<usize> = Vec::new();
     // 汀線の交点座標(サイズ = intersections.size / 2.0)
     let mut intersection_pos: Vec<Point> = Vec::new();
     intersections.push(0);
@@ -67,17 +96,17 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
 
     while present_event_timing < last_event_timing {
         println!("event timing: {}", present_event_timing);
-        let intersection_num = intersections.size() / 2;
+        let mut intersection_num = intersections.len() / 2;
 
         // 隣り合う交点の位置を算出
         let mut intersection_pos: Vec<Point> = vec![Point { x: 0.0, y: 0.0 }; intersection_num];
         for i in 0..intersection_num {
             let index1 = intersections[2 * i];
             let index2 = intersections[2 * i + 1];
-            let start = get_intersection(points, index1, index2, previous_event_timing);
-            let end = get_intersection(points, index1, index2, present_event_timing);
+            let start = get_intersection(&points, index1, index2, previous_event_timing);
+            let end = get_intersection(&points, index1, index2, present_event_timing);
             // line(start.x, start.y, end.x, end.y);
-            intersection_pos[i] = end.copy(); // 交点位置の更新のため、交点位置を保持しておく
+            intersection_pos[i] = end.clone(); // 交点位置の更新のため、交点位置を保持しておく
         }
 
         // intersectionsの更新
@@ -137,18 +166,17 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
                 // 隣り合う交点の位置が重なった場合、交点同士を合体させる
                 let mut remove_index: Vec<usize> = Vec::new();
                 for i in 1..intersection_num {
-                    if exception_index.indexOf(intersections[2 * i]) == -1
-                        && intersections[2 * j + 1] != intersections[2 * (i - 1)]
-                        && intersection_pos[j].dist(intersection_pos[i - 1]) < 2.0
+                    if !exception_index.iter().any(|&index| index == intersections[2 * i])
+                        && intersections[2 * i + 1] != intersections[2 * (i - 1)]
+                        && intersection_pos[i].dist(&intersection_pos[i - 1]) < 2.0
                     {
                         remove_index.push(i);
                     }
                 }
-                println!("除外点:", remove_index);
-                let remove_num = remove_index.size();
-                for i in (0..(remove_num - 1)).rev() {
+                println!("除外点: {:?}", remove_index);
+                for i in (0..remove_index.len()).rev() {
                     intersections.remove(2 * remove_index[i]);
-                    intersections.remove(2 * (remove_indexi[i] - 1) + 1);
+                    intersections.remove(2 * (remove_index[i] - 1) + 1);
                     intersection_num -= 1;
                 }
             }
@@ -158,27 +186,26 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
         next_circle_event_timing = last_event_timing;
         for j in 1..intersection_num {
             // 3つの母点のindexを取得
-            let mut circle_point_index = vec![0; 3];
+            let mut circle_point_index = vec![0usize; 3];
             circle_point_index[0] = intersections[2 * (j - 1)];
             circle_point_index[1] = intersections[2 * j];
             circle_point_index[2] = intersections[2 * j + 1];
             // 選択された隣り合った2つの交点のindexが異なる場合計算する
             if circle_point_index[0] != circle_point_index[2] {
                 // 選択された3点を通る円の中心と半径を算出する
-                let mut circle_center: Point = Point {};
                 let mut circle_radius = 0.0;
                 // 関数を挿入
                 let mut circle_point: Vec<Point> = vec![Point { x: 0.0, y: 0.0 }; 3];
                 for k in 0..3 {
                     circle_point[k] = points[circle_point_index[k]].clone();
                 }
-                circle_center = get_cercle_center(circle_point);
-                circle_radius = circle_point[0].dist(circle_center.copy());
+                let circle_center = get_circle_center(&circle_point);
+                circle_radius = circle_point[0].dist(&circle_center.clone());
                 // 「円の中心のy座標＋半径」の値が現状のイベントタイミング以上かつ次のサークルイベント発生タイミングより小さい値であれば、
                 // 次のサークルイベント発生タイミングを「円の中心のy座標＋半径」の値に更新する
                 match event_type {
                     EventType::Site => {
-                        if exception_index.indexOf(circle_point_index[1]) == -1
+                        if !exception_index.iter().any(|&index| index == circle_point_index[1])
                             && (circle_center.y + circle_radius) > present_event_timing - 0.001
                             && circle_center.y + circle_radius <= next_circle_event_timing
                         {
@@ -212,7 +239,7 @@ fn draw_voronoi_diagram(height: f64, width: f64, points: &Vec<Point>) {
 }
 
 // 3つの母点を通る円の中心を求める関数
-fn get_cercle_center(point: &Vec<Point>) -> Point {
+fn get_circle_center(point: &Vec<Point>) -> Point {
     let mut a = 0.0;
     let mut b = 0.0;
     let mut c = 1.0;
@@ -222,9 +249,9 @@ fn get_cercle_center(point: &Vec<Point>) -> Point {
         let index2 = (i + 1) % 3;
         let index3 = (i + 2) % 3;
         a += point[index1].x * (point[index2].y - point[index3].y);
-        b += point[i % 3].x.pow(2.0) * (point[index2].y - point[index3].y);
+        b += point[i % 3].x.powf(2.0) * (point[index2].y - point[index3].y);
         c *= point[index2].y - point[index3].y;
-        d += point[index1].x * (point[index2].y.pow(2.0) - point[index3].y.pow(2.0))
+        d += point[index1].x * (point[index2].y.powf(2.0) - point[index3].y.powf(2.0))
             - point[index2].x * point[(i + 2) % 3].x * (point[index2].x - point[index3].x);
     }
     Point {
@@ -245,8 +272,8 @@ pub fn get_points() -> Vec<Point> {
  * index2: usize, 右の母点
  * rho: f64,      準線の位置
  */
-fn get_intersection(points: Vec<Point>, index1: usize, index2: usize, rho: f64) -> Point {
-    let mut intersect = Ponint { x: 0.0, y: 0.0 };
+fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64) -> Point {
+    let mut intersect = Point { x: 0.0, y: 0.0 };
 
     // 与えられた焦点（focus_x,focus_y）と準線y=rhoによる2次関数にxを与えたときのyの値
     // x 取得したい点のx座標
@@ -254,7 +281,7 @@ fn get_intersection(points: Vec<Point>, index1: usize, index2: usize, rho: f64) 
     // focus_y 2次関数の焦点のy座標
     // rho 準線の位置
     let quadratic_func = |x: f64, focus_x: f64, focus_y: f64, rho: f64| -> f64 {
-        return -(x - focus_x).pow(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
+        return -(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
     };
 
     let x1 = points[index1].x;
@@ -265,22 +292,22 @@ fn get_intersection(points: Vec<Point>, index1: usize, index2: usize, rho: f64) 
     let a = y2 - y1;
     let b = (rho - y1) * x2 - (rho - y2) * x1;
     let c =
-        (rho - y1) * x2.pow(2.0) - (rho - y2) * x1.pow(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
+        (rho - y1) * x2.powf(2.0) - (rho - y2) * x1.powf(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
 
-    if ((y1 - rho).abs() < 0.001) {
+    if (y1 - rho).abs() < 0.001 {
         intersect.x = x1;
         intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-    } else if ((y2 - rho).abs() < 0.001) {
+    } else if (y2 - rho).abs() < 0.001 {
         intersect.x = x2;
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else if (a.abs() < 0.001) {
+    } else if a.abs() < 0.001 {
         intersect.x = c / b / 2.0;
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else if (index1 < index2) {
-        intersect.x = (b - sqrt(pow(b, 2) - a * c)) / a;
+    } else if index1 < index2 {
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
     } else {
-        intersect.x = (b - sqrt(pow(b, 2) - a * c)) / a;
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
         intersect.y = quadratic_func(intersect.x, x2, y2, rho);
     }
     intersect
