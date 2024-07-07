@@ -1,5 +1,28 @@
 use super::common::Point;
 
+pub fn sample_data_one() -> Vec<Point> {
+    vec![Point {
+        x: 50.0,
+        y: 50.0,
+        ..Default::default()
+    }]
+}
+
+pub fn sample_data_two() -> Vec<Point> {
+    vec![
+        Point {
+            x: 25.0,
+            y: 50.0,
+            ..Default::default()
+        },
+        Point {
+            x: 75.0,
+            y: 50.0,
+            ..Default::default()
+        },
+    ]
+}
+
 pub fn sample_data() -> Vec<Point> {
     vec![
         Point {

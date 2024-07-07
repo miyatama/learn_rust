@@ -7,6 +7,30 @@ pub struct Point {
     pub y: f64,
 }
 
+impl Point {
+    pub fn new() -> Point {
+        Point::default()
+    }
+
+    pub fn new2(x: f64, y: f64) -> Point {
+        Point { id: 0, x: x, y: y }
+    }
+
+    pub fn dist(&self, point: &Point) -> f64 {
+        let x = if self.x > point.x {
+            self.x - point.x
+        } else {
+            point.x - self.x
+        };
+        let y = if self.y > point.y {
+            self.y - point.y
+        } else {
+            point.y - self.y
+        };
+        (x.powf(2.0) + y.powf(2.0)).sqrt()
+    }
+}
+
 impl Default for Point {
     fn default() -> Point {
         Point {
@@ -57,6 +81,13 @@ impl PartialOrd for Line {
 }
 
 impl Line {
+    pub fn new(x1: f64, y1: f64, x2: f64, y2: f64) -> Line {
+        Line {
+            p1: Point::new2(x1, y1),
+            p2: Point::new2(x2, y2),
+        }
+    }
+
     // yが大きい方を優先
     pub fn get_start_point(&self) -> Point {
         match (
@@ -118,5 +149,15 @@ impl Line {
  */
 #[derive(Debug, Clone, PartialEq)]
 pub struct Polygon {
+    pub point_id: u32,
     pub lines: Vec<Line>,
+}
+
+impl Polygon {
+    pub fn new(point_id: u32) -> Polygon {
+        Polygon {
+            point_id: point_id,
+            lines: vec![],
+        }
+    }
 }

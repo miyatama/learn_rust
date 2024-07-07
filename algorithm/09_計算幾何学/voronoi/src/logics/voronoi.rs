@@ -21,60 +21,260 @@ enum EventType {
  * 点の集合からボロノイ辺を作成する
  */
 pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<Polygon> {
-    let mut points = points.clone();
+    // 点の数が2以下の場合は固定で線分を引く
     if points.len() <= 1 {
         return create_point_one_voronoi(width, height);
     } else if points.len() <= 2 {
         return create_point_twe_voronoi(width, height, &points);
     }
+
+    // 作成されるボロノイ
+    let mut voronoi: Vec<Polygon> = points
+        .iter()
+        .map(|point| Polygon::new(point.id))
+        .collect::<Vec<Polygon>>();
+
+    let points = add_dummy_points(width, height, &points);
+
+    // 汀線の状態を保持する。ポイントIDを汀線順に並べる。
+    // intersections: 汀線に対応するポイントID
+    let mut intersections: Vec<usize> = Vec::new();
+    intersections.push(0);
+    intersections.push(1);
+    intersections.push(1);
+    intersections.push(0);
+
+    let last_event_timing = 2.0 * height;
+    let site_event_timing = get_site_event_timing(last_event_timing, &points);
+    let mut previous_event_timing = site_event_timing[1];
+    let mut present_event_timing = site_event_timing[2];
+    let mut event_type: EventType = EventType::Site;
+    let mut next_generating_point_index = 2;
+
+    let mut next_circle_event_timing = last_event_timing;
+    let mut exception_index: Vec<usize> = Vec::new();
+
+    while present_event_timing < last_event_timing {
+        println!("event timing: {}", present_event_timing);
+        let mut intersection_num = intersections.len() / 2;
+
+        // 隣り合う交点の位置を算出
+        // intersection_pos: 汀線の交点座標(サイズ = intersections.size / 2.0)
+        let mut intersection_pos: Vec<Point> = vec![Point::new(); intersection_num];
+        for i in 0..intersection_num {
+            let index1 = intersections[2 * i];
+            let index2 = intersections[2 * i + 1];
+            let start = get_intersection(&points, index1, index2, previous_event_timing);
+            let end = get_intersection(&points, index1, index2, present_event_timing);
+
+            let line = Line::new(start.x, start.y, end.x, end.y);
+            for index in vec![index1, index2] {
+                let id = points[index].id;
+                let voronoi_index = voronoi
+                    .iter()
+                    .position(|voronoi| voronoi.point_id == id)
+                    .unwrap();
+                let mut polygon_line = voronoi[voronoi_index].lines.clone();
+                polygon_line.push(line.clone());
+                voronoi[voronoi_index] = Polygon {
+                    point_id: id,
+                    lines: polygon_line,
+                };
+            }
+            intersection_pos[i] = end.clone(); // 交点位置の更新のため、交点位置を保持しておく
+        }
+
+        // intersectionsの更新
+        match event_type {
+            EventType::Site => {
+                println!("site event");
+                let mut medial_insert_flag = 0;
+                let mut insert_position = intersection_num;
+                for i in 0..intersection_num {
+                    if (points[next_generating_point_index].x - intersection_pos[i].x).abs() < 0.001
+                    {
+                        insert_position = i;
+                        medial_insert_flag = 1;
+                        exception_index.push(next_generating_point_index);
+                        break;
+                    }
+                    if points[next_generating_point_index].x < intersection_pos[i].x {
+                        insert_position = i;
+                        break;
+                    }
+                }
+                // 新たな交点の位置を挿入
+                if medial_insert_flag == 1 {
+                    // 新しく追加される母点のx座標がある交点の位置のx座標が一致する場合
+                    intersections.insert(2 * insert_position + 1, next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1), next_generating_point_index);
+                } else if insert_position == 0 {
+                    // 挿入位置が一番左側の場合
+                    let outer_index = intersections[0];
+                    intersections.insert(0, outer_index);
+                    intersections.insert(1, next_generating_point_index);
+                    intersections.insert(2, next_generating_point_index);
+                    intersections.insert(3, outer_index);
+                } else if insert_position == intersection_num {
+                    // 挿入位置が一番右側の場合
+                    let inner_index = intersections[2 * (insert_position - 1) + 1];
+                    intersections.push(inner_index);
+                    intersections.push(next_generating_point_index);
+                    intersections.push(next_generating_point_index);
+                    intersections.push(inner_index);
+                } else {
+                    // 挿入位置が配列の位置の間
+                    let inner_index = intersections[2 * (insert_position - 1) + 1];
+                    let outer_index = intersections[2 * insert_position];
+                    intersections.insert(2 * insert_position, inner_index);
+                    intersections.insert(2 * insert_position + 1, next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1), next_generating_point_index);
+                    intersections.insert(2 * (insert_position + 1) + 1, outer_index);
+                }
+                // 次の母点にindexを更新
+                next_generating_point_index += 1;
+                // 汀線上の交点の数を更新
+                intersection_num += 1;
+            }
+            EventType::Circle => {
+                println!("circle event");
+                // 隣り合う交点の位置が重なった場合、交点同士を合体させる
+                let mut remove_index: Vec<usize> = Vec::new();
+                for i in 1..intersection_num {
+                    if !exception_index
+                        .iter()
+                        .any(|&index| index == intersections[2 * i])
+                        && intersections[2 * i + 1] != intersections[2 * (i - 1)]
+                        && intersection_pos[i].dist(&intersection_pos[i - 1]) < 2.0
+                    {
+                        remove_index.push(i);
+                    }
+                }
+                println!("除外点: {:?}", remove_index);
+                for i in (0..remove_index.len()).rev() {
+                    intersections.remove(2 * remove_index[i]);
+                    intersections.remove(2 * (remove_index[i] - 1) + 1);
+                    intersection_num -= 1;
+                }
+            }
+        }
+        println!("calculate next circle event timing");
+
+        next_circle_event_timing = last_event_timing;
+        for j in 1..intersection_num {
+            // 3つの母点のindexを取得
+            let mut circle_point_index = vec![0usize; 3];
+            circle_point_index[0] = intersections[2 * (j - 1)];
+            circle_point_index[1] = intersections[2 * j];
+            circle_point_index[2] = intersections[2 * j + 1];
+            // 選択された隣り合った2つの交点のindexが異なる場合計算する
+            if circle_point_index[0] != circle_point_index[2] {
+                // 選択された3点を通る円の中心と半径を算出する
+                let mut circle_radius = 0.0;
+                // 関数を挿入
+                let mut circle_point: Vec<Point> = vec![Point::new(); 3];
+                for k in 0..3 {
+                    circle_point[k] = points[circle_point_index[k]].clone();
+                }
+                let circle_center = get_circle_center(&circle_point);
+                circle_radius = circle_point[0].dist(&circle_center.clone());
+                // 「円の中心のy座標＋半径」の値が現状のイベントタイミング以上かつ次のサークルイベント発生タイミングより小さい値であれば、
+                // 次のサークルイベント発生タイミングを「円の中心のy座標＋半径」の値に更新する
+                match event_type {
+                    EventType::Site => {
+                        if !exception_index
+                            .iter()
+                            .any(|&index| index == circle_point_index[1])
+                            && (circle_center.y + circle_radius) > present_event_timing - 0.001
+                            && circle_center.y + circle_radius <= next_circle_event_timing
+                        {
+                            next_circle_event_timing = circle_center.y + circle_radius;
+                        }
+                    }
+                    EventType::Circle => {
+                        if present_event_timing < circle_center.y + circle_radius
+                            && circle_center.y + circle_radius < next_circle_event_timing
+                        {
+                            next_circle_event_timing = circle_center.y + circle_radius;
+                        }
+                    }
+                }
+            }
+        }
+
+        println!("calculate present event timing");
+        previous_event_timing = present_event_timing;
+        if next_circle_event_timing >= site_event_timing[next_generating_point_index] {
+            present_event_timing = site_event_timing[next_generating_point_index];
+            event_type = EventType::Site;
+        } else {
+            present_event_timing = next_circle_event_timing;
+            event_type = EventType::Circle;
+        }
+        if (present_event_timing - previous_event_timing).abs() > 0.001 {
+            exception_index.clear();
+        }
+    }
+
+    // 最後に残った境界線を描く
+    for j in 0..(intersections.len() / 2) {
+        let index1 = intersections[2 * j];
+        let index2 = intersections[2 * j + 1];
+        let start = get_intersection(&points, index1, index2, previous_event_timing);
+        let end = get_intersection(&points, index1, index2, present_event_timing);
+
+        let line = Line::new(start.x, start.y, end.x, end.y);
+        for index in vec![index1, index2] {
+            let id = points[index].id;
+            let voronoi_index = voronoi
+                .iter()
+                .position(|voronoi| voronoi.point_id == id)
+                .unwrap();
+            let mut polygon_line = voronoi[voronoi_index].lines.clone();
+            polygon_line.push(line.clone());
+            voronoi[voronoi_index] = Polygon {
+                point_id: id,
+                lines: polygon_line,
+            };
+        }
+    }
+
+    voronoi
+}
+
+/**
+ * ダミーポイントの追加
+ */
+fn add_dummy_points(width: f64, height: f64, points: &Vec<Point>) -> Vec<Point> {
+    let mut points = points.clone();
+    points.insert(
+        0,
+        Point {
+            x: width / 2.0,
+            y: -height,
+            ..Default::default()
+        },
+    );
+    points.push(Point {
+        x: width / 2.0,
+        y: height * 2.0,
+        ..Default::default()
+    });
     points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
+    points
+}
 
-    // サイトイベントを登録
-    let mut queue: VecDeque<Event> = VecDeque::new();
-    for i in (0..points.len()).rev() {
-        queue.push_back(Event {
-            site: Some(points[i].clone()),
-            event_type: EventType::Site,
-        })
+/**
+ * サイトイベント用の準線郡作成
+ * pointsはyの昇順となっている必要あり
+ */
+fn get_site_event_timing(last_event_timing: f64, points: &Vec<Point>) -> Vec<f64> {
+    let mut events: Vec<f64> = vec![];
+    for i in 0..points.len() {
+        events.push(points[i].y);
     }
-
-    let mut base_line_y: f64 = f64::MAX;
-    let mut line_points: Vec<Point> = Vec::new();
-    // x順に追加
-    let add_line_points = |point: &Point, line_points: &Vec<Point>| -> Vec<Point> {
-        for i in 0..line_points.len() {
-            if point.x < line_points[i].x {
-                let mut new_line_points = line_points.clone();
-                new_line_points.insert(i, point.clone());
-                return new_line_points;
-            }
-        }
-        let mut new_line_points = line_points.clone();
-        new_line_points.push(point.clone());
-        return new_line_points;
-    };
-    let mut beach_line: Vec<Point> = Vec::new();
-    while let Some(event) = queue.pop_front() {
-        match (event.event_type, event.site) {
-            (EventType::Site, Some(site)) => {
-                eprintln!("site event: {:?}", site);
-                base_line_y = site.y;
-                eprintln!("  base line: {}", base_line_y);
-
-                line_points = add_line_points(&site, &line_points);
-                // 焦点を追加した状態の汀線を作る
-
-                // CircleEventの有無を確認
-
-                // 汀線の更新
-
-                // 基準線の更新
-            }
-            (EventType::Circle, _) => {}
-            _ => {}
-        }
-    }
-    vec![]
+    events.push(last_event_timing);
+    events
 }
 
 fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Polygon> {
@@ -100,7 +300,10 @@ fn create_point_one_voronoi(width: f64, height: f64) -> Vec<Polygon> {
             ..Default::default()
         },
     ]);
-    vec![Polygon { lines: lines }]
+    vec![Polygon {
+        point_id: 0,
+        lines: lines,
+    }]
 }
 
 fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec<Polygon> {
@@ -293,7 +496,16 @@ fn create_point_twe_voronoi(width: f64, height: f64, points: &Vec<Point>) -> Vec
             .collect::<Vec<&Point>>(),
     );
 
-    vec![Polygon { lines: lines1 }, Polygon { lines: lines2 }]
+    vec![
+        Polygon {
+            point_id: points[0].id,
+            lines: lines1,
+        },
+        Polygon {
+            point_id: points[1].id,
+            lines: lines2,
+        },
+    ]
 }
 
 fn create_triangle_lines(points: &Vec<Point>) -> Vec<Line> {
@@ -365,23 +577,26 @@ fn get_delta(a: f64, b: f64) -> f64 {
  * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
  */
 pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<Polygon>) -> String {
-    let svg_size = 600i64;
+    let aspect_retio = (width / height) as i64;
+    let svg_width = 600i64;
+    let svg_height = (svg_width / aspect_retio) as i64;
     let n = 20i64;
     let margin = 10i64;
     let line_color = "#121212";
     let point_color = "#fc1212";
+    let polygon_line_color = "#2658d5";
     let mut svg = Document::new()
         .set(
             "viewBox",
             (
-                -margin,
-                -margin,
-                (svg_size + 2 * margin) as usize,
-                (svg_size + 2 * margin) as usize,
+                0,
+                0,
+                (svg_width + 2 * margin) as usize,
+                (svg_height + 2 * margin) as usize,
             ),
         )
-        .set("width", (svg_size + margin) as usize)
-        .set("height", (svg_size + margin) as usize)
+        .set("width", (svg_width + 2 * margin) as usize)
+        .set("height", (svg_height + 2 * margin) as usize)
         .set("style", "background-color:#F2F3F5");
 
     // グラフの外枠
@@ -389,15 +604,15 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
         SvgRectangle::new()
             .set("x", 10)
             .set("y", 10)
-            .set("width", 580)
-            .set("height", 580)
+            .set("width", svg_width)
+            .set("height", svg_height)
             .set("fill", "#F5F5F5")
             .set("stroke", line_color)
             .set("stroke-width", 3),
     );
 
-    let scale_width = (580.0 / width).floor();
-    let scale_height = (580.0 / width).floor();
+    let scale_width = (svg_width as f64 / width).floor();
+    let scale_height = (svg_height as f64 / height).floor();
     let change_coordinate =
         |x: f64, y: f64, scale_width: f64, scale_height: f64, margin: usize| -> (usize, usize) {
             (
@@ -427,7 +642,8 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
                 scale_height,
                 graph_margin,
             );
-            svg = svg.add(get_svg_line(x1, y1, x2, y2, line_color));
+            println!("polygon line: ({}, {}) to ({}, {})", x1, y1, x2, y2);
+            svg = svg.add(get_svg_line(x1, y1, x2, y2, polygon_line_color));
         }
     }
     for i in 0..points.len() {
@@ -473,6 +689,7 @@ mod tests {
         }];
         let actual = calc_voronoi_lines(width, height, &points);
         let expect = vec![Polygon {
+            point_id: 0,
             lines: vec![
                 Line {
                     p1: Point {
@@ -548,6 +765,7 @@ mod tests {
         let half_y = 20.0;
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: Point {
@@ -600,6 +818,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: Point {
@@ -676,6 +895,7 @@ mod tests {
         let half_x = 20.0;
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: Point {
@@ -728,6 +948,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: Point {
@@ -813,6 +1034,7 @@ mod tests {
         };
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -837,6 +1059,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -894,6 +1117,7 @@ mod tests {
         };
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -918,6 +1142,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -975,6 +1200,7 @@ mod tests {
         };
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -1023,6 +1249,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -1080,6 +1307,7 @@ mod tests {
         };
         let expect = vec![
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -1116,6 +1344,7 @@ mod tests {
                 ],
             },
             Polygon {
+                point_id: 0,
                 lines: vec![
                     Line {
                         p1: min_point.clone(),
@@ -1154,4 +1383,76 @@ mod tests {
         ];
         assert_eq!(actual, expect);
     }
+}
+
+// 3つの母点を通る円の中心を求める関数
+fn get_circle_center(point: &Vec<Point>) -> Point {
+    let mut a = 0.0;
+    let mut b = 0.0;
+    let mut c = 1.0;
+    let mut d = 0.0;
+    for i in 0..3 {
+        let index1 = i % 3;
+        let index2 = (i + 1) % 3;
+        let index3 = (i + 2) % 3;
+        a += point[index1].x * (point[index2].y - point[index3].y);
+        b += point[i % 3].x.powf(2.0) * (point[index2].y - point[index3].y);
+        c *= point[index2].y - point[index3].y;
+        d += point[index1].x * (point[index2].y.powf(2.0) - point[index3].y.powf(2.0))
+            - point[index2].x * point[(i + 2) % 3].x * (point[index2].x - point[index3].x);
+    }
+    Point {
+        x: (b - c) / 2.0 / a,
+        y: d / 2.0 / a,
+        ..Default::default()
+    }
+}
+
+/**
+ * 交点計算
+ * 左から見て母点index1の放物線と母点index2の放物線が交わる交点の位置を計算する関数
+ * generating_points: Vec<Point>,
+ * index1: usize, 左の母点
+ * index2: usize, 右の母点
+ * rho: f64,      準線の位置
+ */
+fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64) -> Point {
+    let mut intersect = Point::new();
+
+    // 与えられた焦点（focus_x,focus_y）と準線y=rhoによる2次関数にxを与えたときのyの値
+    // x 取得したい点のx座標
+    // focus_x 2次関数の焦点のx座標
+    // focus_y 2次関数の焦点のy座標
+    // rho 準線の位置
+    let quadratic_func = |x: f64, focus_x: f64, focus_y: f64, rho: f64| -> f64 {
+        return -(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
+    };
+
+    let x1 = points[index1].x;
+    let y1 = points[index1].y;
+    let x2 = points[index2].x;
+    let y2 = points[index2].y;
+
+    let a = y2 - y1;
+    let b = (rho - y1) * x2 - (rho - y2) * x1;
+    let c =
+        (rho - y1) * x2.powf(2.0) - (rho - y2) * x1.powf(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
+
+    if (y1 - rho).abs() < 0.001 {
+        intersect.x = x1;
+        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
+    } else if (y2 - rho).abs() < 0.001 {
+        intersect.x = x2;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else if a.abs() < 0.001 {
+        intersect.x = c / b / 2.0;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else if index1 < index2 {
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else {
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
+    }
+    intersect
 }

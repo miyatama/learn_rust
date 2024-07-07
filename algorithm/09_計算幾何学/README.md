@@ -329,3 +329,10 @@ flowchart TB
   id2 --> id5
 ```
 
+### 参考
+
++ [計算幾何学 第四章 ボロノイ図](http://i-health.u-aizu.ac.jp/CompuGeo/2017/handouts/chapter4/Chapter4H.pdf)
+
+### 結果
+
+![result](./voronoi_result_01.svg)
