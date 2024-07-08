@@ -572,6 +572,78 @@ fn get_delta(a: f64, b: f64) -> f64 {
     a - b
 }
 
+// 3つの母点を通る円の中心を求める関数
+fn get_circle_center(point: &Vec<Point>) -> Point {
+    let mut a = 0.0;
+    let mut b = 0.0;
+    let mut c = 1.0;
+    let mut d = 0.0;
+    for i in 0..3 {
+        let index1 = i % 3;
+        let index2 = (i + 1) % 3;
+        let index3 = (i + 2) % 3;
+        a += point[index1].x * (point[index2].y - point[index3].y);
+        b += point[i % 3].x.powf(2.0) * (point[index2].y - point[index3].y);
+        c *= point[index2].y - point[index3].y;
+        d += point[index1].x * (point[index2].y.powf(2.0) - point[index3].y.powf(2.0))
+            - point[index2].x * point[(i + 2) % 3].x * (point[index2].x - point[index3].x);
+    }
+    Point {
+        x: (b - c) / 2.0 / a,
+        y: d / 2.0 / a,
+        ..Default::default()
+    }
+}
+
+/**
+ * 交点計算
+ * 左から見て母点index1の放物線と母点index2の放物線が交わる交点の位置を計算する関数
+ * generating_points: Vec<Point>,
+ * index1: usize, 左の母点
+ * index2: usize, 右の母点
+ * rho: f64,      準線の位置
+ */
+fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64) -> Point {
+    let mut intersect = Point::new();
+
+    // 与えられた焦点（focus_x,focus_y）と準線y=rhoによる2次関数にxを与えたときのyの値
+    // x 取得したい点のx座標
+    // focus_x 2次関数の焦点のx座標
+    // focus_y 2次関数の焦点のy座標
+    // rho 準線の位置
+    let quadratic_func = |x: f64, focus_x: f64, focus_y: f64, rho: f64| -> f64 {
+        return -(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
+    };
+
+    let x1 = points[index1].x;
+    let y1 = points[index1].y;
+    let x2 = points[index2].x;
+    let y2 = points[index2].y;
+
+    let a = y2 - y1;
+    let b = (rho - y1) * x2 - (rho - y2) * x1;
+    let c =
+        (rho - y1) * x2.powf(2.0) - (rho - y2) * x1.powf(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
+
+    if (y1 - rho).abs() < 0.001 {
+        intersect.x = x1;
+        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
+    } else if (y2 - rho).abs() < 0.001 {
+        intersect.x = x2;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else if a.abs() < 0.001 {
+        intersect.x = c / b / 2.0;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else if index1 < index2 {
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
+    } else {
+        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
+    }
+    intersect
+}
+
 /**
  * 線分と交点を元にSVG文字列を生成
  * see: https://zenn.dev/tipstar0125/articles/d2cf0ef63bceb7
@@ -642,7 +714,6 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
                 scale_height,
                 graph_margin,
             );
-            println!("polygon line: ({}, {}) to ({}, {})", x1, y1, x2, y2);
             svg = svg.add(get_svg_line(x1, y1, x2, y2, polygon_line_color));
         }
     }
@@ -1383,76 +1454,4 @@ mod tests {
         ];
         assert_eq!(actual, expect);
     }
-}
-
-// 3つの母点を通る円の中心を求める関数
-fn get_circle_center(point: &Vec<Point>) -> Point {
-    let mut a = 0.0;
-    let mut b = 0.0;
-    let mut c = 1.0;
-    let mut d = 0.0;
-    for i in 0..3 {
-        let index1 = i % 3;
-        let index2 = (i + 1) % 3;
-        let index3 = (i + 2) % 3;
-        a += point[index1].x * (point[index2].y - point[index3].y);
-        b += point[i % 3].x.powf(2.0) * (point[index2].y - point[index3].y);
-        c *= point[index2].y - point[index3].y;
-        d += point[index1].x * (point[index2].y.powf(2.0) - point[index3].y.powf(2.0))
-            - point[index2].x * point[(i + 2) % 3].x * (point[index2].x - point[index3].x);
-    }
-    Point {
-        x: (b - c) / 2.0 / a,
-        y: d / 2.0 / a,
-        ..Default::default()
-    }
-}
-
-/**
- * 交点計算
- * 左から見て母点index1の放物線と母点index2の放物線が交わる交点の位置を計算する関数
- * generating_points: Vec<Point>,
- * index1: usize, 左の母点
- * index2: usize, 右の母点
- * rho: f64,      準線の位置
- */
-fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64) -> Point {
-    let mut intersect = Point::new();
-
-    // 与えられた焦点（focus_x,focus_y）と準線y=rhoによる2次関数にxを与えたときのyの値
-    // x 取得したい点のx座標
-    // focus_x 2次関数の焦点のx座標
-    // focus_y 2次関数の焦点のy座標
-    // rho 準線の位置
-    let quadratic_func = |x: f64, focus_x: f64, focus_y: f64, rho: f64| -> f64 {
-        return -(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
-    };
-
-    let x1 = points[index1].x;
-    let y1 = points[index1].y;
-    let x2 = points[index2].x;
-    let y2 = points[index2].y;
-
-    let a = y2 - y1;
-    let b = (rho - y1) * x2 - (rho - y2) * x1;
-    let c =
-        (rho - y1) * x2.powf(2.0) - (rho - y2) * x1.powf(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
-
-    if (y1 - rho).abs() < 0.001 {
-        intersect.x = x1;
-        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-    } else if (y2 - rho).abs() < 0.001 {
-        intersect.x = x2;
-        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else if a.abs() < 0.001 {
-        intersect.x = c / b / 2.0;
-        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else if index1 < index2 {
-        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
-        intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else {
-        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
-        intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-    }
-    intersect
 }

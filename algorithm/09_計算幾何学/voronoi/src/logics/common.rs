@@ -161,3 +161,41 @@ impl Polygon {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_point_sort_01() {
+        let mut points = vec![
+            Point {
+                id: 100,
+                x: 100.0,
+                y: 100.0,
+            },
+            Point {
+                id: 101,
+                x: 100.0,
+                y: 50.0,
+            },
+            Point {
+                id: 102,
+                x: 50.0,
+                y: 50.0,
+            },
+            Point {
+                id: 103,
+                x: 50.0,
+                y: 0.0,
+            },
+        ];
+        points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
+        let actual = points.iter().map(|point| point.id).collect::<Vec<u32>>();
+        // idで確認
+        let expect = vec![103, 102, 101, 100];
+        for i in 0..actual.len() {
+            assert_eq!(actual[i], expect[i]);
+        }
+    }
+}
