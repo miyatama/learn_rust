@@ -26,69 +26,69 @@ pub fn sample_data_two() -> Vec<Point> {
 pub fn sample_data() -> Vec<Point> {
     vec![
         Point {
-            x: 4.5,
-            y: 8.1,
-            ..Default::default()
+            id: 100,
+            x: 29.27,
+            y: 53.94,
         },
         Point {
-            x: 7.9,
-            y: 9.1,
-            ..Default::default()
+            id: 101,
+            x: 52.61,
+            y: 60.60,
         },
         Point {
-            x: 12.2,
-            y: 8.4,
-            ..Default::default()
+            id: 102,
+            x: 81.25,
+            y: 55.94,
         },
         Point {
-            x: 6.7,
-            y: 7.9,
-            ..Default::default()
+            id: 103,
+            x: 44.62,
+            y: 52.61,
         },
         Point {
-            x: 4.5,
-            y: 6.7,
-            ..Default::default()
+            id: 104,
+            x: 29.97,
+            y: 44.62,
         },
         Point {
-            x: 6.5,
-            y: 6.2,
-            ..Default::default()
+            id: 105,
+            x: 43.29,
+            y: 41.29,
         },
         Point {
-            x: 8.4,
-            y: 7.1,
-            ..Default::default()
+            id: 106,
+            x: 55.94,
+            y: 47.28,
         },
         Point {
-            x: 5.3,
-            y: 5.2,
-            ..Default::default()
+            id: 107,
+            x: 35.29,
+            y: 34.63,
         },
         Point {
-            x: 8.3,
-            y: 4.9,
-            ..Default::default()
+            id: 108,
+            x: 55.27,
+            y: 32.63,
         },
         Point {
-            x: 9.9,
-            y: 5.8,
-            ..Default::default()
+            id: 109,
+            x: 65.93,
+            y: 38.62,
         },
         Point {
-            x: 3.2,
-            y: 3.1,
-            ..Default::default()
+            id: 110,
+            x: 21.31,
+            y: 20.64,
         },
         Point {
-            x: 7.2,
-            y: 4.1,
-            ..Default::default()
+            id: 111,
+            x: 47.95,
+            y: 27.30,
         },
         Point {
-            x: 11.0,
-            y: 5.0,
-            ..Default::default()
+            id: 112,
+            x: 73.26,
+            y: 33.30,
         },
     ]
 }

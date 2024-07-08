@@ -67,9 +67,13 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             let start = get_intersection(&points, index1, index2, previous_event_timing);
             let end = get_intersection(&points, index1, index2, present_event_timing);
 
+            println!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
             let line = Line::new(start.x, start.y, end.x, end.y);
             for index in vec![index1, index2] {
                 let id = points[index].id;
+                if id == 0 {
+                    continue;
+                }
                 let voronoi_index = voronoi
                     .iter()
                     .position(|voronoi| voronoi.point_id == id)
@@ -223,9 +227,13 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         let start = get_intersection(&points, index1, index2, previous_event_timing);
         let end = get_intersection(&points, index1, index2, present_event_timing);
 
+        println!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
         let line = Line::new(start.x, start.y, end.x, end.y);
         for index in vec![index1, index2] {
             let id = points[index].id;
+            if id == 0 {
+                continue;
+            }
             let voronoi_index = voronoi
                 .iter()
                 .position(|voronoi| voronoi.point_id == id)
