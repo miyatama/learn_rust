@@ -56,7 +56,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     let mut exception_index: Vec<usize> = Vec::new();
 
     while present_event_timing < last_event_timing {
-        println!("event timing: {}", present_event_timing);
+        eprintln!("event timing: {}", present_event_timing);
         let mut intersection_num = intersections.len() / 2;
 
         // 隣り合う交点の位置を算出
@@ -68,7 +68,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             let start = get_intersection(&points, index1, index2, previous_event_timing);
             let end = get_intersection(&points, index1, index2, present_event_timing);
 
-            println!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
+            eprintln!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
             let line = Line::new(start.x, start.y, end.x, end.y);
             for index in vec![index1, index2] {
                 let id = points[index].id;
@@ -92,7 +92,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         // intersectionsの更新
         match event_type {
             EventType::Site => {
-                println!("site event");
+                eprintln!("site event");
                 let mut medial_insert_flag = 0;
                 let mut insert_position = intersection_num;
                 for i in 0..intersection_num {
@@ -142,7 +142,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 intersection_num += 1;
             }
             EventType::Circle => {
-                println!("circle event");
+                eprintln!("circle event");
                 // 隣り合う交点の位置が重なった場合、交点同士を合体させる
                 let mut remove_index: Vec<usize> = Vec::new();
                 for i in 1..intersection_num {
@@ -155,7 +155,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                         remove_index.push(i);
                     }
                 }
-                println!("除外点: {:?}", remove_index);
+                eprintln!("除外点: {:?}", remove_index);
                 for i in (0..remove_index.len()).rev() {
                     intersections.remove(2 * remove_index[i]);
                     intersections.remove(2 * (remove_index[i] - 1) + 1);
@@ -163,7 +163,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 }
             }
         }
-        println!("calculate next circle event timing");
+        eprintln!("calculate next circle event timing");
 
         next_circle_event_timing = last_event_timing;
         for j in 1..intersection_num {
@@ -207,7 +207,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             }
         }
 
-        println!("calculate present event timing");
+        eprintln!("calculate present event timing");
         previous_event_timing = present_event_timing;
         if next_circle_event_timing >= site_event_timing[next_generating_point_index] {
             present_event_timing = site_event_timing[next_generating_point_index];
@@ -228,7 +228,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         let start = get_intersection(&points, index1, index2, previous_event_timing);
         let end = get_intersection(&points, index1, index2, present_event_timing);
 
-        println!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
+        eprintln!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
         let line = Line::new(start.x, start.y, end.x, end.y);
         for index in vec![index1, index2] {
             let id = points[index].id;
@@ -254,10 +254,10 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 fn print_polygons(polygons: &Vec<Polygon>) {
     for i in 0..polygons.len() {
         let polygon = &polygons[i];
-        println!("polygon point id: {}", polygon.point_id);
+        eprintln!("polygon point id: {}", polygon.point_id);
         for j in 0..polygon.lines.len() {
             let line = &polygon.lines[j];
-            println!(
+            eprintln!(
                 "  ({}, {}) to ({}, {})",
                 line.p1.x, line.p1.y, line.p2.x, line.p2.y,
             );

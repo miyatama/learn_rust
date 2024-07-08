@@ -23,6 +23,31 @@ pub fn sample_data_two() -> Vec<Point> {
     ]
 }
 
+pub fn sample_data_four() -> Vec<Point> {
+    vec![
+        Point {
+            id: 100,
+            x: 29.27,
+            y: 53.94,
+        },
+        Point {
+            id: 101,
+            x: 52.61,
+            y: 60.60,
+        },
+        Point {
+            id: 102,
+            x: 81.25,
+            y: 55.94,
+        },
+        Point {
+            id: 103,
+            x: 44.62,
+            y: 52.61,
+        },
+    ]
+}
+
 pub fn sample_data() -> Vec<Point> {
     vec![
         Point {
