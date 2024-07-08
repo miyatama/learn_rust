@@ -335,4 +335,18 @@ flowchart TB
 
 ### 結果
 
+1点
+
 ![result](./voronoi_result_01.svg)
+
+2点
+
+![result](./voronoi_result_02.svg)
+
+4点
+
+![result](./voronoi_result_04.svg)
+
+13点
+
+![result](./voronoi_result_13.svg)

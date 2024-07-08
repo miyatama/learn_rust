@@ -1,0 +1,13 @@
+<svg height="620" style="background-color:#F2F3F5" viewBox="0 0 620 620" width="620" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#F5F5F5" height="600" stroke="#121212" stroke-width="3" width="600" x="10" y="10"/>
+<line stroke="#fd3d41" stroke-linecap="round" stroke-width="3" x1="310" x2="310" y1="10" y2="610"/>
+<line stroke="#fd3d41" stroke-linecap="round" stroke-width="3" x1="310" x2="10" y1="610" y2="610"/>
+<line stroke="#fd3d41" stroke-linecap="round" stroke-width="3" x1="10" x2="10" y1="610" y2="10"/>
+<line stroke="#fd3d41" stroke-linecap="round" stroke-width="3" x1="10" x2="310" y1="10" y2="10"/>
+<line stroke="#11055d" stroke-linecap="round" stroke-width="3" x1="310" x2="310" y1="10" y2="610"/>
+<line stroke="#11055d" stroke-linecap="round" stroke-width="3" x1="310" x2="610" y1="610" y2="610"/>
+<line stroke="#11055d" stroke-linecap="round" stroke-width="3" x1="610" x2="610" y1="610" y2="10"/>
+<line stroke="#11055d" stroke-linecap="round" stroke-width="3" x1="610" x2="310" y1="10" y2="10"/>
+<circle cx="160" cy="310" fill="#fc1212" r="3"/>
+<circle cx="460" cy="310" fill="#fc1212" r="3"/>
+</svg>
