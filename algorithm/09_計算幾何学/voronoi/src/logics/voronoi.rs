@@ -1,4 +1,5 @@
 use super::common::{Line, LinePointDirection, Point, Polygon};
+use rand::{thread_rng, Rng};
 use std::collections::VecDeque;
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
@@ -246,8 +247,22 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             };
         }
     }
-
+    print_polygons(&voronoi);
     voronoi
+}
+
+fn print_polygons(polygons: &Vec<Polygon>) {
+    for i in 0..polygons.len() {
+        let polygon = &polygons[i];
+        println!("polygon point id: {}", polygon.point_id);
+        for j in 0..polygon.lines.len() {
+            let line = &polygon.lines[j];
+            println!(
+                "  ({}, {}) to ({}, {})",
+                line.p1.x, line.p1.y, line.p2.x, line.p2.y,
+            );
+        }
+    }
 }
 
 /**
@@ -258,15 +273,15 @@ fn add_dummy_points(width: f64, height: f64, points: &Vec<Point>) -> Vec<Point> 
     points.insert(
         0,
         Point {
+            id: 0,
             x: width / 2.0,
             y: -height,
-            ..Default::default()
         },
     );
     points.push(Point {
+        id: 0,
         x: width / 2.0,
         y: height * 2.0,
-        ..Default::default()
     });
     points.sort_by(|a, b| a.partial_cmp(&b).unwrap());
     points
@@ -664,7 +679,15 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
     let margin = 10i64;
     let line_color = "#121212";
     let point_color = "#fc1212";
-    let polygon_line_color = "#2658d5";
+
+    let mut rng = thread_rng();
+    let mut polygon_line_colors: Vec<String> = vec![];
+    for i in 0..polygons.len() {
+        let r = rng.gen_range(0..255);
+        let g = rng.gen_range(0..255);
+        let b = rng.gen_range(0..255);
+        polygon_line_colors.push(format!("#{:#04x}{:#04x}{:#04x}", r, g, b).replace("0x", ""));
+    }
     let mut svg = Document::new()
         .set(
             "viewBox",
@@ -703,6 +726,7 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
 
     let graph_margin = margin as usize;
     for i in 0..polygons.len() {
+        let color = &polygon_line_colors[i];
         let polygon = &polygons[i];
         for j in 0..polygon.lines.len() {
             // x: margin + (x * scale).floor()
@@ -722,7 +746,7 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
                 scale_height,
                 graph_margin,
             );
-            svg = svg.add(get_svg_line(x1, y1, x2, y2, polygon_line_color));
+            svg = svg.add(get_svg_line(x1, y1, x2, y2, &color));
         }
     }
     for i in 0..points.len() {
