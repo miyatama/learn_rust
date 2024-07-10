@@ -251,6 +251,66 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     voronoi
 }
 
+fn shape_polygons(polygons: &Vec<Polygon>) -> Vec<Polygon> {
+    let mut polygons = polygons.clone();
+    for i in 0..polygons.len() {
+        polygons[i] = shape_polygon(&polygons[i].clone());
+    }
+    polygons
+}
+
+fn shape_polygon(polygon: &Polygon) -> Polygon {
+    let mut lines = polygon.lines.clone();
+    let mut new_lines: Vec<Line> = Vec::new();
+    let mut removed_indexes: HashSet<usize> = HashSet::new();
+
+    let inner_product = |a: &Point, b: &Point, c: &Point | -> f64 {
+        0.0
+    };
+
+    let must_far_points = |points: &Vec<Point>| -> (Point, Point) {
+        (points[0], points[1])
+    }
+
+    // 同一直線状に存在する線分を統合
+    for i in 0..lines.len() {
+        if removed_indexes.contains(&i) {
+            continue;
+        }
+        let line = &lines[i];
+        let a = line.p1.clone();
+        let b = line.p2.clone();
+
+        if i >= (lines.len() - 1) {
+            new_lines.push(Line {
+                p1: a.clone(),
+                p2: b.clone(),
+            })
+            break;
+        }
+
+        for j in (i + 1)..lines.len() {
+            let p1 = &lines[j].p1.clone();
+            let p2 = &lines[j].p2.clone();
+            if inner_product(&a, &b, &p1) != 0.0 ||
+            inner_product(&a, &b, &p2) != 0.0  {
+                continue;
+            }
+
+            // update a, b
+            let (p1, p2)= must_far_points(&vec![ a.clone(), b.clone(), p1.clone(), p2.clone() ]);
+            a = p1;
+            b = p2;
+            removed_indexes.push(j);
+        }
+    }
+
+    Polygon {
+        point_id: polygon.point_id,
+        lines: new_lines.clone(),
+    }
+}
+
 fn print_polygons(polygons: &Vec<Polygon>) {
     for i in 0..polygons.len() {
         let polygon = &polygons[i];
