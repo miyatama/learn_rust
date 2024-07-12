@@ -264,7 +264,21 @@ fn shape_polygon(polygon: &Polygon) -> Polygon {
     let mut new_lines: Vec<Line> = Vec::new();
     let mut removed_indexes: HashSet<usize> = HashSet::new();
 
-    let inner_product = |a: &Point, b: &Point, c: &Point | -> f64 {
+    let inner_product = |a: &Point, b: &Point, p: &Point | -> f64 {
+        // inner_product = ab.ap
+        // ab.ap = |ab| x |ap| x cos sita
+        // ab = ao + ob
+        // ap = ao + op
+        // ao = -oa
+        // ob = b
+        // op = p
+        // a = oa
+        // b = ob
+        // p = op
+        // a.b = oa.ob
+        // oa.ob = oa.op
+        a.x * b.x + a.y * b.y
+
         0.0
     };
 
