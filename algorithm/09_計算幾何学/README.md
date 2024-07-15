@@ -343,6 +343,11 @@ flowchart TB
 
 ![result](./voronoi_result_02.svg)
 
+
+3点
+
+![result](./voronoi_result_03.svg)
+
 4点
 
 ![result](./voronoi_result_04.svg)
