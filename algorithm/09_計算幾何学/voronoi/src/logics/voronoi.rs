@@ -1,6 +1,6 @@
 use super::common::{Line, LinePointDirection, Point, Polygon};
 use rand::{thread_rng, Rng};
-use std::collections::VecDeque;
+use std::collections::{HashSet, VecDeque};
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
@@ -37,8 +37,8 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
     let points = add_dummy_points(width, height, &points);
 
-    // 汀線の状態を保持する。ポイントIDを汀線順に並べる。
-    // intersections: 汀線に対応するポイントID
+    // 汀線の状態を保持する。ポイントのインデックスを汀線順に並べる。
+    // intersections: 汀線に対応するポイントのインデックス
     let mut intersections: Vec<usize> = Vec::new();
     intersections.push(0);
     intersections.push(1);
@@ -56,7 +56,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     let mut exception_index: Vec<usize> = Vec::new();
 
     while present_event_timing < last_event_timing {
-        eprintln!("event timing: {}", present_event_timing);
         let mut intersection_num = intersections.len() / 2;
 
         // 隣り合う交点の位置を算出
@@ -68,7 +67,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             let start = get_intersection(&points, index1, index2, previous_event_timing);
             let end = get_intersection(&points, index1, index2, present_event_timing);
 
-            eprintln!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
             let line = Line::new(start.x, start.y, end.x, end.y);
             for index in vec![index1, index2] {
                 let id = points[index].id;
@@ -92,7 +90,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         // intersectionsの更新
         match event_type {
             EventType::Site => {
-                eprintln!("site event");
                 let mut medial_insert_flag = 0;
                 let mut insert_position = intersection_num;
                 for i in 0..intersection_num {
@@ -142,7 +139,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 intersection_num += 1;
             }
             EventType::Circle => {
-                eprintln!("circle event");
                 // 隣り合う交点の位置が重なった場合、交点同士を合体させる
                 let mut remove_index: Vec<usize> = Vec::new();
                 for i in 1..intersection_num {
@@ -155,7 +151,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                         remove_index.push(i);
                     }
                 }
-                eprintln!("除外点: {:?}", remove_index);
                 for i in (0..remove_index.len()).rev() {
                     intersections.remove(2 * remove_index[i]);
                     intersections.remove(2 * (remove_index[i] - 1) + 1);
@@ -163,7 +158,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                 }
             }
         }
-        eprintln!("calculate next circle event timing");
 
         next_circle_event_timing = last_event_timing;
         for j in 1..intersection_num {
@@ -207,7 +201,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             }
         }
 
-        eprintln!("calculate present event timing");
         previous_event_timing = present_event_timing;
         if next_circle_event_timing >= site_event_timing[next_generating_point_index] {
             present_event_timing = site_event_timing[next_generating_point_index];
@@ -228,7 +221,6 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         let start = get_intersection(&points, index1, index2, previous_event_timing);
         let end = get_intersection(&points, index1, index2, present_event_timing);
 
-        eprintln!("line: ({}, {}) to ({}, {})", start.x, start.y, end.x, end.y);
         let line = Line::new(start.x, start.y, end.x, end.y);
         for index in vec![index1, index2] {
             let id = points[index].id;
@@ -247,44 +239,88 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             };
         }
     }
+    let voronoi = shape_polygons(width, height, &voronoi);
     print_polygons(&voronoi);
     voronoi
 }
 
-fn shape_polygons(polygons: &Vec<Polygon>) -> Vec<Polygon> {
+fn shape_polygons(width: f64, height: f64, polygons: &Vec<Polygon>) -> Vec<Polygon> {
     let mut polygons = polygons.clone();
     for i in 0..polygons.len() {
-        polygons[i] = shape_polygon(&polygons[i].clone());
+        polygons[i] = shape_polygon(width, height, &polygons[i].clone());
     }
     polygons
 }
 
-fn shape_polygon(polygon: &Polygon) -> Polygon {
-    let mut lines = polygon.lines.clone();
-    let mut new_lines: Vec<Line> = Vec::new();
+/**
+ * やること
+ * 1: 各線分の位置を下2桁まで有効とする
+ * 2: 範囲を超える直線は範囲内に収める
+ */
+fn shape_polygon(width: f64, height: f64, polygon: &Polygon) -> Polygon {
+    let trunc_line = |line: &Line| -> Line {
+        Line {
+            p1: Point {
+                id: line.p1.id,
+                x: trunc_f64(line.p1.x),
+                y: trunc_f64(line.p1.y),
+            },
+            p2: Point {
+                id: line.p2.id,
+                x: trunc_f64(line.p2.x),
+                y: trunc_f64(line.p2.y),
+            },
+        }
+    };
+    let mut lines = polygon
+        .lines
+        .clone()
+        .iter()
+        .map(|line| trunc_line(line))
+        .filter(|line| line.p1.x != line.p2.x || line.p1.y != line.p2.y)
+        .collect::<Vec<Line>>();
+
+    let mut new_lines = adjust_lines(width, height, &lines);
     let mut removed_indexes: HashSet<usize> = HashSet::new();
 
-    let inner_product = |a: &Point, b: &Point, p: &Point | -> f64 {
-        // inner_product = ab.ap
-        // ab.ap = |ab| x |ap| x cos sita
-        // ab = ao + ob
-        // ap = ao + op
-        // ao = -oa
-        // ob = b
-        // op = p
-        // a = oa
-        // b = ob
-        // p = op
-        // a.b = oa.ob
-        // oa.ob = oa.op
-        a.x * b.x + a.y * b.y
-
-        0.0
+    let same_line = |a: &Point, b: &Point, p: &Point| -> bool {
+        let ab = Point {
+            id: 0,
+            x: trunc_f64(-a.x + b.x),
+            y: trunc_f64(-a.y + b.y),
+        };
+        let ap = Point {
+            id: 0,
+            x: trunc_f64(-a.x + p.x),
+            y: trunc_f64(-a.y + p.y),
+        };
+        let abap = ab.x * ap.x + ab.y * ap.y;
+        let abs_ab = (ab.x.powf(2.0) + ab.y.powf(2.0)).sqrt();
+        let abs_ap = (ap.x.powf(2.0) + ap.y.powf(2.0)).sqrt();
+        let cos_sita = trunc_f64(abap / abs_ab * abs_ap).abs();
+        cos_sita == 0.0
     };
 
     let must_far_points = |points: &Vec<Point>| -> (Point, Point) {
-        (points[0], points[1])
-    }
+        let mut pair_indexes = vec![0; 2];
+        let mut far_distance = 0.0;
+        for i in 0..(points.len() - 1) {
+            let p1 = &points[i];
+            for j in (i + 1)..(points.len()) {
+                let p2 = &points[j];
+                let distance = p1.dist(p2);
+                if far_distance < distance {
+                    pair_indexes[0] = i;
+                    pair_indexes[1] = j;
+                    far_distance = distance;
+                }
+            }
+        }
+        (
+            points[pair_indexes[0]].clone(),
+            points[pair_indexes[1]].clone(),
+        )
+    };
 
     // 同一直線状に存在する線分を統合
     for i in 0..lines.len() {
@@ -292,50 +328,118 @@ fn shape_polygon(polygon: &Polygon) -> Polygon {
             continue;
         }
         let line = &lines[i];
-        let a = line.p1.clone();
-        let b = line.p2.clone();
+        let mut a = line.p1.clone();
+        let mut b = line.p2.clone();
 
         if i >= (lines.len() - 1) {
             new_lines.push(Line {
                 p1: a.clone(),
                 p2: b.clone(),
-            })
+            });
             break;
         }
-
         for j in (i + 1)..lines.len() {
             let p1 = &lines[j].p1.clone();
             let p2 = &lines[j].p2.clone();
-            if inner_product(&a, &b, &p1) != 0.0 ||
-            inner_product(&a, &b, &p2) != 0.0  {
+            if !same_line(&a, &b, &p1) || !same_line(&a, &b, &p2) {
                 continue;
             }
 
             // update a, b
-            let (p1, p2)= must_far_points(&vec![ a.clone(), b.clone(), p1.clone(), p2.clone() ]);
+            let (p1, p2) = must_far_points(&vec![a.clone(), b.clone(), p1.clone(), p2.clone()]);
             a = p1;
             b = p2;
-            removed_indexes.push(j);
+            removed_indexes.insert(j);
         }
+
+        new_lines.push(Line {
+            p1: a.clone(),
+            p2: b.clone(),
+        });
     }
 
+    let new_lines = new_lines
+        .clone()
+        .into_iter()
+        .filter(|line| line.p1.x != line.p2.x || line.p1.y != line.p2.y)
+        .collect::<Vec<Line>>();
     Polygon {
         point_id: polygon.point_id,
         lines: new_lines.clone(),
     }
 }
 
+/**
+ * 範囲を超える直線を範囲内に収める
+ */
+fn adjust_lines(width: f64, height: f64, lines: &Vec<Line>) -> Vec<Line> {
+    let adjust_value = |range: f64, value: f64| -> f64 {
+        if value < 0.0 {
+            0.0
+        } else if value > range {
+            range
+        } else {
+            value
+        }
+    };
+
+    let mut new_lines: Vec<Line> = Vec::new();
+    for i in 0..lines.len() {
+        let line = &lines[i];
+        let p1 = line.get_start_point();
+        let p2 = line.get_end_point();
+        if p1.x >= 0.0
+            && p1.x <= width
+            && p1.y >= 0.0
+            && p1.y <= height
+            && p2.x >= 0.0
+            && p2.x <= width
+            && p2.y >= 0.0
+            && p2.y <= height
+        {
+            new_lines.push(line.clone());
+            continue;
+        }
+
+        let (a, b, c) = line.get_factors();
+
+        eprintln!("factors: ({}, {}, {})", a, b, c);
+        eprintln!("before adjust: ({}, {}) to ({}, {})", p1.x, p1.y, p2.x, p2.y);
+        // x座標の調整
+        let p1_x = adjust_value(width, p1.x);
+        let p2_x = adjust_value(width, p2.x);
+        let p1_y = (-c - a * p1_x) / b;
+        let p2_y = (-c - a * p2_x) / b;
+
+        eprintln!("  adjust: ({}, {}) to ({}, {})", p1_x, p1_y, p2_x, p2_y);
+
+        // y座標の調整
+        let p1_y = adjust_value(height, p1_y);
+        let p2_y = adjust_value(height, p2_y);
+        let p1_x = (-c - b * p1_y) / a;
+        let p2_x = (-c - b * p2_y) / a;
+
+        eprintln!("after adjust: ({}, {}) to ({}, {})", p1_x, p1_y, p2_x, p2_y);
+        new_lines.push(Line {
+            p1: Point {
+                id: p1.id,
+                x: trunc_f64(p1_x),
+                y: trunc_f64(p1_y),
+            },
+            p2: Point {
+                id: p2.id,
+                x: trunc_f64(p2_x),
+                y: trunc_f64(p2_y),
+            },
+        });
+    }
+    new_lines
+}
+
 fn print_polygons(polygons: &Vec<Polygon>) {
     for i in 0..polygons.len() {
         let polygon = &polygons[i];
-        eprintln!("polygon point id: {}", polygon.point_id);
-        for j in 0..polygon.lines.len() {
-            let line = &polygon.lines[j];
-            eprintln!(
-                "  ({}, {}) to ({}, {})",
-                line.p1.x, line.p1.y, line.p2.x, line.p2.y,
-            );
-        }
+        polygon.print();
     }
 }
 
@@ -709,7 +813,7 @@ fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64)
     // focus_y 2次関数の焦点のy座標
     // rho 準線の位置
     let quadratic_func = |x: f64, focus_x: f64, focus_y: f64, rho: f64| -> f64 {
-        return -(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0;
+        return trunc_f64(-(x - focus_x).powf(2.0) / 2.0 / (rho - focus_y) + (rho + focus_y) / 2.0);
     };
 
     let x1 = points[index1].x;
@@ -722,23 +826,27 @@ fn get_intersection(points: &Vec<Point>, index1: usize, index2: usize, rho: f64)
     let c =
         (rho - y1) * x2.powf(2.0) - (rho - y2) * x1.powf(2.0) + (y1 - y2) * (rho - y1) * (rho - y2);
 
-    if (y1 - rho).abs() < 0.001 {
-        intersect.x = x1;
+    if trunc_f64(y1 - rho).abs() == 0.0 {
+        intersect.x = trunc_f64(x1);
         intersect.y = quadratic_func(intersect.x, x2, y2, rho);
-    } else if (y2 - rho).abs() < 0.001 {
-        intersect.x = x2;
+    } else if trunc_f64(y2 - rho) == 0.0 {
+        intersect.x = trunc_f64(x2);
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
-    } else if a.abs() < 0.001 {
-        intersect.x = c / b / 2.0;
+    } else if trunc_f64(a) == 0.0 {
+        intersect.x = trunc_f64(c / b / 2.0);
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
     } else if index1 < index2 {
-        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.x = trunc_f64((b - (b.powf(2.0) - a * c).sqrt()) / a);
         intersect.y = quadratic_func(intersect.x, x1, y1, rho);
     } else {
-        intersect.x = (b - (b.powf(2.0) - a * c).sqrt()) / a;
+        intersect.x = trunc_f64((b - (b.powf(2.0) - a * c).sqrt()) / a);
         intersect.y = quadratic_func(intersect.x, x2, y2, rho);
     }
     intersect
+}
+
+fn trunc_f64(value: f64) -> f64 {
+    (value * 100.0).trunc() / 100.0
 }
 
 /**

@@ -160,6 +160,15 @@ impl Polygon {
             lines: vec![],
         }
     }
+    pub fn print(&self) {
+        eprintln!("polygon: {}", self.point_id);
+        for i in 0..self.lines.len() {
+            eprintln!(
+                "  [{}]: ({}, {}) to ({}, {})",
+                i, self.lines[i].p1.x, self.lines[i].p1.y, self.lines[i].p2.x, self.lines[i].p2.y
+            );
+        }
+    }
 }
 
 #[cfg(test)]
