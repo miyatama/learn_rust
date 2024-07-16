@@ -277,86 +277,17 @@ fn shape_polygon(width: f64, height: f64, polygon: &Polygon) -> Polygon {
         .clone()
         .iter()
         .map(|line| trunc_line(line))
-        .filter(|line| line.p1.x != line.p2.x || line.p1.y != line.p2.y)
         .collect::<Vec<Line>>();
 
     let mut new_lines = adjust_lines(width, height, &lines);
-    let mut removed_indexes: HashSet<usize> = HashSet::new();
+    let mut new_lines = union_lines(&new_lines);
 
-    let same_line = |a: &Point, b: &Point, p: &Point| -> bool {
-        let ab = Point {
-            id: 0,
-            x: trunc_f64(-a.x + b.x),
-            y: trunc_f64(-a.y + b.y),
-        };
-        let ap = Point {
-            id: 0,
-            x: trunc_f64(-a.x + p.x),
-            y: trunc_f64(-a.y + p.y),
-        };
-        let abap = ab.x * ap.x + ab.y * ap.y;
-        let abs_ab = (ab.x.powf(2.0) + ab.y.powf(2.0)).sqrt();
-        let abs_ap = (ap.x.powf(2.0) + ap.y.powf(2.0)).sqrt();
-        let cos_sita = trunc_f64(abap / abs_ab * abs_ap).abs();
-        cos_sita == 0.0
-    };
+    let mut new_lines = new_lines
+        .into_iter()
+        .filter(|line| line.p1.dist(&line.p2) > 0.0)
+        .collect::<Vec<Line>>();
 
-    let must_far_points = |points: &Vec<Point>| -> (Point, Point) {
-        let mut pair_indexes = vec![0; 2];
-        let mut far_distance = 0.0;
-        for i in 0..(points.len() - 1) {
-            let p1 = &points[i];
-            for j in (i + 1)..(points.len()) {
-                let p2 = &points[j];
-                let distance = p1.dist(p2);
-                if far_distance < distance {
-                    pair_indexes[0] = i;
-                    pair_indexes[1] = j;
-                    far_distance = distance;
-                }
-            }
-        }
-        (
-            points[pair_indexes[0]].clone(),
-            points[pair_indexes[1]].clone(),
-        )
-    };
-
-    // 同一直線状に存在する線分を統合
-    for i in 0..lines.len() {
-        if removed_indexes.contains(&i) {
-            continue;
-        }
-        let line = &lines[i];
-        let mut a = line.p1.clone();
-        let mut b = line.p2.clone();
-
-        if i >= (lines.len() - 1) {
-            new_lines.push(Line {
-                p1: a.clone(),
-                p2: b.clone(),
-            });
-            break;
-        }
-        for j in (i + 1)..lines.len() {
-            let p1 = &lines[j].p1.clone();
-            let p2 = &lines[j].p2.clone();
-            if !same_line(&a, &b, &p1) || !same_line(&a, &b, &p2) {
-                continue;
-            }
-
-            // update a, b
-            let (p1, p2) = must_far_points(&vec![a.clone(), b.clone(), p1.clone(), p2.clone()]);
-            a = p1;
-            b = p2;
-            removed_indexes.insert(j);
-        }
-
-        new_lines.push(Line {
-            p1: a.clone(),
-            p2: b.clone(),
-        });
-    }
+    let mut new_lines = connect_line(&new_lines);
 
     let new_lines = new_lines
         .clone()
@@ -403,15 +334,11 @@ fn adjust_lines(width: f64, height: f64, lines: &Vec<Line>) -> Vec<Line> {
 
         let (a, b, c) = line.get_factors();
 
-        eprintln!("factors: ({}, {}, {})", a, b, c);
-        eprintln!("before adjust: ({}, {}) to ({}, {})", p1.x, p1.y, p2.x, p2.y);
         // x座標の調整
         let p1_x = adjust_value(width, p1.x);
         let p2_x = adjust_value(width, p2.x);
         let p1_y = (-c - a * p1_x) / b;
         let p2_y = (-c - a * p2_x) / b;
-
-        eprintln!("  adjust: ({}, {}) to ({}, {})", p1_x, p1_y, p2_x, p2_y);
 
         // y座標の調整
         let p1_y = adjust_value(height, p1_y);
@@ -419,7 +346,6 @@ fn adjust_lines(width: f64, height: f64, lines: &Vec<Line>) -> Vec<Line> {
         let p1_x = (-c - b * p1_y) / a;
         let p2_x = (-c - b * p2_y) / a;
 
-        eprintln!("after adjust: ({}, {}) to ({}, {})", p1_x, p1_y, p2_x, p2_y);
         new_lines.push(Line {
             p1: Point {
                 id: p1.id,
@@ -432,6 +358,152 @@ fn adjust_lines(width: f64, height: f64, lines: &Vec<Line>) -> Vec<Line> {
                 y: trunc_f64(p2_y),
             },
         });
+    }
+    new_lines
+}
+
+fn union_lines(lines: &Vec<Line>) -> Vec<Line> {
+    let same_line = |a: &Point, b: &Point, p: &Point| -> bool {
+        let ab = Point {
+            id: 0,
+            x: trunc_f64(-a.x + b.x),
+            y: trunc_f64(-a.y + b.y),
+        };
+        let ap = Point {
+            id: 0,
+            x: trunc_f64(-a.x + p.x),
+            y: trunc_f64(-a.y + p.y),
+        };
+        let abap = ab.x * ap.x + ab.y * ap.y;
+        let abs_ab = (ab.x.powf(2.0) + ab.y.powf(2.0)).sqrt();
+        let abs_ap = (ap.x.powf(2.0) + ap.y.powf(2.0)).sqrt();
+        let cos_sita = trunc_f64(abap / (abs_ab * abs_ap)).abs();
+        cos_sita == 1.0
+    };
+
+    let must_far_points = |points: &Vec<Point>| -> (Point, Point) {
+        let mut pair_indexes = vec![0; 2];
+        let mut far_distance = 0.0;
+        for i in 0..(points.len() - 1) {
+            let p1 = &points[i];
+            for j in (i + 1)..(points.len()) {
+                let p2 = &points[j];
+                let distance = p1.dist(p2);
+                if far_distance < distance {
+                    pair_indexes[0] = i;
+                    pair_indexes[1] = j;
+                    far_distance = distance;
+                }
+            }
+        }
+        (
+            points[pair_indexes[0]].clone(),
+            points[pair_indexes[1]].clone(),
+        )
+    };
+
+    // 同一直線状に存在する線分を統合
+    let mut new_lines: Vec<Line> = Vec::new();
+    let mut removed_indexes: HashSet<usize> = HashSet::new();
+    for i in 0..lines.len() {
+        if removed_indexes.contains(&i) {
+            continue;
+        }
+        let line = &lines[i];
+        let mut a = line.p1.clone();
+        let mut b = line.p2.clone();
+
+        if i >= (lines.len() - 1) {
+            new_lines.push(Line {
+                p1: a.clone(),
+                p2: b.clone(),
+            });
+            break;
+        }
+        for j in (i + 1)..lines.len() {
+            let p1 = &lines[j].p1.clone();
+            let p2 = &lines[j].p2.clone();
+            if !same_line(&a, &b, &p1) || !same_line(&a, &b, &p2) {
+                continue;
+            }
+
+            // update a, b
+            let (p1, p2) = must_far_points(&vec![a.clone(), b.clone(), p1.clone(), p2.clone()]);
+            a = p1;
+            b = p2;
+            removed_indexes.insert(j);
+        }
+
+        new_lines.push(Line {
+            p1: a.clone(),
+            p2: b.clone(),
+        });
+    }
+    new_lines
+}
+
+/**
+ * つながっていない直線を結ぶ
+ */
+fn connect_line(lines: &Vec<Line>) -> Vec<Line> {
+    let mut new_lines: Vec<Line> = Vec::new();
+    let mut eliminate_indexes: HashSet<usize> = HashSet::new();
+
+    let get_near_line = |lines: &Vec<Line>,
+                         point: &Point,
+                         eliminate_indexes: &HashSet<usize>|
+     -> Option<(usize, usize)> {
+        let mut min_distance = f64::MAX;
+        let mut result: Option<(usize, usize)> = None;
+        for i in 0..lines.len() {
+            if eliminate_indexes.contains(&i) {
+                continue;
+            }
+            let (distance1, distance2) = (lines[i].p1.dist(&point), lines[i].p2.dist(&point));
+            if min_distance > distance1 || min_distance > distance2 {
+                if distance1 < distance2 {
+                    result = Some((i, 1));
+                    min_distance = distance1;
+                } else {
+                    result = Some((i, 2));
+                    min_distance = distance2;
+                }
+            }
+        }
+        result
+    };
+
+    // 最も原点に近い点を持つ直線を抽出
+    let mut origin = Point {
+        id: 0,
+        x: 0.0,
+        y: 0.0,
+    };
+    let mut ignore = true;
+    while let Some((line_index, point_index)) = get_near_line(&lines, &origin, &eliminate_indexes) {
+        let line = if ignore {
+            lines[line_index].clone()
+        } else {
+            let (p1, p2) = if point_index == 1 {
+                (origin.clone(), lines[line_index].p2.clone())
+            } else {
+                (lines[line_index].p1.clone(), origin.clone())
+            };
+            Line { p1: p1, p2: p2 }
+        };
+        eprintln!(
+            "connect line: ({:?}, {:?}) to ({:?}, {:?})",
+            lines[line_index].p1, lines[line_index].p2, line.p1, line.p2
+        );
+        new_lines.push(line.clone());
+
+        origin = if point_index == 1 {
+            line.p2.clone()
+        } else {
+            line.p1.clone()
+        };
+        ignore = false;
+        eliminate_indexes.insert(line_index);
     }
     new_lines
 }
@@ -1666,6 +1738,50 @@ mod tests {
                 ],
             },
         ];
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn test_union_lines_01() {
+        let lines = vec![
+            Line {
+                p1: Point {
+                    id: 0,
+                    x: 1.0,
+                    y: 50.0,
+                },
+                p2: Point {
+                    id: 0,
+                    x: 30.0,
+                    y: 50.0,
+                },
+            },
+            Line {
+                p1: Point {
+                    id: 0,
+                    x: 15.0,
+                    y: 50.0,
+                },
+                p2: Point {
+                    id: 0,
+                    x: 80.0,
+                    y: 50.0,
+                },
+            },
+        ];
+        let actual = union_lines(&lines);
+        let expect = vec![Line {
+            p1: Point {
+                id: 0,
+                x: 1.0,
+                y: 50.0,
+            },
+            p2: Point {
+                id: 0,
+                x: 80.0,
+                y: 50.0,
+            },
+        }];
         assert_eq!(actual, expect);
     }
 }
