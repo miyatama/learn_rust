@@ -239,6 +239,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             };
         }
     }
+    print_polygons(&voronoi);
     let voronoi = shape_polygons(width, height, &voronoi);
     print_polygons(&voronoi);
     voronoi
@@ -289,11 +290,7 @@ fn shape_polygon(width: f64, height: f64, polygon: &Polygon) -> Polygon {
 
     let mut new_lines = connect_line(&new_lines);
 
-    let new_lines = new_lines
-        .clone()
-        .into_iter()
-        .filter(|line| line.p1.x != line.p2.x || line.p1.y != line.p2.y)
-        .collect::<Vec<Line>>();
+    // TODO 外枠との結合
     Polygon {
         point_id: polygon.point_id,
         lines: new_lines.clone(),
