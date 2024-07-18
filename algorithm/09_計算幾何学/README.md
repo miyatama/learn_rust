@@ -335,22 +335,32 @@ flowchart TB
 
 ### 結果
 
+#### factor: 1
+
 1点
 
 ![result](./voronoi_result_01.svg)
+
+#### factor: 2
 
 2点
 
 ![result](./voronoi_result_02.svg)
 
 
+#### factor: 3
+
 3点
 
 ![result](./voronoi_result_03.svg)
 
+#### factor: 4
+
 4点
 
 ![result](./voronoi_result_04.svg)
+
+#### factor: 13
 
 13点
 

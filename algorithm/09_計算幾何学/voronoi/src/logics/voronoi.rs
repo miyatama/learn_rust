@@ -4,6 +4,7 @@ use std::collections::{HashSet, VecDeque};
 use svg::node::element::Circle as SvgCircle;
 use svg::node::element::Line as SvgLine;
 use svg::node::element::Rectangle as SvgRectangle;
+use svg::node::element::Text as SvgText;
 use svg::Document;
 
 #[derive(Debug)]
@@ -68,22 +69,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             let end = get_intersection(&points, index1, index2, present_event_timing);
 
             let line = Line::new(start.x, start.y, end.x, end.y);
-            for index in vec![index1, index2] {
-                let id = points[index].id;
-                if id == 0 {
-                    continue;
-                }
-                let voronoi_index = voronoi
-                    .iter()
-                    .position(|voronoi| voronoi.point_id == id)
-                    .unwrap();
-                let mut polygon_line = voronoi[voronoi_index].lines.clone();
-                polygon_line.push(line.clone());
-                voronoi[voronoi_index] = Polygon {
-                    point_id: id,
-                    lines: polygon_line,
-                };
-            }
+            voronoi = add_line_to_polygons(&voronoi, &points, &line, index1, index2);
             intersection_pos[i] = end.clone(); // 交点位置の更新のため、交点位置を保持しておく
         }
 
@@ -223,27 +209,39 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         let end = get_intersection(&points, index1, index2, present_event_timing);
 
         let line = Line::new(start.x, start.y, end.x, end.y);
-        for index in vec![index1, index2] {
-            let id = points[index].id;
-            if id == 0 {
-                continue;
-            }
-            let voronoi_index = voronoi
-                .iter()
-                .position(|voronoi| voronoi.point_id == id)
-                .unwrap();
-            let mut polygon_line = voronoi[voronoi_index].lines.clone();
-            polygon_line.push(line.clone());
-            voronoi[voronoi_index] = Polygon {
-                point_id: id,
-                lines: polygon_line,
-            };
-        }
+        voronoi = add_line_to_polygons(&voronoi, &points, &line, index1, index2);
     }
     print_polygons(&voronoi);
     let voronoi = shape_polygons(width, height, &voronoi);
     print_polygons(&voronoi);
     voronoi
+}
+
+fn add_line_to_polygons(
+    polygons: &Vec<Polygon>,
+    points: &Vec<Point>,
+    line: &Line,
+    index1: usize,
+    index2: usize,
+) -> Vec<Polygon> {
+    let mut polygons = polygons.clone();
+    for index in vec![index1, index2] {
+        let id = points[index].id;
+        if id == 0 {
+            continue;
+        }
+        let voronoi_index = polygons
+            .iter()
+            .position(|voronoi| voronoi.point_id == id)
+            .unwrap();
+        let mut polygon_line = polygons[voronoi_index].lines.clone();
+        polygon_line.push(line.clone());
+        polygons[voronoi_index] = Polygon {
+            point_id: id,
+            lines: polygon_line,
+        };
+    }
+    polygons
 }
 
 fn shape_polygons(width: f64, height: f64, polygons: &Vec<Polygon>) -> Vec<Polygon> {
@@ -289,7 +287,7 @@ fn shape_polygon(width: f64, height: f64, polygon: &Polygon) -> Polygon {
         .filter(|line| line.p1.dist(&line.p2) > 0.0)
         .collect::<Vec<Line>>();
 
-    let mut new_lines = connect_line(&new_lines);
+    // let mut new_lines = connect_line(&new_lines);
 
     // TODO 外枠との結合
     Polygon {
@@ -1005,6 +1003,8 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
         let point = &points[i];
         let (x, y) = change_coordinate(point.x, point.y, scale_width, scale_height, graph_margin);
         svg = svg.add(get_svg_circle(x, y, point_color));
+        let (x, y) = (x - 10, y - 10);
+        svg = svg.add(get_svg_text(x, y, point_color, point.id.to_string()));
     }
 
     svg.to_string()
@@ -1019,6 +1019,14 @@ fn get_svg_line(x1: usize, y1: usize, x2: usize, y2: usize, line_color: &str) ->
         .set("stroke", line_color)
         .set("stroke-width", 3)
         .set("stroke-linecap", "round")
+}
+
+fn get_svg_text(x: usize, y: usize, color: &str, text: String) -> SvgText {
+    SvgText::new(text)
+        .set("x", x)
+        .set("y", y)
+        .set("stroke", "none")
+        .set("fill", color)
 }
 
 fn get_svg_circle(x: usize, y: usize, color: &str) -> SvgCircle {
