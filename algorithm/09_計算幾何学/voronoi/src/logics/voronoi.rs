@@ -214,6 +214,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         }
     }
 
+    // TODO ここを飛ばして13焦点でのヘンな線がなくなるか確認
     // 最後に残った境界線を描く
     for j in 0..(intersections.len() / 2) {
         let index1 = intersections[2 * j];
