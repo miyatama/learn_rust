@@ -57,6 +57,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     let mut exception_index: Vec<usize> = Vec::new();
 
     while present_event_timing < last_event_timing {
+        eprintln!("event: {:?}, timing: {}", event_type, present_event_timing );
         let mut intersection_num = intersections.len() / 2;
 
         // 隣り合う交点の位置を算出
@@ -202,6 +203,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
     // TODO ここを飛ばして13焦点でのヘンな線がなくなるか確認
     // 最後に残った境界線を描く
+        eprintln!("event: last, timing: {}", present_event_timing );
     for j in 0..(intersections.len() / 2) {
         let index1 = intersections[2 * j];
         let index2 = intersections[2 * j + 1];
@@ -211,9 +213,9 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
         let line = Line::new(start.x, start.y, end.x, end.y);
         voronoi = add_line_to_polygons(&voronoi, &points, &line, index1, index2);
     }
-    print_polygons(&voronoi);
+    // print_polygons(&voronoi);
     let voronoi = shape_polygons(width, height, &voronoi);
-    print_polygons(&voronoi);
+    // print_polygons(&voronoi);
     voronoi
 }
 
@@ -230,6 +232,7 @@ fn add_line_to_polygons(
         if id == 0 {
             continue;
         }
+        eprintln!("point {} add line ({}, {}) to ({}, {})", id, line.p1.x, line.p1.y, line.p2.x, line.p2.y);
         let voronoi_index = polygons
             .iter()
             .position(|voronoi| voronoi.point_id == id)
