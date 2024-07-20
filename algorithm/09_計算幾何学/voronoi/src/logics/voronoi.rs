@@ -57,7 +57,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     let mut exception_index: Vec<usize> = Vec::new();
 
     while present_event_timing < last_event_timing {
-        eprintln!("event: {:?}, timing: {}", event_type, present_event_timing );
+        eprintln!("event: {:?}, timing: {}", event_type, present_event_timing);
         let mut intersection_num = intersections.len() / 2;
 
         // 隣り合う交点の位置を算出
@@ -70,7 +70,9 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
             let end = get_intersection(&points, index1, index2, present_event_timing);
 
             let line = Line::new(start.x, start.y, end.x, end.y);
-            voronoi = add_line_to_polygons(&voronoi, &points, &line, index1, index2);
+            if start.x != end.x || start.y != end.y {
+                voronoi = add_line_to_polygons(&voronoi, &points, &line, index1, index2);
+            }
             intersection_pos[i] = end.clone(); // 交点位置の更新のため、交点位置を保持しておく
         }
 
@@ -203,7 +205,7 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
 
     // TODO ここを飛ばして13焦点でのヘンな線がなくなるか確認
     // 最後に残った境界線を描く
-        eprintln!("event: last, timing: {}", present_event_timing );
+    eprintln!("event: last, timing: {}", present_event_timing);
     for j in 0..(intersections.len() / 2) {
         let index1 = intersections[2 * j];
         let index2 = intersections[2 * j + 1];
@@ -227,12 +229,13 @@ fn add_line_to_polygons(
     index2: usize,
 ) -> Vec<Polygon> {
     let mut polygons = polygons.clone();
+    let mut add_point_ids: Vec<u32> = Vec::new();
     for index in vec![index1, index2] {
         let id = points[index].id;
         if id == 0 {
             continue;
         }
-        eprintln!("point {} add line ({}, {}) to ({}, {})", id, line.p1.x, line.p1.y, line.p2.x, line.p2.y);
+        add_point_ids.push(id);
         let voronoi_index = polygons
             .iter()
             .position(|voronoi| voronoi.point_id == id)
@@ -244,6 +247,11 @@ fn add_line_to_polygons(
             lines: polygon_line,
         };
     }
+
+    eprintln!(
+        "point {:?} add line ({}, {}) to ({}, {})",
+        add_point_ids, line.p1.x, line.p1.y, line.p2.x, line.p2.y
+    );
     polygons
 }
 
@@ -978,6 +986,14 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
         };
 
     let graph_margin = margin as usize;
+    let get_point_by_id = |id: u32, points: &Vec<Point>| -> Option<Point> {
+        for i in 0..points.len() {
+            if points[i].id == id {
+                return Some(points[i].clone());
+            }
+        }
+        None
+    };
     for i in 0..polygons.len() {
         let color = &polygon_line_colors[i];
         let polygon = &polygons[i];
@@ -1001,15 +1017,15 @@ pub fn create_svg(width: f64, height: f64, points: &Vec<Point>, polygons: &Vec<P
             );
             svg = svg.add(get_svg_line(x1, y1, x2, y2, &color));
         }
-    }
-    for i in 0..points.len() {
-        let point = &points[i];
-        let (x, y) = change_coordinate(point.x, point.y, scale_width, scale_height, graph_margin);
-        svg = svg.add(get_svg_circle(x, y, point_color));
-        let (x, y) = (x - 10, y - 10);
-        svg = svg.add(get_svg_text(x, y, point_color, point.id.to_string()));
-    }
 
+        if let Some(point) = get_point_by_id(polygon.point_id, &points) {
+            let (x, y) =
+                change_coordinate(point.x, point.y, scale_width, scale_height, graph_margin);
+            svg = svg.add(get_svg_circle(x, y, &color));
+            let (x, y) = (x - 10, y - 10);
+            svg = svg.add(get_svg_text(x, y, &color, point.id.to_string()));
+        }
+    }
     svg.to_string()
 }
 
