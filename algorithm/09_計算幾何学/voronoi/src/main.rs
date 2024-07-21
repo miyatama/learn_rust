@@ -14,16 +14,13 @@ fn main() {
     println!("{}", &svg);
      */
 
-    /*
     let width = 100.0;
     let height = 100.0;
     let points = model_data::sample_data_two();
     let polygons = voronoi::calc_voronoi_lines(width, height, &points);
     let svg = voronoi::create_svg(width, height, &points, &polygons);
     println!("{}", &svg);
-      */
 
-    /*
     // 3点
     let width = 100.0;
     let height = 100.0;
@@ -39,7 +36,6 @@ fn main() {
     let polygons = voronoi::calc_voronoi_lines(width, height, &points);
     let svg = voronoi::create_svg(width, height, &points, &polygons);
     println!("{}", &svg);
-     */
 
     // 5点
     let width = 100.0;

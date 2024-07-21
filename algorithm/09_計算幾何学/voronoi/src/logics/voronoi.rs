@@ -26,9 +26,12 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
     // 点の数が2以下の場合は固定で線分を引く
     if points.len() <= 1 {
         return create_point_one_voronoi(width, height);
-    } else if points.len() <= 2 {
+    } 
+    /*
+    else if points.len() <= 2 {
         return create_point_twe_voronoi(width, height, &points);
     }
+     */
 
     // 作成されるボロノイ
     let mut voronoi: Vec<Polygon> = points

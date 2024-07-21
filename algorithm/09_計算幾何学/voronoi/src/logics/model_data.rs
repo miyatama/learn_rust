@@ -11,25 +11,20 @@ pub fn sample_data_one() -> Vec<Point> {
 pub fn sample_data_two() -> Vec<Point> {
     vec![
         Point {
-            x: 25.0,
-            y: 50.0,
-            ..Default::default()
+            id: 101,
+            x: 52.61,
+            y: 60.60,
         },
         Point {
-            x: 75.0,
-            y: 50.0,
-            ..Default::default()
+            id: 103,
+            x: 44.62,
+            y: 52.61,
         },
     ]
 }
 
 pub fn sample_data_three() -> Vec<Point> {
     vec![
-        Point {
-            id: 100,
-            x: 29.27,
-            y: 53.94,
-        },
         Point {
             id: 101,
             x: 52.61,
@@ -39,6 +34,11 @@ pub fn sample_data_three() -> Vec<Point> {
             id: 103,
             x: 44.62,
             y: 52.61,
+        },
+        Point {
+            id: 106,
+            x: 55.94,
+            y: 47.28,
         },
     ]
 }
