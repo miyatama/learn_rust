@@ -176,15 +176,15 @@ pub fn calc_voronoi_lines(width: f64, height: f64, points: &Vec<Point>) -> Vec<P
                         if !exception_index
                             .iter()
                             .any(|&index| index == circle_point_index[1])
-                            && (circle_center.y + circle_radius) > present_event_timing - 0.001
-                            && circle_center.y + circle_radius <= next_circle_event_timing
+                            && (circle_center.y + circle_radius) > (present_event_timing - 0.001)
+                            && (circle_center.y + circle_radius) <= next_circle_event_timing
                         {
                             next_circle_event_timing = circle_center.y + circle_radius;
                         }
                     }
                     EventType::Circle => {
-                        if present_event_timing < circle_center.y + circle_radius
-                            && circle_center.y + circle_radius < next_circle_event_timing
+                        if present_event_timing < (circle_center.y + circle_radius)
+                            && (circle_center.y + circle_radius) < next_circle_event_timing
                         {
                             next_circle_event_timing = circle_center.y + circle_radius;
                         }

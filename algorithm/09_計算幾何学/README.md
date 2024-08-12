@@ -354,6 +354,36 @@ flowchart TB
 
 ![result](./voronoi_result_03.svg)
 
+<details><summary>add lines</summary><div>
+
+```text
+event: Site, timing: 52.61
+point [106] add line (55.94, -26.47) to (27.61, -25.33)
+point [106] add line (55.94, -26.47) to (84.69, -27.63)
+event: Circle, timing: 58.055725828210754
+point [106] add line (27.61, -25.33) to (15.07, -24.83)
+point [106, 103] add line (44.62, 37.92) to (15.07, -24.83)
+point [103, 106] add line (44.62, 37.92) to (51.03, 51.54)
+point [106] add line (84.69, -27.63) to (97.67, -28.16)
+event: Site, timing: 60.6
+point [103] add line (15.07, -24.83) to (8.49, -25.06)
+point [103, 106] add line (51.03, 51.54) to (51.86, 53.31)
+point [106] add line (97.67, -28.16) to (102.76, -28.36)
+event: Circle, timing: 60.636713947243194
+point [103] add line (8.49, -25.06) to (8.4, -25.06)
+point [103, 106] add line (51.86, 53.31) to (51.87, 53.33)
+point [106, 101] add line (52.61, 53.52) to (51.87, 53.33)
+point [101, 106] add line (52.61, 53.52) to (53.32, 53.7)
+point [106] add line (102.76, -28.36) to (102.83, -28.36)
+event: Circle, timing: 60.6367139472432
+event: last, timing: 200
+point [103] add line (8.4, -25.06) to (-170.98, -31.38)
+point [103, 106] add line (51.87, 53.33) to (83.78, 121.1)
+point [106] add line (102.83, -28.36) to (276.32, -35.36)
+```
+
+</div></details>
+
 #### factor: 4
 
 4点
