@@ -1,0 +1,9 @@
+[package]
+name = "learn_reqwest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytes = "1.4.0"
+reqwest = "0.11.14"
+tokio = {version = "1.25.0", features = ["full"] }
