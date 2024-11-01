@@ -100,7 +100,13 @@ async fn main() -> Result<(), actix_web::Error> {
         params![],
     )
     .expect("failed to create talbe todo");
-    HttpServer::new(move || App::new().service(index).service(add_todo).service(delete_todo).data(pool.clone()))
+    HttpServer::new(move || 
+        App::new()
+        .service(index)
+        .service(add_todo)
+        .service(delete_todo)
+        .data(pool.clone())
+    )
         .bind("0.0.0.0:8080")?
         .run()
         .await?;
