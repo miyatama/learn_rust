@@ -3,7 +3,7 @@ use askama::Template;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::params;
-use serde::Deserialize;
+use serde::{Serialize,Deserialize};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -38,6 +38,11 @@ struct AddParams {
 #[derive(Deserialize)]
 struct DeleteParams {
     id: u32,
+}
+
+#[derive(Serialize)]
+struct Memo {
+    message: String,
 }
 
 #[get("/")]
@@ -84,6 +89,13 @@ async fn delete_todo(
         .finish())
 }
 
+#[post("/update_memo")]
+async fn update_memo(params: web::Json<AddParams>) -> Result<HttpResponse, MyError> {
+    Ok(HttpResponse::Ok().json(Memo {
+        message: "Hello!".to_string(),
+    }))
+}
+
 #[actix_rt::main]
 async fn main() -> Result<(), actix_web::Error> {
     let manager = SqliteConnectionManager::file("todo.db");
@@ -100,15 +112,16 @@ async fn main() -> Result<(), actix_web::Error> {
         params![],
     )
     .expect("failed to create talbe todo");
-    HttpServer::new(move || 
+    HttpServer::new(move || {
         App::new()
-        .service(index)
-        .service(add_todo)
-        .service(delete_todo)
-        .data(pool.clone())
-    )
-        .bind("0.0.0.0:8080")?
-        .run()
-        .await?;
+            .service(index)
+            .service(add_todo)
+            .service(delete_todo)
+            .service(update_memo)
+            .data(pool.clone())
+    })
+    .bind("0.0.0.0:8080")?
+    .run()
+    .await?;
     Ok(())
 }
