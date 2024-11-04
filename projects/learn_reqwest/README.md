@@ -16,3 +16,4 @@ cargo run -- "https://raw.githubusercontent.com/yavuzceliker/sample-images/refs/
 + [Rust で借用 (参照) を取り扱うときの大事な心構え](https://blog.mudatobunka.org/entry/2023/09/29/120000)
 + [ライフタイムで参照を検証する](https://doc.rust-jp.rs/book-ja/ch10-03-lifetime-syntax.html)
 + [How to use “await?” inside vec.iter().map() in an async fn?](https://users.rust-lang.org/t/how-to-use-await-inside-vec-iter-map-in-an-async-fn/65416)
++ [実装して学ぶ, Rust の `log` Crate](https://zenn.dev/lru/articles/rust_logging)
