@@ -1,6 +1,6 @@
 use bytes::Buf;
-use futures::future;
 use futures::future::join_all;
+use log::{debug, error, info, trace, LevelFilter};
 use reqwest;
 use reqwest::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
@@ -13,25 +13,56 @@ struct AddParams {
     text: String,
 }
 
+struct AppLogger {}
+
+impl log::Log for AppLogger {
+    fn enabled(&self, meta: &log::Metadata) -> bool {
+        // meta.target() == "json_log"
+        true
+    }
+
+    fn log(&self, record: &log::Record) {
+        if self.enabled(record.metadata()) {
+            println!(
+                r#"[{}]: {}"#,
+                record.level(),
+                record.args()
+            );
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+static LOGGER: AppLogger = AppLogger{};
+
 #[tokio::main]
 async fn main() {
+    log::set_logger(&LOGGER).unwrap();
+    log::set_max_level(LevelFilter::Trace);
+    log::trace!("trace");
+    log::debug!("debug");
+    log::info!("info");
+    log::warn!("warn");
+    log::error!("error");
+
     let get_url = "https://raw.githubusercontent.com/yavuzceliker/sample-images/refs/heads/main/images/image-1.jpg";
     let get_result_file = "image-1.jpg";
     match run_get_picture(&get_url, &get_result_file).await {
-        Ok(status_code) => println!("download success! status is {}", status_code),
-        Err(err) => eprintln!("download failed.{:?}", err),
+        Ok(status_code) => info!("download success! status is {}", status_code),
+        Err(err) => error!("download failed.{:?}", err),
     }
 
     match run_get_pictures().await {
-        Ok(_) => println!("download pictures success!"),
-        Err(err) => eprintln!("download pictures failed.{:?}", err),
+        Ok(_) => info!("download pictures success!"),
+        Err(err) => error!("download pictures failed.{:?}", err),
     }
 
     let post_url = "http://localhost:8080/update_memo";
     let post_result_file = "post_result.json";
     match run_post(&post_url, &post_result_file).await {
-        Ok(status_code) => println!("post method! status is {}", status_code),
-        Err(err) => eprintln!("post method failed.{:?}", err),
+        Ok(status_code) => info!("post method! status is {}", status_code),
+        Err(err) => error!("post method failed.{:?}", err),
     }
 }
 
@@ -39,15 +70,20 @@ async fn run_get_picture<'a>(
     url: &'a str,
     outfile: &'a str,
 ) -> Result<u16, Box<dyn std::error::Error>> {
+    debug!("start run_get_picture");
+    trace!("  url: {}", &url);
+    trace!("  outfile: {}", &outfile);
+
     let res = reqwest::get(url).await?;
     let status_code = res.status().as_u16();
     let mut r = res.bytes().await?.reader();
     let mut w = File::create(outfile)?;
-    io::copy(&mut r, &mut w);
+    let _ = io::copy(&mut r, &mut w);
     Ok(status_code)
 }
 
 async fn run_post(url: &str, outfile: &str) -> Result<u16, Box<dyn std::error::Error>> {
+    debug!("start run_post");
     let param = AddParams {
         text: "message".to_string(),
     };
@@ -62,11 +98,12 @@ async fn run_post(url: &str, outfile: &str) -> Result<u16, Box<dyn std::error::E
     let status_code = res.status().as_u16();
     let content = res.text().await?;
     let mut w = File::create(outfile)?;
-    w.write_all(content.as_bytes());
+    let _ = w.write_all(content.as_bytes());
     Ok(status_code)
 }
 
 async fn run_get_pictures() -> Result<(), Box<dyn std::error::Error>> {
+    debug!("start run_get_pictures");
     /* use macro_rules format!
     macro_rules! image_filename_base {
         () => {
