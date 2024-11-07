@@ -30,6 +30,9 @@ impl Node {
 // 単純にファイル分割
 mod id;
 mod node;
+mod domain;
+
+use domain::{entity::node2::Node2, value_object::id2::ID2};
 
 fn main() {
     // main内定義
@@ -39,4 +42,10 @@ fn main() {
     let node = node::Node::new(id::ID::new("1"), "Node 1");
 
     println!("Hello, module: {:?}", node);
+
+    // ディレクトリ分割
+    let node = Node2::new(ID2::new("2"), "Node 2");
+
+    println!("Hello, module: {:?}", node);
 }
+
