@@ -1,6 +1,6 @@
-use crate::data::database::{Database, ProvidesDatabase};
-use crate::repository::user_repository::{ProvidesUserRepository, UserRepository};
-use crate::service::user_service::{ProvidesUserService, UserService};
+use crate::domain::data::{Database, ProvidesDatabase};
+use crate::domain::repository::{ProvidesUserRepository, UserRepository};
+use crate::domain::service::{ProvidesUserService, UserService};
 
 pub struct AppModule;
 

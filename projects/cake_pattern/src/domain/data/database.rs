@@ -1,19 +1,21 @@
+use crate::domain::entity::User;
+
 pub trait UsesDatabase: Send + Sync + 'static {
-    fn find_user(&self, id: String) -> Result<Option<User>>;
-    fn update(&self, user: User) -> Result<()>;
+    fn find(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>>;
+    fn update(&self, user: User) -> Result<(), Box<dyn std::error::Error>>;
 }
 
 pub trait Database: Send + Sync + 'static {}
 
 impl<T: Database> UsesDatabase for T {
-    fn find_user(&self, id: String) -> Result<Option<User>> {
+    fn find(&self, _id: String) -> Result<Option<User>, Box<dyn std::error::Error>> {
         Ok(Some(User {
             id: "id-a".to_string(),
             effective: true,
         }))
     }
 
-    fn update(&self, user: User) -> Result<()> {
+    fn update(&self, user: User) -> Result<(), Box<dyn std::error::Error>> {
         Ok(println!("updated user: {:?}", user))
     }
 }

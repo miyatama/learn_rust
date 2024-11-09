@@ -6,6 +6,7 @@ Cake Patternの学習
 + [実戦での Scala: Cake パターンを用いた Dependency Injection (DI)](https://eed3si9n.com/ja/real-world-scala-dependency-injection-di/)
 + [Minimal Cake Pattern 再考](https://qiita.com/tayama0324/items/03ba48d3277079f20500)
 + [Rust のテストのために DI は必要か？](https://qiita.com/yan7010/items/1112722fee9fd8000377)
++ [Rustで継承を使いたい人への処方箋](https://qiita.com/muumu/items/a0d111d129d20240d182)
 
 ## Minimal Cake Pattern
 
@@ -14,3 +15,121 @@ Cake Patternの学習
 + XXX -> トレイト境界(謎)
 + XXXに依存する -> UsesXXX
 + 依存の提供 -> ProvideXXX
+
+## error
+
+```text
+PS C:\work\001_rust\learn_rust\projects\cake_pattern> cargo build
+   Compiling cake_pattern v0.1.0 (C:\work\001_rust\learn_rust\projects\cake_pattern)
+error[E0599]: no method named `find` found for reference `&<T as ProvidesDatabase>::T` in the current scope
+  --> src\domain\repository\user_repository.rs:14:18
+   |
+14 |         database.find(id)
+   |                  ^^^^ method not found in `&<T as ProvidesDatabase>::T`
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `UsesDatabase` which provides `find` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::data::database::UsesDatabase;
+   |
+
+error[E0599]: the method `update` exists for reference `&<T as ProvidesDatabase>::T`, but its trait bounds were not satisfied
+  --> src\domain\repository\user_repository.rs:18:25
+   |
+18 |         self.database().update(user)
+   |                         ^^^^^^ method cannot be called on `&<T as ProvidesDatabase>::T` due to unsatisfied trait bounds
+   |
+note: the following trait bounds were not satisfied:
+      `&<T as ProvidesDatabase>::T: UserRepository`
+      `<T as ProvidesDatabase>::T: UserRepository`
+  --> src\domain\repository\user_repository.rs:11:9
+   |
+11 | impl<T: UserRepository> UsesUserRepository for T {
+   |         ^^^^^^^^^^^^^^  ------------------     -
+   |         |
+   |         unsatisfied trait bound introduced here
+   = help: items from traits can only be used if the trait is in scope
+help: trait `UsesDatabase` which provides `update` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::data::database::UsesDatabase;
+   |
+
+error[E0599]: the method `find_user` exists for reference `&<T as ProvidesUserRepository>::T`, but its trait bounds were not satisfied       
+  --> src\domain\service\user_service.rs:13:32
+   |
+13 |         self.user_repository().find_user(id)
+   |                                ^^^^^^^^^ method cannot be called on `&<T as ProvidesUserRepository>::T` due to unsatisfied trait bounds 
+   |
+note: the following trait bounds were not satisfied:
+      `&<T as ProvidesUserRepository>::T: UserService`
+      `<T as ProvidesUserRepository>::T: UserService`
+  --> src\domain\service\user_service.rs:11:9
+   |
+11 | impl<T: UserService> UsesUserService for T {
+   |         ^^^^^^^^^^^  ---------------     -
+   |         |
+   |         unsatisfied trait bound introduced here
+   = help: items from traits can only be used if the trait is in scope
+help: trait `UsesUserRepository` which provides `find_user` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::repository::user_repository::UsesUserRepository;
+   |
+
+error[E0599]: the method `find_user` exists for reference `&<T as ProvidesUserRepository>::T`, but its trait bounds were not satisfied       
+  --> src\domain\service\user_service.rs:17:43
+   |
+17 |         let user = self.user_repository().find_user(id)?;
+   |                                           ^^^^^^^^^ method cannot be called on `&<T as ProvidesUserRepository>::T` due to unsatisfied trait bounds
+   |
+note: the following trait bounds were not satisfied:
+      `&<T as ProvidesUserRepository>::T: UserService`
+      `<T as ProvidesUserRepository>::T: UserService`
+  --> src\domain\service\user_service.rs:11:9
+   |
+11 | impl<T: UserService> UsesUserService for T {
+   |         ^^^^^^^^^^^  ---------------     -
+   |         |
+   |         unsatisfied trait bound introduced here
+   = help: items from traits can only be used if the trait is in scope
+help: trait `UsesUserRepository` which provides `find_user` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::repository::user_repository::UsesUserRepository;
+   |
+
+error[E0599]: no method named `update` found for reference `&<T as ProvidesUserRepository>::T` in the current scope
+  --> src\domain\service\user_service.rs:20:36
+   |
+20 |             self.user_repository().update(user)?;
+   |                                    ^^^^^^ method not found in `&<T as ProvidesUserRepository>::T`
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `UsesUserRepository` which provides `update` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::repository::user_repository::UsesUserRepository;
+   |
+
+error[E0599]: no method named `user_service` found for struct `AppModule` in the current scope
+  --> src/main.rs:8:20
+   |
+8  |     let user = app.user_service().find_user(100);
+   |                    ^^^^^^^^^^^^ method not found in `AppModule`
+   |
+  ::: src\domain\di\app_module.rs:5:1
+   |
+5  | pub struct AppModule;
+   | -------------------- method `user_service` not found for this struct
+   |
+  ::: src\domain\service\user_service.rs:28:8
+   |
+28 |     fn user_service(&self) -> &Self::T;
+   |        ------------ the method is available for `AppModule` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `ProvidesUserService` which provides `user_service` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::service::user_service::ProvidesUserService;
+   |
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `cake_pattern` (bin "cake_pattern") due to 6 previous errors
+```

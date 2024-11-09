@@ -1,16 +1,20 @@
+use crate::domain::data::ProvidesDatabase;
+use crate::domain::entity::User;
+
 pub trait UsesUserRepository: Send + Sync + 'static {
-    fn find_user(&self, id: String) -> Result<Option<User>>;
-    fn update(&self, user: User) -> Result<()>;
+    fn find_user(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>>;
+    fn update(&self, user: User) -> Result<(), Box<dyn std::error::Error>>;
 }
 
-pub trait UserRepository: ProvidesDatabase{}
+pub trait UserRepository: ProvidesDatabase {}
 
-impl <T: UserRepository>: UsesUserRepository for T {
-    fn find_user(&self, id: String) -> Result<Option<User>> {
-        self.database().find_user(id)
+impl<T: UserRepository> UsesUserRepository for T {
+    fn find_user(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>> {
+        let database = self.database();
+        database.find(id)
     }
 
-    fn update(&self, user: User) -> Result<()> {
+    fn update(&self, user: User) -> Result<(), Box<dyn std::error::Error>> {
         self.database().update(user)
     }
 }

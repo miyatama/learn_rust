@@ -1,4 +1,5 @@
+#[derive(Debug)]
 pub struct User {
-    pub id: Int,
+    pub id: String,
     pub effective: bool,
 }

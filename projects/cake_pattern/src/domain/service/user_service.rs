@@ -1,11 +1,19 @@
+use crate::domain::entity::User;
+use crate::domain::repository::ProvidesUserRepository;
+
+pub trait UsesUserService: Send + Sync + 'static {
+    fn find_user(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>>;
+    fn deactivate_user(&self, id: String) -> Result<(), Box<dyn std::error::Error>>;
+}
+
 pub trait UserService: ProvidesUserRepository {}
 
 impl<T: UserService> UsesUserService for T {
-    fn find_user(&self, id: String) -> Result<Option<User>> {
+    fn find_user(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>> {
         self.user_repository().find_user(id)
     }
 
-    fn deactivate_user(&self, id: String) -> Result<()> {
+    fn deactivate_user(&self, id: String) -> Result<(), Box<dyn std::error::Error>> {
         let user = self.user_repository().find_user(id)?;
         if let Some(mut user) = user {
             user.effective = false;
