@@ -1,4 +1,4 @@
-use crate::domain::data::ProvidesDatabase;
+use crate::domain::data::{UsesDatabase, ProvidesDatabase};
 use crate::domain::entity::User;
 
 pub trait UsesUserRepository: Send + Sync + 'static {

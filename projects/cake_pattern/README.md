@@ -18,9 +18,9 @@ Cake Patternの学習
 
 ## error
 
+### 001
+
 ```text
-PS C:\work\001_rust\learn_rust\projects\cake_pattern> cargo build
-   Compiling cake_pattern v0.1.0 (C:\work\001_rust\learn_rust\projects\cake_pattern)
 error[E0599]: no method named `find` found for reference `&<T as ProvidesDatabase>::T` in the current scope
   --> src\domain\repository\user_repository.rs:14:18
    |
@@ -32,7 +32,10 @@ help: trait `UsesDatabase` which provides `find` is implemented but not in scope
    |
 1  + use crate::domain::data::database::UsesDatabase;
    |
+```
 
+
+```text
 error[E0599]: the method `update` exists for reference `&<T as ProvidesDatabase>::T`, but its trait bounds were not satisfied
   --> src\domain\repository\user_repository.rs:18:25
    |
@@ -53,7 +56,9 @@ help: trait `UsesDatabase` which provides `update` is implemented but not in sco
    |
 1  + use crate::domain::data::database::UsesDatabase;
    |
+```
 
+```text
 error[E0599]: the method `find_user` exists for reference `&<T as ProvidesUserRepository>::T`, but its trait bounds were not satisfied       
   --> src\domain\service\user_service.rs:13:32
    |
@@ -74,7 +79,9 @@ help: trait `UsesUserRepository` which provides `find_user` is implemented but n
    |
 1  + use crate::domain::repository::user_repository::UsesUserRepository;
    |
+```
 
+```text
 error[E0599]: the method `find_user` exists for reference `&<T as ProvidesUserRepository>::T`, but its trait bounds were not satisfied       
   --> src\domain\service\user_service.rs:17:43
    |
@@ -95,7 +102,9 @@ help: trait `UsesUserRepository` which provides `find_user` is implemented but n
    |
 1  + use crate::domain::repository::user_repository::UsesUserRepository;
    |
+```
 
+```text
 error[E0599]: no method named `update` found for reference `&<T as ProvidesUserRepository>::T` in the current scope
   --> src\domain\service\user_service.rs:20:36
    |
@@ -107,7 +116,9 @@ help: trait `UsesUserRepository` which provides `update` is implemented but not 
    |
 1  + use crate::domain::repository::user_repository::UsesUserRepository;
    |
+```
 
+```text
 error[E0599]: no method named `user_service` found for struct `AppModule` in the current scope
   --> src/main.rs:8:20
    |
@@ -129,7 +140,62 @@ help: trait `ProvidesUserService` which provides `user_service` is implemented b
    |
 1  + use crate::domain::service::user_service::ProvidesUserService;
    |
-
-For more information about this error, try `rustc --explain E0599`.
-error: could not compile `cake_pattern` (bin "cake_pattern") due to 6 previous errors
 ```
+
+### 002 - Uses解放
+
+```text
+warning: unused import: `UsesDatabase`
+ --> src\domain\di\app_module.rs:1:37
+  |
+1 | use crate::domain::data::{Database, UsesDatabase, ProvidesDatabase};
+  |                                     ^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+```
+
+```text
+warning: unused import: `UsesUserRepository`
+ --> src\domain\di\app_module.rs:2:33
+  |
+2 | use crate::domain::repository::{UsesUserRepository, ProvidesUserRepository, UserRepository};
+  |                                 ^^^^^^^^^^^^^^^^^^
+```
+
+```text
+warning: unused import: `UsesUserService`
+ --> src\domain\di\app_module.rs:3:30
+  |
+3 | use crate::domain::service::{UsesUserService, ProvidesUserService, UserService};
+  |                              ^^^^^^^^^^^^^^^
+```
+
+```text
+error[E0599]: no method named `user_service` found for struct `AppModule` in the current scope
+  --> src/main.rs:8:20
+   |
+8  |     let user = app.user_service().find_user(100);
+   |                    ^^^^^^^^^^^^ method not found in `AppModule`
+   |
+  ::: src\domain\di\app_module.rs:5:1
+   |
+5  | pub struct AppModule;
+   | -------------------- method `user_service` not found for this struct
+   |
+  ::: src\domain\service\user_service.rs:28:8
+   |
+28 |     fn user_service(&self) -> &Self::T;
+   |        ------------ the method is available for `AppModule` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `ProvidesUserService` which provides `user_service` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use crate::domain::service::user_service::ProvidesUserService;
+   |
+```
+
+対応
+
++ impl ProvidesUserService for AppModuleをmainへ移動
++ UserにSerialize, Deserializeをderive
++ mainのfind_user呼び出しをStringへ変更

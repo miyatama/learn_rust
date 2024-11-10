@@ -1,6 +1,6 @@
 use crate::domain::data::{Database, ProvidesDatabase};
 use crate::domain::repository::{ProvidesUserRepository, UserRepository};
-use crate::domain::service::{ProvidesUserService, UserService};
+use crate::domain::service::{UserService};
 
 pub struct AppModule;
 
@@ -28,9 +28,12 @@ impl ProvidesUserRepository for AppModule {
     }
 }
 
+// TODO 何故かmainで実装しないとビルドが通らない
+/*
 impl ProvidesUserService for AppModule {
     type T = Self;
     fn user_service(&self) -> &Self::T {
         self
     }
 }
+ */
