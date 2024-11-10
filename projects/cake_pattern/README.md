@@ -8,6 +8,31 @@ Cake Patternの学習
 + [Rust のテストのために DI は必要か？](https://qiita.com/yan7010/items/1112722fee9fd8000377)
 + [Rustで継承を使いたい人への処方箋](https://qiita.com/muumu/items/a0d111d129d20240d182)
 
+## 構成
+
+```text
+.
+├── Cargo.toml
+└── src
+    ├── domain
+    │ ├── data
+    | | └── database.rs 
+    │ ├── di
+    | | └── app_module.rs 
+    │ ├── entity
+    | | └── user.rs 
+    │ ├── repository
+    | | └── user_repository.rs 
+    │ ├── service
+    | | └── user_service.rs 
+    │ ├── data.rs
+    │ ├── di.rs
+    │ ├── entity.rs
+    │ ├── repository.rs
+    │ └── service.rs
+    └── main.rs
+```
+
 ## Minimal Cake Pattern
 
 ニコニコアカウントで生み出されたインジェクション手法。依存性の宣言と注入の記述の簡潔さがいいらしい。

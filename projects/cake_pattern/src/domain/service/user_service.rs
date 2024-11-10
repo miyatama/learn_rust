@@ -1,5 +1,5 @@
 use crate::domain::entity::User;
-use crate::domain::repository::{UsesUserRepository, ProvidesUserRepository};
+use crate::domain::repository::{ProvidesUserRepository, UsesUserRepository};
 
 pub trait UsesUserService: Send + Sync + 'static {
     fn find_user(&self, id: String) -> Result<Option<User>, Box<dyn std::error::Error>>;

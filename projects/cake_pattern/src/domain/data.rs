@@ -1,2 +1,2 @@
 mod database;
-pub use database::{Database, UsesDatabase, ProvidesDatabase};
+pub use database::{Database, ProvidesDatabase, UsesDatabase};

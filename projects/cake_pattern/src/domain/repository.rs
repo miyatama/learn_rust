@@ -1,2 +1,2 @@
 mod user_repository;
-pub use user_repository::{UsesUserRepository,ProvidesUserRepository, UserRepository};
+pub use user_repository::{ProvidesUserRepository, UserRepository, UsesUserRepository};

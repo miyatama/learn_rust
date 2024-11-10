@@ -1,7 +1,9 @@
 use crate::domain::data::{Database, ProvidesDatabase};
 use crate::domain::repository::{ProvidesUserRepository, UserRepository};
-use crate::domain::service::{UserService};
+use crate::domain::service::UserService;
+use std::clone::Clone;
 
+#[derive(Clone)]
 pub struct AppModule;
 
 impl AppModule {
