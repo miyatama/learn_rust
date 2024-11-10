@@ -1,1 +1,2 @@
-pub mod app_module;
+mod app_module;
+pub use app_module::{AppModule};

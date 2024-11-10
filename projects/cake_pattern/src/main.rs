@@ -1,5 +1,5 @@
 mod domain;
-use self::domain::di::app_module::AppModule;
+use self::domain::di::AppModule;
 use actix_web::HttpResponse;
 use crate::domain::service::{UsesUserService, ProvidesUserService};
 
