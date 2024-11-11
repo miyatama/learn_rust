@@ -20,7 +20,7 @@ impl<T: UserService> UsesUserService for T {
         let user = self.user_repository().find_user(id)?;
         if let Some(mut user) = user {
             user.effective = false;
-            self.user_repository().update(user)?;
+            self.user_repository().update_user(user)?;
         };
         Ok(())
     }
