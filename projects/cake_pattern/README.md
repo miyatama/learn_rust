@@ -2,11 +2,19 @@
 
 Cake Patternの学習
 
-+ [Rust の DI を考える –– Part 2: Rust における DI の手法の整理](https://techblog.paild.co.jp/entry/2023/06/12/170637)
-+ [実戦での Scala: Cake パターンを用いた Dependency Injection (DI)](https://eed3si9n.com/ja/real-world-scala-dependency-injection-di/)
-+ [Minimal Cake Pattern 再考](https://qiita.com/tayama0324/items/03ba48d3277079f20500)
-+ [Rust のテストのために DI は必要か？](https://qiita.com/yan7010/items/1112722fee9fd8000377)
-+ [Rustで継承を使いたい人への処方箋](https://qiita.com/muumu/items/a0d111d129d20240d182)
++ paild tech blog
+  + [Rust の DI を考える –– Part 2: Rust における DI の手法の整理](https://techblog.paild.co.jp/entry/2023/06/12/170637)
++ eed3si9n
+  + [実戦での Scala: Cake パターンを用いた Dependency Injection (DI)](https://eed3si9n.com/ja/real-world-scala-dependency-injection-di/)
++ Qiita
+  + [Minimal Cake Pattern 再考](https://qiita.com/tayama0324/items/03ba48d3277079f20500)
+  + [Rust のテストのために DI は必要か？](https://qiita.com/yan7010/items/1112722fee9fd8000377)
+  + [Rustで継承を使いたい人への処方箋](https://qiita.com/muumu/items/a0d111d129d20240d182)
++ κeenのHappy Hacκing Blog
+  + [RustのDI](https://keens.github.io/blog/2017/12/01/rustnodi/)
++ blog.ojisan.io
+  + [Cake PatternでDIしてみた](https://blog.ojisan.io/cake-pattern/)
+  + [Rust で DI](https://blog.ojisan.io/rust-di/)
 
 ## 構成
 
@@ -40,6 +48,14 @@ Cake Patternの学習
 + XXX -> トレイト境界(謎)
 + XXXに依存する -> UsesXXX
 + 依存の提供 -> ProvideXXX
+
+
+| Scala | Rust |
+| :----- | :----- |
+| トレイト | トレイト |
+| 自分型アノテーション | トレイトの継承 |
+| class in class | モジュール |
+| 抽象メンバー | getterメソッド |
 
 ## error
 
