@@ -1,5 +1,6 @@
 mod domain;
 use self::domain::di::AppModule;
+use self::domain::three_layer::HaveSvcB;
 use self::domain::two_layer::ServiceImpl;
 use crate::domain::service::{ProvidesUserService, UsesUserService};
 use actix_web::{get, web, App, HttpResponse, HttpServer};
