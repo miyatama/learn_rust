@@ -57,6 +57,57 @@ Cake Patternの学習
 | class in class | モジュール |
 | 抽象メンバー | getterメソッド |
 
+## 2 layer
+
+```mermaid
+---
+two_layer.rs
+---
+classDiagram
+  UserDao <.. HaveUserDao
+  HaveUserDao <|.. UserService
+  HaveUserDao <|-- UserService 
+  UserService <.. ServiceImpl
+  UserService <.. HaveUserService 
+  UserDao <.. RepositoryImpl
+
+  class UserDao {
+    + find_user()
+  }
+  class HaveUserDao  {
+    + UserDao
+    + user_dao()
+  }
+  class UserService {
+
+  }
+  class RepositoryImpl {
+    + repo
+  }
+  class HaveUserService  {
+    + UserService
+    + user_service()
+  }
+  class ServiceImpl {
+    + service
+  }
+```
+
+test mocking
+
+```mermaid
+classDiagram
+  UserDao <|-- MockRepository
+  HaveUserDao <|-- DaoComponent
+  MockRepository <.. HaveUserDao 
+  DaoComponent <.. ServiceImpl 
+
+  class MockRepository {
+  }
+  class DaoComponent {
+  }
+```
+
 ## error
 
 ### 001
