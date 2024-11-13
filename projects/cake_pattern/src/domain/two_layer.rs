@@ -1,5 +1,5 @@
 pub trait UserDao {
-    fn find_user(&self, id: i32) -> ();
+    fn find_user(&self, id: i32) -> i32;
 }
 
 pub trait HaveUserDao {
@@ -8,7 +8,7 @@ pub trait HaveUserDao {
 }
 
 pub trait UserService: HaveUserDao {
-    fn get_user_by_id(&self, id: i32) -> () {
+    fn get_user_by_id(&self, id: i32) -> i32 {
         self.user_dao().find_user(id)
     }
 }
@@ -36,7 +36,9 @@ mod tests {
     fn test_get_user_by_id() {
         struct MockRepository {}
         impl UserDao for MockRepository {
-            fn find_user(&self, id: i32) -> () {}
+            fn find_user(&self, id: i32) -> i32 {
+                3
+            }
         }
         struct DaoComponent {}
         impl HaveUserDao for DaoComponent {
