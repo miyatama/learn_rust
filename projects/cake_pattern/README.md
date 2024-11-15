@@ -14,7 +14,9 @@ Cake Patternの学習
   + [RustのDI](https://keens.github.io/blog/2017/12/01/rustnodi/)
 + blog.ojisan.io
   + [Cake PatternでDIしてみた](https://blog.ojisan.io/cake-pattern/)
-  + [Rust で DI](https://blog.ojisan.io   /rust-di/)
+  + [Rust で DI](https://blog.ojisan.io/rust-di/)
++ 俺とお前とlaysakura
+  + [Rustでmockするならmockallで決まり！・・・でよろしいでしょうか？](https://laysakura.github.io/2021/04/25/rust-mockall/)
 
 ## 構成
 

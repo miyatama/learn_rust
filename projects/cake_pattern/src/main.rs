@@ -1,5 +1,6 @@
 mod domain;
 use self::domain::di::AppModule;
+use self::domain::mockall_inject::Foo;
 use self::domain::three_layer::ProvidesSvcB;
 use self::domain::two_layer::ServiceImpl;
 use crate::domain::service::{ProvidesUserService, UsesUserService};
