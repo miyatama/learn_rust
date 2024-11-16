@@ -1,0 +1,8 @@
+[package]
+name = "interface-adapter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+app = {path = "../app"}
+domain = {path = "../domain"}
