@@ -1,5 +1,15 @@
-use mockall::*;
 use mockall::predicate::*;
+use mockall::*;
+
+// mockall samples
+#[automock]
+trait MyTrait {
+    fn foo(&self, x: u32) -> u32;
+}
+
+fn call_with_four(x: &dyn MyTrait) -> u32 {
+    x.foo(4)
+}
 
 fn do_something() {}
 
@@ -42,7 +52,20 @@ mod tests {
         let mut mock = MockUseFoo::new();
         let r = NonClone { id: 100 };
         mock.expect_foo().return_once(move || r);
-        let expect = calc_id(&mock);
-        assert_eq!(200, expect);
+        let actual = calc_id(&mock);
+        let expect = 200;
+        assert_eq!(expect, actual);
+    }
+
+    #[test]
+    fn test_call_with_four() {
+        let mut mock = MockMyTrait::new();
+        mock.expect_foo()
+            .with(predicate::eq(4))
+            .times(1)
+            .returning(|x| x + 1);
+        let expect = 5;
+        let actual = call_with_four(&mock);
+        assert_eq!(expect, actual);
     }
 }
