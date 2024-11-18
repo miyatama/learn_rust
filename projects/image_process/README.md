@@ -23,7 +23,7 @@ DynamicImage::ImageRgba8(result_img)
 RgbaImageは`pub type RgbaImage = ImageBuffer<Rgba<u8>, Vec<u8>>;`
 from_rawの戻り値は`Option<ImageBuffer<P, Container>>`
 
-`image::RgbaImage::new() + RgbaImage::put_pixel()`を利用する。
+解決策: from_rawに`Vec<u8>`を指定する
 
 
 # reference
@@ -34,3 +34,6 @@ from_rawの戻り値は`Option<ImageBuffer<P, Container>>`
   + [image](https://crates.io/crates/image)
   + [imageproc](https://crates.io/crates/imageproc)
   + [rayon](https://crates.io/crates/rayon)
++ blog.ojisan.io
+  + [Rust でモザイク加工を実装し、それを WebAssembly として Web アプリから利用する](https://blog.ojisan.io/rust-mosaic-web-app/)
++ [yavuzceliker / sample-images](https://github.com/yavuzceliker/sample-images)
