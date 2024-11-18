@@ -1,0 +1,46 @@
+use image::{DynamicImage, GenericImageView, Rgba};
+
+pub fn apply(img: DynamicImage) -> DynamicImage {
+    let blur_filter: [[f32; 3]; 3] = [
+        [1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0],
+        [1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0],
+        [1.0 / 9.0, 1.0 / 9.0, 1.0 / 9.0],
+    ];
+    apply_filter(img, blur_filter)
+}
+
+fn apply_filter(img: DynamicImage, filter: [[f32; 3]; 3]) -> DynamicImage {
+    let (width, height) = img.dimensions();
+    let mut result_pixels = Vec::with_capacity((width * height) as usize);
+    for y in 0..height {
+        for x in 0..width {
+            let filtered_pixel = apply_filter_at_pixel(&img, x, y, &filter);
+            result_pixels.push(filtered_pixel);
+        }
+    }
+    let result_img = image::ImageBuffer::from_raw(width, height, result_pixels).unwrap();
+    DynamicImage::ImageRgba8(result_img)
+}
+
+fn apply_filter_at_pixel(img: &DynamicImage, x: u32, y: u32, filter: &[[f32; 3]; 3]) -> Rgba<u8> {
+    let mut sum_red: f32 = 0.0;
+    let mut sum_green: f32 = 0.0;
+    let mut sum_blue: f32 = 0.0;
+    for j in 0..3 {
+        for i in 0..3 {
+            let px = x + i;
+            let py = y + j;
+            let pixel = img.get_pixel(px, py).0;
+            let filter_value = filter[j as usize][i as usize];
+            sum_red += pixel[0] as f32 * filter_value;
+            sum_green += pixel[1] as f32 * filter_value;
+            sum_blue += pixel[2] as f32 * filter_value;
+        }
+    }
+    Rgba([
+        sum_red.round() as u8,
+        sum_green.round() as u8,
+        sum_blue.round() as u8,
+        255,
+    ])
+}
