@@ -1,0 +1,7 @@
+[package]
+name = "multi_thread"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = {version = "0.4.22", features = ["std", "serde"]}
