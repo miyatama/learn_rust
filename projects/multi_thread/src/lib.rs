@@ -1,5 +1,7 @@
 mod lesson;
 
+
+use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
 use self::lesson::basics::data_share as basics_data_share;
 use self::lesson::basics::message_passing as basics_message_passing;
 use self::lesson::basics::run as basics_run;
@@ -10,4 +12,5 @@ pub fn run() {
     basics_run();
     basics_message_passing();
     basics_data_share();
+basics_use_thread_builder();
 }

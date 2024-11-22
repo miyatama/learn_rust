@@ -47,3 +47,11 @@ pub fn data_share() {
     }
     info!("result: {}", *counter.lock().unwrap());
 }
+
+pub fn use_thread_builder() {
+    debug!("basics::use_thread_builder");
+    let handle = thread::Builder::new().name("great-thread".into()).spawn(||{
+        info!("great-thread executed!!");
+    }).unwrap();
+    handle.join().unwrap();
+}
