@@ -1,5 +1,6 @@
 use log::{debug, info};
 use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
 use std::thread;
 
 pub fn run() {
@@ -22,4 +23,27 @@ pub fn message_passing() {
     let received = rx.recv().unwrap();
     info!("{}", received);
     handle.join().unwrap();
+}
+
+pub fn data_share() {
+    debug!("basics::data_share");
+    let counter = Arc::new(Mutex::new(0));
+    let handles: Vec<_> = (0..10)
+        .map(|_| {
+            let counter = Arc::clone(&counter);
+            thread::spawn(move || {
+                let mut num = counter.lock().unwrap();
+                *num += 1;
+                // panic!("help me!");
+            })
+        })
+        .collect();
+
+    for handle in handles {
+        match handle.join() {
+            Ok(_) => debug!("thread execute successfly"),
+            Err(e) => debug!("thread execute panicd: {:?}", e),
+        }
+    }
+    info!("result: {}", *counter.lock().unwrap());
 }
