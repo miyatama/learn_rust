@@ -23,6 +23,14 @@ pub fn message_passing() {
     let received = rx.recv().unwrap();
     info!("{}", received);
     handle.join().unwrap();
+
+    let data = vec![1, 2, 3];
+    let handle = thread::spawn(move || {
+        info!("moved data: {:?}", data);
+    });
+    // メイン側ではdataが使えない(move済み)
+    // debug!("moving data? : {:?}", data);
+    handle.join().unwrap();
 }
 
 pub fn data_share() {
@@ -50,8 +58,11 @@ pub fn data_share() {
 
 pub fn use_thread_builder() {
     debug!("basics::use_thread_builder");
-    let handle = thread::Builder::new().name("great-thread".into()).spawn(||{
-        info!("great-thread executed!!");
-    }).unwrap();
+    let handle = thread::Builder::new()
+        .name("great-thread".into())
+        .spawn(|| {
+            info!("great-thread executed!!");
+        })
+        .unwrap();
     handle.join().unwrap();
 }
