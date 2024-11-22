@@ -1,5 +1,5 @@
 use self::util::app_logger::AppLogger;
-use log::{LevelFilter};
+use log::LevelFilter;
 
 pub mod util;
 
