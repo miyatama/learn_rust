@@ -2,6 +2,11 @@
 
 対AtCoder用のロジックメモ
 
+## 特訓
+
++ [AtCoder Beginners Selection](https://atcoder.jp/contests/abs)
++ [AtCoder に登録したら次にやること ～ これだけ解けば十分闘える！過去問精選 10 問 ～](https://qiita.com/drken/items/fd4e5e3630d0f5859067#5-%E9%81%8E%E5%8E%BB%E5%95%8F%E7%B2%BE%E9%81%B8-10-%E5%95%8F)
+
 ## テンプレート
 
 入力 + 出力 + テストのテンプレート
@@ -85,6 +90,11 @@ fn main() {
 ```
 
 </div></details>
+
+## 知見
+
++ String::chars()は多用しない([C - 11/22 Substring](https://atcoder.jp/contests/abc381/tasks/abc381_c))
+  + どうも他の解答者のコードを見るとas_bytesとかで配列に変換して使ってる
 
 ## 整数計算
 
