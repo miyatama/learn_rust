@@ -96,6 +96,11 @@ fn main() {
 + String::chars()は多用しない([C - 11/22 Substring](https://atcoder.jp/contests/abc381/tasks/abc381_c))
   + どうも他の解答者のコードを見るとas_bytesとかで配列に変換して使ってる
 
+## 作戦
+
++ RLE: Run Length Encoding
++ 尺取法
+
 ## 整数計算
 
 ### 平方根
