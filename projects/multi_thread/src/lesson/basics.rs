@@ -1,4 +1,4 @@
-use log::{debug, info};
+use log::{debug, error, info};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -65,4 +65,76 @@ pub fn use_thread_builder() {
         })
         .unwrap();
     handle.join().unwrap();
+}
+
+pub fn thread_sync() {
+    debug!("basics::thread_sync");
+    // 下記箇所でエラーとなるので本関数は利用不可
+    // let counter = Mutex::clone(&counter);
+    /*
+    let mut counter = Mutex::new(0);
+    let handles: Vec<_> = (0..10)
+        .map(|_| {
+            let counter = Mutex::clone(&counter);
+            thread::spawn(move || {
+                let mut num = counter.lock().unwrap();
+                *num += 1;
+            })
+        })
+        .collect();
+    for handle in handles {
+        handle.join().unwrap();
+    }
+    info!("result: {}", *counter.lock().unwrap());
+    */
+    error!("この関数は実行できません");
+}
+
+struct Semaphore {
+    inner: Mutex<usize>,
+}
+
+impl Semaphore {
+    fn new(initial: usize) -> Semaphore {
+        Semaphore {
+            inner: Mutex::new(initial),
+        }
+    }
+
+    fn acquire(&self) {
+        let mut count = self.inner.lock().unwrap();
+        while *count == 0 {
+            // リソース確保待ち
+            drop(count);
+            thread::yield_now();
+            count = self.inner.lock().unwrap();
+        }
+        *count -= 1;
+    }
+
+    fn release(&self) {
+        let mut count = self.inner.lock().unwrap();
+        *count += 1;
+    }
+}
+
+pub fn thread_sync2() {
+    debug!("basics::thread_sync2");
+    let semaphore = Arc::new(Semaphore::new(2));
+    let handles: Vec<_> = (0..5)
+        .map(|i| {
+            let semaphore = Arc::clone(&semaphore);
+            thread::spawn(move || {
+                info!("thread {} waiting for resource", i);
+                semaphore.acquire();
+                info!("thread {} acquired resource", i);
+                thread::sleep(std::time::Duration::from_secs(2));
+                info!("thread {} release resource", i);
+                semaphore.release();
+            })
+        })
+        .collect();
+    for handle in handles {
+        handle.join().unwrap();
+    }
 }

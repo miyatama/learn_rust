@@ -1,5 +1,27 @@
 # outline
 
+## 発生した問題
+
+### 2.1.3 スレッドの同期と非同期
+
+#### Mutexを使った同期
+
+```rust
+error[E0277]: the trait bound `Mutex<_>: Clone` is not satisfied
+  --> src\lesson\basics.rs:75:27
+   |
+75 |             let counter = Mutex::clone(&counter);
+   |                           ^^^^^ the trait `Clone` is not implemented for `Mutex<_>`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `multi_thread` (lib) due to 1 previous error
+```
+
+Arcと併せて利用する必要あるのでは感
+
+
+
+
 # reference
 
 + [Rustでのマルチスレッドプログラミング入門](https://www.amazon.co.jp/Rust%E3%81%A7%E3%81%AE%E3%83%9E%E3%83%AB%E3%83%81%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E5%85%A5%E9%96%80-%E5%AE%89%E5%85%A8%E6%80%A7%E3%81%A8%E3%83%91%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%B3%E3%82%B9%E3%81%AE%E8%9E%8D%E5%90%88-%E3%83%8D%E3%82%B3-ebook/dp/B0CR48X5QR/ref=sr_1_1?__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&crid=3AFIJT2IN2HDQ&dib=eyJ2IjoiMSJ9.UU5u14Vp_C8LYfdNgIYbEBaJIYkHTbko--XJxvedGxsTk0B8Rrqx2fiXM2Q5VuFNl4xLh28PTImMqZFeljCA6J087uMZ-jpHO3g064d8DWJ4Lmf1XaIP45TM_MeiA68jwuzWg_oKoQfaJW0hboc_aXXSqXrurpy3w2ofueaBZ6AJ5JrG8wklayF_0ro1A9JZaQchtZQxdjPLe7MmI0DrbEHWnvwkwPmt4ISUBlMGeDE.jCu7wjPFklupAkeRezgp0n3mxgMKzVMhA5ziTeY4uNY&dib_tag=se&keywords=Rust%E3%81%A7%E3%81%AE%E3%83%9E%E3%83%AB%E3%83%81%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E5%85%A5%E9%96%80&qid=1732102765&s=digital-text&sprefix=rust%E3%81%A7%E3%81%AE%E3%83%9E%E3%83%AB%E3%83%81%E3%82%B9%E3%83%AC%E3%83%83%E3%83%89%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E5%85%A5%E9%96%80%2Cdigital-text%2C157&sr=1-1)
