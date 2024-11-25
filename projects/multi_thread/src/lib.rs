@@ -4,6 +4,7 @@ use self::lesson::basics::data_share as basics_data_share;
 use self::lesson::basics::message_passing as basics_message_passing;
 use self::lesson::basics::run as basics_run;
 use self::lesson::basics::thread_async as basics_thread_async;
+use self::lesson::basics::thread_async2 as basics_thread_async2;
 use self::lesson::basics::thread_sync as basics_thread_sync;
 use self::lesson::basics::thread_sync2 as basics_thread_sync2;
 use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
@@ -22,4 +23,5 @@ pub fn run() {
 
 pub async fn run_async() {
     basics_thread_async().await;
+    basics_thread_async2().await;
 }

@@ -1,3 +1,4 @@
+use futures::future::join;
 use log::{debug, error, info};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -148,4 +149,19 @@ async fn async_example() {
     info!("start async example");
     sleep(Duration::from_secs(2)).await;
     info!("end async example");
+}
+
+pub async fn thread_async2() {
+    // futureを利用して複数の非同期処理を同時に走らせる
+    let (result_1, result_2) = join(async_task_1(), async_task_2()).await;
+    info!("async_task_1 result: {:?}", result_1);
+    info!("async_task_2 result: {:?}", result_2);
+}
+
+async fn async_task_1() {
+    info!("process: async_task_1");
+}
+
+async fn async_task_2() {
+    info!("process: async_task_2");
 }
