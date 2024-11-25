@@ -2,6 +2,7 @@ use log::{debug, error, info};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use tokio::time::{sleep, Duration};
 
 pub fn run() {
     debug!("basics::run");
@@ -137,4 +138,14 @@ pub fn thread_sync2() {
     for handle in handles {
         handle.join().unwrap();
     }
+}
+
+pub async fn thread_async() {
+    async_example().await;
+}
+
+async fn async_example() {
+    info!("start async example");
+    sleep(Duration::from_secs(2)).await;
+    info!("end async example");
 }

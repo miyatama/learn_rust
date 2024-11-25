@@ -5,9 +5,11 @@ pub mod util;
 
 static LOGGER: AppLogger = AppLogger {};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     log::set_logger(&LOGGER).unwrap();
     log::set_max_level(LevelFilter::Trace);
 
-    multi_thread::run()
+    multi_thread::run();
+    multi_thread::run_async().await;
 }
