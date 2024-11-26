@@ -8,6 +8,7 @@ use self::lesson::basics::thread_async2 as basics_thread_async2;
 use self::lesson::basics::thread_sync as basics_thread_sync;
 use self::lesson::basics::thread_sync2 as basics_thread_sync2;
 use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
+use self::lesson::mutex_channel::share_data as mutex_channel_share_data;
 
 use log::debug;
 
@@ -24,4 +25,8 @@ pub fn run() {
 pub async fn run_async() {
     basics_thread_async().await;
     basics_thread_async2().await;
+}
+
+pub fn run_mutex_channel() {
+    mutex_channel_share_data();
 }

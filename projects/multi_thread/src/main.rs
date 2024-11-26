@@ -12,4 +12,5 @@ async fn main() {
 
     multi_thread::run();
     multi_thread::run_async().await;
+    multi_thread::run_mutex_channel();
 }
