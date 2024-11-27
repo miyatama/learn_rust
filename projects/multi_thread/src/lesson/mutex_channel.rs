@@ -84,3 +84,22 @@ pub fn share_channel() {
         handle.join().unwrap();
     }
 }
+
+pub fn error_handling() {
+    debug!("start mutex_channel::error_handling");
+    let (sender, receiver) = mpsc::channel();
+
+    let handle = thread::spawn(move || {
+        let data = "data from thread in error_handling";
+        if let Err(err) = sender.send(data) {
+            error!("thread sending error: {:?}", err);
+        }
+    });
+
+    match receiver.recv() {
+        Ok(data) => info!("mutex_channel::error_handling receive data: {}", &data,),
+        Err(err) => error!("thread receiving error: {:?}", err),
+    }
+
+    handle.join().unwrap();
+}
