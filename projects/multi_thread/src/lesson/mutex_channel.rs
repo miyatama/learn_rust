@@ -1,5 +1,5 @@
 use log::{debug, error, info};
-use std::sync::{Arc, Mutex};
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 pub fn share_data() {
@@ -43,4 +43,19 @@ pub fn share_data_use_arc() {
     }
 
     info!("share_data_use_arc result: {}", *counter.lock().unwrap());
+}
+
+pub fn thread_communication() {
+    debug!("start mutex_channel::thread_communication");
+    let (sender, receiver) = mpsc::channel();
+    let handle = thread::spawn(move || {
+        let data = "data from the other side of";
+        sender.send(data).unwrap();
+    });
+    let received_data = receiver.recv().unwrap();
+    handle.join().unwrap();
+    info!(
+        "mutex_channel::thread_communication receive data: {}",
+        &received_data
+    );
 }
