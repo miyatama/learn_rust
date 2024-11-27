@@ -59,3 +59,28 @@ pub fn thread_communication() {
         &received_data
     );
 }
+
+pub fn share_channel() {
+    debug!("start mutex_channel::share_channel");
+    let (sender, receiver) = mpsc::channel();
+    let handles: Vec<_> = (0..10)
+        .map(|i| {
+            let sender = sender.clone();
+            thread::spawn(move || {
+                let data = format!("data from thread: {}", i);
+                sender.send(data).unwrap();
+            })
+        })
+        .collect();
+
+    for _ in 0..10 {
+        let received_data = receiver.recv().unwrap();
+        info!(
+            "mutex_channel::share_channel receive data: {}",
+            &received_data
+        );
+    }
+    for handle in handles {
+        handle.join().unwrap();
+    }
+}
