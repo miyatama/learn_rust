@@ -103,3 +103,27 @@ pub fn error_handling() {
 
     handle.join().unwrap();
 }
+
+pub fn thread_sync() {
+    debug!("start mutex_channel::thread_sync");
+    let (sender, receiver) = mpsc::channel();
+    let handles: Vec<_> = (0..10)
+        .map(|i| {
+            let sender = sender.clone();
+            thread::spawn(move || {
+                let data = format!("thread sync data: {}", i);
+                sender.send(data).unwrap();
+            })
+        })
+        .collect();
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    // ここで全てのスレッド完了を受け取る
+    for _ in 0..10 {
+        let data = receiver.recv().unwrap();
+        info!("mutex_channel::thread_sync receive data: {}", &data);
+    }
+}
