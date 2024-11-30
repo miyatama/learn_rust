@@ -13,8 +13,8 @@ use self::lesson::mutex_channel::share_channel as mutex_channel_share_channel;
 use self::lesson::mutex_channel::share_data as mutex_channel_share_data;
 use self::lesson::mutex_channel::share_data_use_arc as mutex_channel_share_data_use_arc;
 use self::lesson::mutex_channel::thread_communication as mutex_channel_thread_communication;
+use self::lesson::mutex_channel::thread_local_data as mutex_channel_thread_local_data;
 use self::lesson::mutex_channel::thread_sync as mutex_channel_thread_sync;
-
 use self::lesson::scoped_thread::run as scoped_thread_run;
 
 use log::debug;
@@ -41,6 +41,7 @@ pub fn run_mutex_channel() {
     mutex_channel_share_channel();
     mutex_channel_error_handling();
     mutex_channel_thread_sync();
+    mutex_channel_thread_local_data();
 }
 
 pub fn run_scoped_thread() {

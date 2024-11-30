@@ -1,4 +1,5 @@
 use log::{debug, error, info};
+use std::cell::RefCell;
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
@@ -126,4 +127,31 @@ pub fn thread_sync() {
         let data = receiver.recv().unwrap();
         info!("mutex_channel::thread_sync receive data: {}", &data);
     }
+}
+
+// スレッドローカルなデータ
+thread_local! {
+    static THREAD_LOCAL_DATA: RefCell<i32> = RefCell::new(0);
+}
+
+pub fn thread_local_data() {
+    debug!("start mutex_channel::thread_local_data");
+    THREAD_LOCAL_DATA.with(|data| {
+        *data.borrow_mut() += 1;
+    });
+
+    let handle = thread::spawn(|| {
+        THREAD_LOCAL_DATA.with(|data| {
+            *data.borrow_mut() += 1;
+        });
+    });
+
+    handle.join().unwrap();
+
+    THREAD_LOCAL_DATA.with(|data| {
+        info!(
+            "mutex_channel::thread_local_data result data: {}",
+            *data.borrow()
+        );
+    });
 }
