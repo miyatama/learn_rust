@@ -16,6 +16,7 @@ use self::lesson::mutex_channel::thread_communication as mutex_channel_thread_co
 use self::lesson::mutex_channel::thread_local_data as mutex_channel_thread_local_data;
 use self::lesson::mutex_channel::thread_sync as mutex_channel_thread_sync;
 use self::lesson::scoped_thread::run as scoped_thread_run;
+use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
 
 use log::debug;
 
@@ -46,4 +47,8 @@ pub fn run_mutex_channel() {
 
 pub fn run_scoped_thread() {
     scoped_thread_run();
+}
+
+pub fn run_error_trace() {
+    error_trace_custom_panic_handler();
 }
