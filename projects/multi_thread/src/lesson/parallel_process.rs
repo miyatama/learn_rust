@@ -1,8 +1,9 @@
 use log::{debug, error, info};
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Instant;
 
-pub fn dead_lock() {
+pub fn dodge_dead_lock() {
     debug!("start parallel_process::dead_lock");
     let resource1 = Arc::new(Mutex::new(()));
     let resource2 = Arc::new(Mutex::new(()));
@@ -27,4 +28,17 @@ pub fn dead_lock() {
 
     handle1.join().unwrap();
     handle2.join().unwrap();
+}
+
+pub fn performance_metric() {
+    debug!("start parallel_process::performance_metric");
+    let start_time = Instant::now();
+
+    (0..10).map(|x| {
+        info!("wait time: {}", x);
+    });
+
+    let end_time = Instant::now();
+    let elapsed_time = end_time - start_time;
+    info!("elapsed time: {:?}", elapsed_time);
 }

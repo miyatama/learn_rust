@@ -17,7 +17,8 @@ use self::lesson::mutex_channel::share_data_use_arc as mutex_channel_share_data_
 use self::lesson::mutex_channel::thread_communication as mutex_channel_thread_communication;
 use self::lesson::mutex_channel::thread_local_data as mutex_channel_thread_local_data;
 use self::lesson::mutex_channel::thread_sync as mutex_channel_thread_sync;
-use self::lesson::parallel_process::dead_lock as parallel_process_dead_lock;
+use self::lesson::parallel_process::dodge_dead_lock as parallel_process_dodge_dead_lock;
+use self::lesson::parallel_process::performance_metric as parallel_process_performance_metric;
 use self::lesson::scoped_thread::run as scoped_thread_run;
 
 use log::debug;
@@ -57,5 +58,6 @@ pub fn run_error_trace() {
 }
 
 pub fn run_parallel_process() {
-    parallel_process_dead_lock();
+    parallel_process_dodge_dead_lock();
+    parallel_process_performance_metric();
 }
