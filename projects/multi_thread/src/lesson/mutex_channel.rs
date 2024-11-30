@@ -129,12 +129,18 @@ pub fn thread_sync() {
     }
 }
 
-// スレッドローカルなデータ
+// ここで定義しても大丈夫
+/*
 thread_local! {
     static THREAD_LOCAL_DATA: RefCell<i32> = RefCell::new(0);
 }
+*/
 
 pub fn thread_local_data() {
+    // スレッドローカルなデータ
+    thread_local! {
+        static THREAD_LOCAL_DATA: RefCell<i32> = RefCell::new(0);
+    }
     debug!("start mutex_channel::thread_local_data");
     THREAD_LOCAL_DATA.with(|data| {
         *data.borrow_mut() += 1;
