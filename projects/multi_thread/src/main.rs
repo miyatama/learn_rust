@@ -15,4 +15,5 @@ async fn main() {
     multi_thread::run_mutex_channel();
     multi_thread::run_scoped_thread();
     multi_thread::run_error_trace();
+    multi_thread::run_parallel_process();
 }
