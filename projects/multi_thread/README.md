@@ -1,5 +1,23 @@
 # outline
 
+パフォーマンス計測
+
+Windowsの場合はperfの代わりにdtraceが必要
+
+```shell
+cargo install flamegraph
+cargo build
+# cargo flamegraph --bin ./target/debug/multi_thread.exe
+```
+
+```shell
+# Windowsだと失敗する
+cargo install cargo-profiler
+cargo profiler view
+```
+
++ [perfとflamegraphを使ってプロファイリング](https://qiita.com/KentaAdachi/items/5a266984c074d29e2e32)
+
 ## 発生した問題
 
 ### 2.1.3 スレッドの同期と非同期
