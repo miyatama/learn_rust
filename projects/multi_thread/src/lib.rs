@@ -8,6 +8,8 @@ use self::lesson::basics::thread_async2 as basics_thread_async2;
 use self::lesson::basics::thread_sync as basics_thread_sync;
 use self::lesson::basics::thread_sync2 as basics_thread_sync2;
 use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
+use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
+use self::lesson::error_trace::debug_output as error_trace_debug_output;
 use self::lesson::mutex_channel::error_handling as mutex_channel_error_handling;
 use self::lesson::mutex_channel::share_channel as mutex_channel_share_channel;
 use self::lesson::mutex_channel::share_data as mutex_channel_share_data;
@@ -16,7 +18,6 @@ use self::lesson::mutex_channel::thread_communication as mutex_channel_thread_co
 use self::lesson::mutex_channel::thread_local_data as mutex_channel_thread_local_data;
 use self::lesson::mutex_channel::thread_sync as mutex_channel_thread_sync;
 use self::lesson::scoped_thread::run as scoped_thread_run;
-use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
 
 use log::debug;
 
@@ -51,4 +52,5 @@ pub fn run_scoped_thread() {
 
 pub fn run_error_trace() {
     error_trace_custom_panic_handler();
+    error_trace_debug_output();
 }
