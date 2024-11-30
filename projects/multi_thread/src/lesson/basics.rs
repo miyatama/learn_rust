@@ -130,7 +130,7 @@ pub fn thread_sync2() {
                 info!("thread {} waiting for resource", i);
                 semaphore.acquire();
                 info!("thread {} acquired resource", i);
-                thread::sleep(std::time::Duration::from_secs(2));
+                thread::sleep(std::time::Duration::from_millis(200));
                 info!("thread {} release resource", i);
                 semaphore.release();
             })
@@ -147,7 +147,7 @@ pub async fn thread_async() {
 
 async fn async_example() {
     info!("start async example");
-    sleep(Duration::from_secs(2)).await;
+    sleep(Duration::from_millis(200)).await;
     info!("end async example");
 }
 
