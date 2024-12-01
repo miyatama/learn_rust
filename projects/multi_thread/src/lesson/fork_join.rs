@@ -57,3 +57,28 @@ pub fn use_rayon() {
     });
     info!("result: {:?}", data);
 }
+
+pub fn spilt_and_join() {
+    debug!("start fork_join::spilt_and_join");
+    let data = Arc::new(Mutex::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+    let handle1 = thread::spawn({
+        let data = Arc::clone(&data);
+        move || {
+            let data = data.lock().unwrap();
+            let sum: i32 = data[..5].iter().sum();
+            sum
+        }
+    });
+    let handle2 = thread::spawn({
+        let data = Arc::clone(&data);
+        move || {
+            let data = data.lock().unwrap();
+            let sum: i32 = data[5..].iter().sum();
+            sum
+        }
+    });
+    let result1 = handle1.join().unwrap();
+    let result2 = handle2.join().unwrap();
+    let final_result = result1 + result2;
+    info!("result: {:?}", final_result);
+}

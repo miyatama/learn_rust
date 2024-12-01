@@ -12,6 +12,7 @@ use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_
 use self::lesson::error_trace::debug_output as error_trace_debug_output;
 use self::lesson::fork_join::create_thread as fork_join_create_thread;
 use self::lesson::fork_join::data_split as fork_join_data_split;
+use self::lesson::fork_join::spilt_and_join as fork_join_spilt_and_join;
 use self::lesson::fork_join::use_rayon as fork_join_use_rayon;
 use self::lesson::mutex_channel::error_handling as mutex_channel_error_handling;
 use self::lesson::mutex_channel::share_channel as mutex_channel_share_channel;
@@ -68,4 +69,5 @@ pub fn run_fork_join() {
     fork_join_create_thread();
     fork_join_data_split();
     fork_join_use_rayon();
+    fork_join_spilt_and_join();
 }
