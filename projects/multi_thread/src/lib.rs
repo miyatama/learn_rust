@@ -11,6 +11,7 @@ use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
 use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
 use self::lesson::error_trace::debug_output as error_trace_debug_output;
 use self::lesson::fork_join::create_thread as fork_join_create_thread;
+use self::lesson::fork_join::data_split as fork_join_data_split;
 use self::lesson::mutex_channel::error_handling as mutex_channel_error_handling;
 use self::lesson::mutex_channel::share_channel as mutex_channel_share_channel;
 use self::lesson::mutex_channel::share_data as mutex_channel_share_data;
@@ -64,4 +65,5 @@ pub fn run_parallel_process() {
 
 pub fn run_fork_join() {
     fork_join_create_thread();
+    fork_join_data_split();
 }
