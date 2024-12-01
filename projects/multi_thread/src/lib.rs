@@ -10,6 +10,7 @@ use self::lesson::basics::thread_sync2 as basics_thread_sync2;
 use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
 use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
 use self::lesson::error_trace::debug_output as error_trace_debug_output;
+use self::lesson::fork_join::create_thread as fork_join_create_thread;
 use self::lesson::mutex_channel::error_handling as mutex_channel_error_handling;
 use self::lesson::mutex_channel::share_channel as mutex_channel_share_channel;
 use self::lesson::mutex_channel::share_data as mutex_channel_share_data;
@@ -20,7 +21,6 @@ use self::lesson::mutex_channel::thread_sync as mutex_channel_thread_sync;
 use self::lesson::parallel_process::dodge_dead_lock as parallel_process_dodge_dead_lock;
 use self::lesson::parallel_process::performance_metric as parallel_process_performance_metric;
 use self::lesson::scoped_thread::run as scoped_thread_run;
-
 use log::debug;
 
 pub fn run() {
@@ -60,4 +60,8 @@ pub fn run_error_trace() {
 pub fn run_parallel_process() {
     parallel_process_dodge_dead_lock();
     parallel_process_performance_metric();
+}
+
+pub fn run_fork_join() {
+    fork_join_create_thread();
 }

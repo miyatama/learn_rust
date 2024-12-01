@@ -18,6 +18,10 @@ cargo profiler view
 
 + [perfとflamegraphを使ってプロファイリング](https://qiita.com/KentaAdachi/items/5a266984c074d29e2e32)
 
+## フォークジョインパターン
+
+タスクを細かく分割して実施
+
 ## 発生した問題
 
 ### 2.1.3 スレッドの同期と非同期
