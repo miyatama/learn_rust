@@ -1,4 +1,5 @@
 use log::{debug, error, info};
+use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -46,4 +47,13 @@ pub fn data_split() {
 
     let final_result = data.lock().unwrap().clone();
     info!("result: {:?}", final_result);
+}
+
+pub fn use_rayon() {
+    debug!("start fork_join::use_rayon");
+    let mut data = vec![1, 2, 3, 4, 5];
+    data.par_iter_mut().for_each(|elem| {
+        *elem *= 2;
+    });
+    info!("result: {:?}", data);
 }
