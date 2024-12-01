@@ -29,7 +29,7 @@ pub fn share_data_use_arc() {
     debug!("start mutex_channel::share_data_use_arc");
     let counter = Arc::new(Mutex::new(0));
     let handles: Vec<_> = (0..10)
-        .map(|i| {
+        .map(|_i| {
             let counter = Arc::clone(&counter);
             thread::spawn(move || {
                 let mut data = counter.lock().unwrap();

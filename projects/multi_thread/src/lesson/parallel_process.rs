@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::{debug, info};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -34,7 +34,7 @@ pub fn performance_metric() {
     debug!("start parallel_process::performance_metric");
     let start_time = Instant::now();
 
-    (0..10).map(|x| {
+    let _ = (0..10).map(|x| {
         info!("wait time: {}", x);
     });
 

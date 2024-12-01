@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::{debug, error};
 use std::panic;
 
 #[derive(Debug)]
@@ -36,4 +36,6 @@ pub fn debug_output() {
     };
 
     debug!("person: {:?}", &person);
+    debug!("person name: {}", &person.name);
+    debug!("person age: {}", &person.age);
 }

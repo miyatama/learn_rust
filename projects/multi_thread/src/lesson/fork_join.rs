@@ -1,4 +1,4 @@
-use log::{debug, error, info};
+use log::{debug, info};
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
 use std::thread;
