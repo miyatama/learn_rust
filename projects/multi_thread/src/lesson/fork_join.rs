@@ -111,3 +111,15 @@ pub fn closure_and_capture() {
     mut_x();
     immut_x();
 }
+
+pub fn move_closure() {
+    debug!("start fork_join::move_closure");
+    let x = vec![1, 2, 3];
+    let closure = move || {
+        info!("move closure x: {:?}", x);
+    };
+    closure();
+
+    // 所有権が移動しているので使えない
+    // info!("moved x: {}", x);
+}

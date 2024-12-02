@@ -13,6 +13,7 @@ use self::lesson::error_trace::debug_output as error_trace_debug_output;
 use self::lesson::fork_join::closure_and_capture as fork_join_closure_and_capture;
 use self::lesson::fork_join::create_thread as fork_join_create_thread;
 use self::lesson::fork_join::data_split as fork_join_data_split;
+use self::lesson::fork_join::move_closure as fork_join_move_closure;
 use self::lesson::fork_join::spilt_and_join as fork_join_spilt_and_join;
 use self::lesson::fork_join::use_rayon as fork_join_use_rayon;
 use self::lesson::mutex_channel::error_handling as mutex_channel_error_handling;
@@ -72,4 +73,5 @@ pub fn run_fork_join() {
     fork_join_use_rayon();
     fork_join_spilt_and_join();
     fork_join_closure_and_capture();
+    fork_join_move_closure();
 }
