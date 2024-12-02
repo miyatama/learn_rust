@@ -101,7 +101,37 @@ pub fn spilt_and_join() {
 
 </details>
 
+FnOnce, FnMut, Fnの違い is 何？
 
+<details><summary>code</summary>
+
+```rust
+pub fn closure_and_capture() {
+    debug!("start fork_join::closure_and_capture");
+    let x = 10;
+
+    // FnOnce
+    let consume_x = || {
+        debug!("Consume x: {}", x);
+    };
+
+    // FnMut
+    let mut_x = || {
+        debug!("mutable borrow of x: {}", x);
+    };
+
+    // Fn
+    let immut_x = || {
+        debug!("immutable borrow of x: {}", x);
+    };
+
+    consume_x();
+    mut_x();
+    immut_x();
+}
+```
+
+</details>
 
 
 # reference

@@ -10,6 +10,7 @@ use self::lesson::basics::thread_sync2 as basics_thread_sync2;
 use self::lesson::basics::use_thread_builder as basics_use_thread_builder;
 use self::lesson::error_trace::custom_panic_handler as error_trace_custom_panic_handler;
 use self::lesson::error_trace::debug_output as error_trace_debug_output;
+use self::lesson::fork_join::closure_and_capture as fork_join_closure_and_capture;
 use self::lesson::fork_join::create_thread as fork_join_create_thread;
 use self::lesson::fork_join::data_split as fork_join_data_split;
 use self::lesson::fork_join::spilt_and_join as fork_join_spilt_and_join;
@@ -70,4 +71,5 @@ pub fn run_fork_join() {
     fork_join_data_split();
     fork_join_use_rayon();
     fork_join_spilt_and_join();
+    fork_join_closure_and_capture();
 }
