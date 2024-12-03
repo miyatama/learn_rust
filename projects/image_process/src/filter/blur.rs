@@ -57,27 +57,24 @@ fn apply_filter_multi(img: DynamicImage, filter: [[f32; 3]; 3]) -> DynamicImage 
     let (width, height) = img.dimensions();
     debug!("start convert to vec");
     let mut pixel_data: Vec<Vec<u8>> = vec![];
+    let mut position_data: Vec<(u32, u32)> = vec![];
     for y in 0..height {
         for x in 0..width {
             pixel_data.push(img.get_pixel(x, y).0.to_vec());
+            position_data.push((x, y));
         }
     }
 
     debug!("start create thread");
     let pixel_data = Arc::new(Mutex::new(pixel_data));
-    let mut handles: Vec<_> = (0..height)
-        .flat_map(|y| {
-            (0..width).map({
+    let mut handles: Vec<_> = position_data
+        .into_iter()
+        .map(|(x, y)| {
+            thread::spawn({
                 let pixel_data = Arc::clone(&pixel_data);
-                move |x| {
-                    thread::spawn({
-                        // TODO これ何とかしたい
-                        let pixel_data = pixel_data.clone();
-                        move || {
-                            let pixel_data = pixel_data.lock().unwrap();
-                            apply_filter_at_pixel_multi(&pixel_data, x, y, width, height, &filter)
-                        }
-                    })
+                move || {
+                    let pixel_data = pixel_data.lock().unwrap();
+                    apply_filter_at_pixel_multi(&pixel_data, x, y, width, height, &filter)
                 }
             })
         })
