@@ -1,7 +1,12 @@
+use log::{debug, info};
+use serde::{Deserialize, Serialize};
 use yaml_rust2::{YamlEmitter, YamlLoader};
-use log::debug;
 
+/**
+ * &strのyaml定義から連想配列形式を作成 & 連想配列からyaml定義のString作成
+ */
 pub fn run_example() {
+    debug!("run_example");
     let s = "
 foo:
     - list1
@@ -16,7 +21,7 @@ bar:
     let doc = &docs[0];
 
     // Debug support
-    println!("{:?}", doc);
+    info!("{:?}", doc);
 
     // Index access for map & array
     assert_eq!(doc["foo"][0].as_str().unwrap(), "list1");
@@ -32,5 +37,28 @@ bar:
         let mut emitter = YamlEmitter::new(&mut out_str);
         emitter.dump(doc).unwrap(); // dump the YAML object to a String
     }
-    debug!("{}", out_str);
+    info!("{}", out_str);
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+/**
+ * yaml定義をstructに入れたい
+ */
+pub fn run_yaml_struct() {
+    debug!("run_yaml_struct");
+    let point = Point { x: 1.0, y: 2.0 };
+    info!("target object: {:?}", &point);
+
+    // Serialize to YAML
+    let yaml = serde_yml::to_string(&point).unwrap();
+    info!("Serialize to yaml string: {}", &yaml);
+
+    // Deserialize from YAML
+    let deserialized_point: Point = serde_yml::from_str(&yaml).unwrap();
+    info!("deserialize to yaml string: {:?}", &deserialized_point);
 }

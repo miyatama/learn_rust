@@ -1,6 +1,5 @@
 use self::util::app_logger::AppLogger;
 use log::LevelFilter;
-use yaml_rust2::{YamlEmitter, YamlLoader};
 
 pub mod util;
 
@@ -10,4 +9,5 @@ fn main() {
     log::set_logger(&LOGGER).unwrap();
     log::set_max_level(LevelFilter::Trace);
     rust_yaml::run_example();
+    rust_yaml::run_yaml_struct();
 }
