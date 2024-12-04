@@ -40,10 +40,21 @@ bar:
     info!("{}", out_str);
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+enum Shape {
+    Rectangle { width: u32, height: u32 },
+    Circle { radius: f64 },
+    Triangle { base: u32, height: u32 },
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 struct Point {
     x: f64,
     y: f64,
+    shapes: Vec<Shape>,
+    age1: Option<u8>,
+    age2: Option<u8>,
+    is_active: bool,
 }
 
 /**
@@ -51,7 +62,24 @@ struct Point {
  */
 pub fn run_yaml_struct() {
     debug!("run_yaml_struct");
-    let point = Point { x: 1.0, y: 2.0 };
+    let point = Point {
+        x: 1.0,
+        y: 2.0,
+        shapes: vec![
+            Shape::Rectangle {
+                width: 100,
+                height: 120,
+            },
+            Shape::Circle { radius: 100.0 },
+            Shape::Triangle {
+                base: 130,
+                height: 140,
+            },
+        ],
+        age1: None,
+        age2: Some(9),
+        is_active: false,
+    };
     info!("target object: {:?}", &point);
 
     // Serialize to YAML
