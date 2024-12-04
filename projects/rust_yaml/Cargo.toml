@@ -1,0 +1,8 @@
+[package]
+name = "rust_yaml"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+yaml-rust2 = "0.9"
+log = {version = "0.4.22", features = ["std", "serde"]}
