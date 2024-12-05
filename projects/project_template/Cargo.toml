@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+    "ui",
+    "usecase",
+    "repository",
+    "domain",
+    "util",
+]
