@@ -1,6 +1,6 @@
 use clap::Parser;
 use log::info;
-use util::{AppResult};
+use util::AppResult;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
@@ -9,8 +9,8 @@ pub struct Config {
     number: u32,
 }
 
-pub fn run(config: Config) -> AppResult<()> {
-    info!("config: {:?}", &config);
+pub fn run(config: &Config) -> AppResult<()> {
+    info!("config: {:?}", config);
     Ok(())
 }
 
