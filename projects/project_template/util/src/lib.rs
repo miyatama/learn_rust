@@ -1,4 +1,5 @@
 mod app_logger;
+pub mod data;
 
 pub use app_logger::AppLogger;
 

@@ -1,16 +1,37 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use log::info;
 use util::AppResult;
 
 #[derive(Debug, Parser)]
 #[command(version, about, long_about = None)]
 pub struct Config {
-    #[arg(short, long)]
-    number: u32,
+    #[clap(subcommand)]
+    subcommand: SubCommands,
+}
+
+#[derive(Debug, Subcommand)]
+enum SubCommands {
+    List {
+        #[clap(short = 'l', long = "number", required = true, ignore_case = true)]
+        number: u32,
+    },
+    Add,
+    Update,
 }
 
 pub fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
+    match config.subcommand {
+        SubCommands::List { number } => {
+            info!("call list.number: {}", number);
+        }
+        SubCommands::Add => {
+            info!("call add");
+        }
+        SubCommands::Update => {
+            info!("call update");
+        }
+    }
     Ok(())
 }
 
