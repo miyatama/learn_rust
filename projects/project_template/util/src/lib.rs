@@ -1,7 +1,9 @@
 mod app_logger;
-pub mod data;
+mod data;
 
 pub use app_logger::AppLogger;
+
+pub use data::todo::Todo;
 
 use std::error::Error;
 
