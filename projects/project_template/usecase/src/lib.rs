@@ -1,14 +1,14 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+mod usecases;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub use usecases::add_todo_usecase::AddTodoUseCase;
+pub use usecases::get_todo_list_usecase::GetTodoListUseCase;
+pub use usecases::update_todo_usecase::UpdateTodoUseCase;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub trait UseCases {
+    type GetTodoListUseCase: GetTodoListUseCase;
+    type AddTodoUseCase: AddTodoUseCase;
+    type UpdateTodoUseCase: UpdateTodoUseCase;
+    fn get_todo_list_usecase(&self) -> &Self::GetTodoListUseCase;
+    fn add_todo_usecase(&self) -> &Self::AddTodoUseCase;
+    fn update_todo_usecase(&self) -> &Self::UpdateTodoUseCase;
 }

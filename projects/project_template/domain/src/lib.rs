@@ -1,3 +1,8 @@
 mod domains;
-mod todo_api;
-pub use domains::Domains;
+
+pub use domains::todo_api_client::TodoApiClient;
+
+pub trait Domains {
+    type TodoApiClient: TodoApiClient;
+    fn todo_api_client(&self) -> &Self::TodoApiClient;
+}
