@@ -7,7 +7,7 @@ layers
 | layer | description |
 | :---- | :---- |
 | app | usecase |
-| domain | repository |
+| domain | repository, mockall利用 |
 | interface-adapter | controller |
 | infra | main |
 
@@ -34,6 +34,75 @@ classDiagram
   }
 ```
 
+infra
+
+```mermaid
+classDiagram
+  main <-- RepositoryImpls
+  main <-- Cli
+  Cli <|.. Controller
+  Cli <.. RepositoryImpls
+  Controller <.. RepositoryImpls
+  RepositoryImpls <.. UserRepositoryImpl
+  Repositories <|-- RepositoryImpls
+  UserRepository <|-- UserRepositoryImpl
+
+  class main {
+  }
+  class RepositoryImpls {
+  }
+  class Cli {
+  }
+  class Controller {
+  }
+  class UserRepositoryImpl {
+  }
+  class UserRepository {
+  }
+  class Repositories {
+  }
+```
+
+infra
+
+| name | type |has | impl | description |
+| :---- | :----: | :---- | :---- | :---- |
+| Cli | struct | Controller<RepositoryImpls> | | DTO(request)の作成及びcontrollerへの引き渡し |
+| RepositoryImpls | struct| UserRepositoryImpl | Repositories | Repositoriesの実装 |
+| UserRepositoryImpl | struct | |UserRepository , Default | UserRepositoryの実装 |
+
+interface-adadpter
+
+| name | type |has | impl | description |
+| :---- | :----: | :---- | :---- | :---- |
+| Controller | struct | UseCase<Repositories> | | |
+| SearchUsersRequestDTO | struct | | | |
+| SearchUsersResponseDTO | struct | | | |
+| AddUserRequestDTO | struct  | | | |
+| AddUserResponseDTO | struct  | | | |
+| UpdateUserRequestDTO | struct  | | | |
+| UpdateUserResponseDTO | struct  | | | |
+
+app
+
+| name | type |has | impl | description |
+| :---- | :----: | :---- | :---- | :---- |
+| UseCase | struct | UserRepo | Repositories | |
+
+domain
+
+| name | type |has | impl | description |
+| :---- | :----: | :---- | :---- | :---- |
+| Repositories | trait  | | | UserRepositoryの提供。(UserRepo: UserRepository) |
+| User | struct  | | | |
+| UserRepository | trait | | | |
+| MyError | struct  | | Error, Display | |
+| EmailAddress | struct | | Display | |
+| MyErrorType | enum | | | |
+| UserId | struct | | | |
+| UserName | struct | | Display | |
+| UserFirstName | struct | | | |
+| UserLastName | struct | | | |
 
 # reference
 
