@@ -1,4 +1,4 @@
 pub struct Todo {
-    id: u32,
-    text: String,
+    pub id: u32,
+    pub text: String,
 }

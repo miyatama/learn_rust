@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
 use log::info;
+use usecase::UseCases;
+use usecase::UseCasesImpls;
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -21,6 +23,8 @@ enum SubCommands {
 
 pub fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
+
+    let usecases = UseCasesImpls::default();
     match config.subcommand {
         SubCommands::List { number } => {
             info!("call list.number: {}", number);

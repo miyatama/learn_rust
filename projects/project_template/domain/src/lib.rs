@@ -6,3 +6,6 @@ pub trait Domains {
     type TodoApiClient: TodoApiClient;
     fn todo_api_client(&self) -> &Self::TodoApiClient;
 }
+
+// TODO add DomainsImpl
+// TODO add TodoApiClientImpl

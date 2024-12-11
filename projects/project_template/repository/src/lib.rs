@@ -6,3 +6,6 @@ pub trait Repositories {
     type TodoRepository: TodoRepository;
     fn todo_repository(&self) -> &Self::TodoRepository;
 }
+
+// TODO add RepositoriesImpl
+// TODO add TodoRepositoryImpl
