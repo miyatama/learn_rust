@@ -1,6 +1,7 @@
 use clap::{Parser, Subcommand};
 use log::info;
 use usecase::{GetTodoListUseCase, UseCases, UseCasesImpls};
+use std::cmp::min;
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -27,8 +28,10 @@ pub fn run(config: &Config) -> AppResult<()> {
     match config.subcommand {
         SubCommands::List { number } => match usecases.get_todo_list_usecase().run() {
             Ok(todos) => {
-                for i in 0..number {
-                    let todo = &todos[i as usize];
+                let number = number as usize;
+                let max_index = min(number, todos.len());
+                for i in 0..max_index {
+                    let todo = &todos[i];
                     info!("{} - {}", todo.id, todo.text);
                 }
                 return Ok(());
