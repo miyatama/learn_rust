@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use log::info;
-use usecase::UseCasesImpls;
+use usecase::{GetTodoListUseCase, UseCases, UseCasesImpls};
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -23,11 +23,20 @@ enum SubCommands {
 pub fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
 
-    let _usecases = UseCasesImpls::default();
+    let usecases = UseCasesImpls::default();
     match config.subcommand {
-        SubCommands::List { number } => {
-            info!("call list.number: {}", number);
-        }
+        SubCommands::List { number } => match usecases.get_todo_list_usecase().run() {
+            Ok(todos) => {
+                for i in 0..number {
+                    let todo = &todos[i as usize];
+                    info!("{} - {}", todo.id, todo.text);
+                }
+                return Ok(());
+            }
+            Err(e) => {
+                return Err(e);
+            }
+        },
         SubCommands::Add => {
             info!("call add");
         }
