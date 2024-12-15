@@ -28,6 +28,19 @@ impl TodoRepository for TodoRepositoryImpl {
     }
     fn list(&self) -> AppResult<Vec<Todo>> {
         // TODO call domain
-        Ok(vec![])
+        Ok(vec![
+            Todo {
+                id: 1,
+                text: "get".to_string(),
+            },
+            Todo {
+                id: 22,
+                text: "the".to_string(),
+            },
+            Todo {
+                id: 80,
+                text: "money".to_string(),
+            },
+        ])
     }
 }

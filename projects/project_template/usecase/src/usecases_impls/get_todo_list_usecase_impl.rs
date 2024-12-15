@@ -3,22 +3,21 @@ use repository::{TodoRepository, TodoRepositoryImpl};
 use util::AppResult;
 use util::Todo;
 
-#[derive(Clone, Debug)]
-pub struct GetTodoListUseCaseImpl {
+#[derive(Clone)]
+pub struct GetTodoListUseCaseImpl<'r> {
+    todo_repository: &'r dyn TodoRepository,
 }
 
-impl GetTodoListUseCaseImpl {
-    pub fn new() -> Self {
-        Self { }
+impl<'r> GetTodoListUseCaseImpl<'r> {
+    pub fn new(repository: &'r dyn TodoRepository) -> Self {
+        Self {
+            todo_repository: repository,
+        }
     }
 }
 
-impl GetTodoListUseCase for GetTodoListUseCaseImpl {
+impl<'r> GetTodoListUseCase for GetTodoListUseCaseImpl<'r> {
     fn run(&self) -> AppResult<Vec<Todo>> {
-        // TODO call repository
-        Ok(vec![Todo {
-            id: 0,
-            text: "".to_string(),
-        }])
+        self.todo_repository.list()
     }
 }
