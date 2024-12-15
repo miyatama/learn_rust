@@ -1,7 +1,8 @@
 use clap::{Parser, Subcommand};
 use log::info;
-use usecase::{GetTodoListUseCase, UseCases, UseCasesImpls};
+use repository::RepositoriesImpl;
 use std::cmp::min;
+use usecase::{GetTodoListUseCase, UseCases, UseCasesImpls};
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -24,7 +25,8 @@ enum SubCommands {
 pub fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
 
-    let usecases = UseCasesImpls::default();
+    let repositories = RepositoriesImpl::new();
+    let usecases = UseCasesImpls::new(&repositories);
     match config.subcommand {
         SubCommands::List { number } => match usecases.get_todo_list_usecase().run() {
             Ok(todos) => {

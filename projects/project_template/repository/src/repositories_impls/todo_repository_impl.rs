@@ -5,8 +5,8 @@ use util::Todo;
 #[derive(Debug, Clone)]
 pub struct TodoRepositoryImpl {}
 
-impl Default for TodoRepositoryImpl {
-    fn default() -> Self {
+impl TodoRepositoryImpl {
+    pub fn new() -> Self {
         Self {}
     }
 }

@@ -1,6 +1,7 @@
 mod usecases;
 mod usecases_impls;
 
+use repository::{Repositories, RepositoriesImpl};
 pub use usecases::add_todo_usecase::AddTodoUseCase;
 pub use usecases::get_todo_list_usecase::GetTodoListUseCase;
 pub use usecases::update_todo_usecase::UpdateTodoUseCase;
@@ -17,14 +18,26 @@ pub trait UseCases {
     fn update_todo_usecase(&self) -> &Self::UpdateTodoUseCase;
 }
 
-#[derive(Clone, Debug, Default)]
-pub struct UseCasesImpls {
+#[derive(Clone, Debug)]
+pub struct UseCasesImpls<'r, R: Repositories> {
+    repositories: &'r R,
     add_todo_usecase: AddTodoUseCaseImpl,
     update_todo_usecase: UpdateTodoUseCaseImpl,
     get_todo_list_usecase: GetTodoListUseCaseImpl,
 }
 
-impl UseCases for UseCasesImpls {
+impl<'r, R: Repositories> UseCasesImpls<'r, R> {
+    pub fn new(repositories: &'r R) -> Self {
+        Self {
+            repositories: repositories,
+            add_todo_usecase: AddTodoUseCaseImpl::new(),
+            update_todo_usecase: UpdateTodoUseCaseImpl::new(),
+            get_todo_list_usecase: GetTodoListUseCaseImpl::new(),
+        }
+    }
+}
+
+impl<'u, R: Repositories> UseCases for UseCasesImpls<'u, R> {
     type AddTodoUseCase = AddTodoUseCaseImpl;
     type UpdateTodoUseCase = UpdateTodoUseCaseImpl;
     type GetTodoListUseCase = GetTodoListUseCaseImpl;

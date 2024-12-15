@@ -1,13 +1,15 @@
 use crate::usecases::get_todo_list_usecase::GetTodoListUseCase;
+use repository::{TodoRepository, TodoRepositoryImpl};
 use util::AppResult;
 use util::Todo;
 
 #[derive(Clone, Debug)]
-pub struct GetTodoListUseCaseImpl {}
+pub struct GetTodoListUseCaseImpl {
+}
 
-impl Default for GetTodoListUseCaseImpl {
-    fn default() -> Self {
-        Self {}
+impl GetTodoListUseCaseImpl {
+    pub fn new() -> Self {
+        Self { }
     }
 }
 

@@ -5,8 +5,8 @@ use util::Todo;
 #[derive(Clone, Debug)]
 pub struct AddTodoUseCaseImpl {}
 
-impl Default for AddTodoUseCaseImpl {
-    fn default() -> Self {
+impl AddTodoUseCaseImpl {
+    pub fn new() -> Self {
         Self {}
     }
 }

@@ -9,9 +9,17 @@ pub trait Repositories {
     fn todo_repository(&self) -> &Self::TodoRepository;
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct RepositoriesImpl {
     todo_repository: TodoRepositoryImpl,
+}
+
+impl RepositoriesImpl {
+    pub fn new() -> Self {
+        Self {
+            todo_repository: TodoRepositoryImpl::new(),
+        }
+    }
 }
 
 impl Repositories for RepositoriesImpl {
