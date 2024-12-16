@@ -57,7 +57,10 @@ classDiagram
 
 ## will
 
-+ [ ]DI構成をModules形式に変更
-+ [ ]Domainsのインジェクション
-+ [ ]Repositories内の全部参照に切り替えたい
-+ [ ]UseCases内の全部参照に切り替えたい
++ [x]DI構成をModules形式に変更
++ [x]Domainsのインジェクション
++ [x]Repositories内の全部参照に切り替えたい
++ [x]UseCases内の全部参照に切り替えたい
++ [ ]Domainsの実装
++ [ ]テスト組み込み
++ [ ]setting機能追加
