@@ -9,14 +9,14 @@
             {% for entry in entries %}
             <div>
                 <div>id: {{ entry.id }}, text: {{ entry.text }}</div>
-                <form action="/delete" method="post">
+                <form action="/delete_todo" method="post">
                     <input type="hidden" name="id" value="{{ entry.id }}"/>
                     <button>delete</button>
                 </form>
             </div>
             {% endfor %}
         </div>
-        <form action="/add" method="post">
+        <form action="/add_todo" method="post">
             <div>
                 <input name="text">
             </div>

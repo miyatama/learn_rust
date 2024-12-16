@@ -1,14 +1,16 @@
 mod util;
 
-use actix_web::{get, http::header, post, web, App, HttpResponse, HttpServer, ResponseError};
+use self::util::app_logger::AppLogger;
+use actix_web::{
+    delete, get, http::header, post, put, web, App, HttpResponse, HttpServer, ResponseError,
+};
 use askama::Template;
 use log::{debug, info, LevelFilter};
 use r2d2::Pool;
-use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::params;
+use r2d2_sqlite::{SqliteConnectionManager};
+use rusqlite::{params, Statement};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use self::util::app_logger::AppLogger;
 
 static LOGGER: AppLogger = AppLogger {};
 
@@ -26,12 +28,14 @@ enum MyError {
 
 impl ResponseError for MyError {}
 
+type RestResult = Result<HttpResponse, Box<dyn std::error::Error>>;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Todos {
     todos: Vec<TodoEntry>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct TodoEntry {
     id: u32,
     text: String,
@@ -45,6 +49,17 @@ struct IndexTemplate {
 
 #[derive(Deserialize)]
 struct GetTodosParams {
+    text: String,
+}
+
+#[derive(Deserialize)]
+struct AddTodosParams {
+    text: String,
+}
+
+#[derive(Deserialize)]
+struct UpdateTodoParams {
+    id: u32,
     text: String,
 }
 
@@ -85,9 +100,9 @@ async fn index(db: web::Data<Pool<SqliteConnectionManager>>) -> Result<HttpRespo
 
 #[get("/todos")]
 async fn get_todos(
-    params: web::Json<GetTodosParams>,
+    _params: web::Json<GetTodosParams>,
     db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
-) -> Result<HttpResponse, MyError> {
+) -> RestResult {
     info!("call /todos");
     let conn = db.get()?;
     let mut statement = conn.prepare("SELECT id, text FROM todo")?;
@@ -106,7 +121,80 @@ async fn get_todos(
     Ok(HttpResponse::Ok().json(Todos { todos: todos }))
 }
 
-#[post("/add")]
+#[post("/todo")]
+async fn add_todo_rest(
+    params: web::Json<AddTodosParams>,
+    db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> RestResult {
+    info!("call /todo");
+    let conn = db.get()?;
+    conn.execute("INSERT INTO todo(text) VALUES (?)", &[&params.text])?;
+    let mut statement = conn.prepare(
+        "SELECT T1.id, T1.text FROM todo T1 WHERE T1.id = (SELECT MAX(TMP.id) FROM todo TMP)",
+    )?;
+    let rows = statement.query_map(params![], |row| {
+        let id = row.get(0)?;
+        let text = row.get(1)?;
+        Ok(TodoEntry { id: id, text: text })
+    })?;
+    let mut todos = Vec::new();
+    for row in rows {
+        if row.is_ok() {
+            todos.push(row.unwrap());
+            break;
+        }
+    }
+    if todos.len() > 0 {
+        Ok(HttpResponse::Ok().json(todos[0].clone()))
+    } else {
+        Err("todo not found after insert")?
+    }
+}
+
+#[put("/todo")]
+async fn update_todo_rest(
+    params: web::Json<UpdateTodoParams>,
+    db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> RestResult {
+    info!("call /todo");
+    let conn = db.get()?;
+    conn.execute(
+        "UPDATE todo SET text = ? WHERE id = ?",
+        &[&params.text, &format!("{}", params.id)],
+    )?;
+    let mut statement = conn.prepare("SELECT T1.id, T1.text FROM todo T1 WHERE T1.id = ?").unwrap();
+    let rows = statement.query_map(params![params.id], |row| {
+        let id = row.get(0)?;
+        let text = row.get(1)?;
+        Ok(TodoEntry { id: id, text: text })
+    })?;
+    let mut todos = Vec::new();
+    for row in rows {
+        if row.is_ok() {
+            todos.push(row.unwrap());
+            break;
+        }
+    }
+    if todos.len() > 0 {
+        Ok(HttpResponse::Ok().json(todos[0].clone()))
+    } else {
+        Err("todo not found after update")?
+    }
+}
+
+#[delete("/todo")]
+async fn delete_todo_rest(
+    params: web::Json<DeleteParams>,
+    db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> Result<HttpResponse, MyError> {
+    let conn = db.get()?;
+    conn.execute("DELETE FROM todo WHERE id = ?", &[&params.id])?;
+    Ok(HttpResponse::SeeOther()
+        .header(header::LOCATION, "/")
+        .finish())
+}
+
+#[post("/add_todo")]
 async fn add_todo(
     params: web::Form<AddParams>,
     db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
@@ -118,7 +206,7 @@ async fn add_todo(
         .finish())
 }
 
-#[post("/delete")]
+#[post("/delete_todo")]
 async fn delete_todo(
     params: web::Form<DeleteParams>,
     db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
@@ -159,6 +247,9 @@ async fn main() -> Result<(), actix_web::Error> {
         App::new()
             .service(index)
             .service(get_todos)
+            .service(add_todo_rest)
+            .service(delete_todo_rest)
+            .service(update_todo_rest)
             .service(add_todo)
             .service(delete_todo)
             .service(update_memo)
