@@ -53,9 +53,11 @@ classDiagram
 
 + [RustのClapクレートがメチャクチャ良かった話](https://zenn.dev/shinobuy/articles/53aed032fe5977)
 + [Clap の Derive API で列挙型のコマンドラインオプションを実装する](https://zenn.dev/takanori_is/articles/rust-clap-derive-api-arg-enum)
++ [Rust の新しい HTTP サーバーのクレート Axum をフルに活用してサーバーサイドアプリケーション開発をしてみる](https://blog-dry.com/entry/2021/12/26/002649#Dependency-Injection)
 
 ## will
 
++ [ ]DI構成をModules形式に変更
 + [ ]Domainsのインジェクション
 + [ ]Repositories内の全部参照に切り替えたい
 + [ ]UseCases内の全部参照に切り替えたい

@@ -1,13 +1,19 @@
 use crate::repositories::todo_repository::TodoRepository;
+use domain::TodoApiClientImpl;
+use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
 
 #[derive(Debug, Clone)]
-pub struct TodoRepositoryImpl {}
+pub struct TodoRepositoryImpl {
+    todo_api_client: Arc<TodoApiClientImpl>,
+}
 
 impl TodoRepositoryImpl {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(todo_api_client: TodoApiClientImpl) -> Self {
+        Self {
+            todo_api_client: Arc::new(todo_api_client),
+        }
     }
 }
 

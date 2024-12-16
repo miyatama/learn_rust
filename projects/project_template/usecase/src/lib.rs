@@ -10,39 +10,44 @@ pub use usecases_impls::get_todo_list_usecase_impl::GetTodoListUseCaseImpl;
 pub use usecases_impls::update_todo_usecase_impl::UpdateTodoUseCaseImpl;
 
 pub trait UseCases {
-    type GetTodoListUseCase: GetTodoListUseCase;
-    type AddTodoUseCase: AddTodoUseCase;
-    type UpdateTodoUseCase: UpdateTodoUseCase;
-    fn get_todo_list_usecase(&self) -> Self::GetTodoListUseCase;
-    fn add_todo_usecase(&self) -> Self::AddTodoUseCase;
-    fn update_todo_usecase(&self) -> Self::UpdateTodoUseCase;
+    type Repositories: Repositories;
+    fn get_todo_list(&self) -> &GetTodoListUseCaseImpl;
+    fn add_todo(&self) -> &AddTodoUseCaseImpl;
+    fn update_todo(&self) -> &UpdateTodoUseCaseImpl;
 }
 
 #[derive(Clone, Debug)]
-pub struct UseCasesImpls<'r, R: Repositories> {
-    repositories: &'r R,
+pub struct UseCasesImpls {
+    get_todo_list_usecase: GetTodoListUseCaseImpl,
+    add_todo_usecase: AddTodoUseCaseImpl,
+    update_todo_usecase: UpdateTodoUseCaseImpl,
 }
 
-impl<'r, R: Repositories> UseCasesImpls<'r, R> {
-    pub fn new(repositories: &'r R) -> Self {
+impl UseCasesImpls {
+    pub async fn new() -> UseCasesImpls {
+        let repositories = RepositoriesImpl::new();
+        let todo_repository = repositories.todo_repository();
+        let get_todo_list_usecase = GetTodoListUseCaseImpl::new(todo_repository.clone());
+        let add_todo_usecase = AddTodoUseCaseImpl::new(todo_repository.clone());
+        let update_todo_usecase = UpdateTodoUseCaseImpl::new(todo_repository.clone());
         Self {
-            repositories: repositories,
+            get_todo_list_usecase: get_todo_list_usecase,
+            add_todo_usecase: add_todo_usecase,
+            update_todo_usecase: update_todo_usecase,
         }
     }
 }
 
-impl<'u, R: Repositories> UseCases for UseCasesImpls<'u, R> {
-    type AddTodoUseCase = AddTodoUseCaseImpl;
-    type UpdateTodoUseCase = UpdateTodoUseCaseImpl;
-    type GetTodoListUseCase = GetTodoListUseCaseImpl<'u>;
+impl UseCases for UseCasesImpls {
+    type Repositories = RepositoriesImpl;
 
-    fn add_todo_usecase(&self) -> Self::AddTodoUseCase {
-        AddTodoUseCaseImpl::new()
+    fn get_todo_list(&self) -> &GetTodoListUseCaseImpl {
+        &self.get_todo_list_usecase
     }
-    fn update_todo_usecase(&self) -> Self::UpdateTodoUseCase {
-        UpdateTodoUseCaseImpl::new()
+    fn add_todo(&self) -> &AddTodoUseCaseImpl {
+        &self.add_todo_usecase
     }
-    fn get_todo_list_usecase(&self) -> Self::GetTodoListUseCase {
-        GetTodoListUseCaseImpl::new(self.repositories.todo_repository())
+    fn update_todo(&self) -> &UpdateTodoUseCaseImpl {
+        &self.update_todo_usecase
     }
 }

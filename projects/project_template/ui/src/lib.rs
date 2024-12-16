@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
 use log::info;
-use repository::RepositoriesImpl;
 use std::cmp::min;
-use usecase::{GetTodoListUseCase, UseCases, UseCasesImpls};
+use std::sync::Arc;
+use usecase::{GetTodoListUseCase, GetTodoListUseCaseImpl, UseCases, UseCasesImpls};
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -22,26 +22,28 @@ enum SubCommands {
     Update,
 }
 
-pub fn run(config: &Config) -> AppResult<()> {
+pub async fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
 
-    let repositories = RepositoriesImpl::new();
-    let usecases = UseCasesImpls::new(&repositories);
+    let usecases = UseCasesImpls::new().await;
     match config.subcommand {
-        SubCommands::List { number } => match usecases.get_todo_list_usecase().run() {
-            Ok(todos) => {
-                let number = number as usize;
-                let max_index = min(number, todos.len());
-                for i in 0..max_index {
-                    let todo = &todos[i];
-                    info!("{} - {}", todo.id, todo.text);
+        SubCommands::List { number } => {
+            let usecase = usecases.get_todo_list();
+            match usecase.run() {
+                Ok(todos) => {
+                    let number = number as usize;
+                    let max_index = min(number, todos.len());
+                    for i in 0..max_index {
+                        let todo = &todos[i];
+                        info!("{} - {}", todo.id, todo.text);
+                    }
+                    return Ok(());
                 }
-                return Ok(());
+                Err(e) => {
+                    return Err(e);
+                }
             }
-            Err(e) => {
-                return Err(e);
-            }
-        },
+        }
         SubCommands::Add => {
             info!("call add");
         }

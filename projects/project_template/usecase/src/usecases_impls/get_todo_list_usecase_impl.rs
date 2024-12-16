@@ -1,22 +1,23 @@
 use crate::usecases::get_todo_list_usecase::GetTodoListUseCase;
 use repository::{TodoRepository, TodoRepositoryImpl};
+use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
 
-#[derive(Clone)]
-pub struct GetTodoListUseCaseImpl<'r> {
-    todo_repository: &'r dyn TodoRepository,
+#[derive(Clone, Debug)]
+pub struct GetTodoListUseCaseImpl {
+    todo_repository: Arc<TodoRepositoryImpl>,
 }
 
-impl<'r> GetTodoListUseCaseImpl<'r> {
-    pub fn new(repository: &'r dyn TodoRepository) -> Self {
+impl GetTodoListUseCaseImpl {
+    pub fn new(todo_repository: TodoRepositoryImpl) -> Self {
         Self {
-            todo_repository: repository,
+            todo_repository: Arc::new(todo_repository),
         }
     }
 }
 
-impl<'r> GetTodoListUseCase for GetTodoListUseCaseImpl<'r> {
+impl GetTodoListUseCase for GetTodoListUseCaseImpl {
     fn run(&self) -> AppResult<Vec<Todo>> {
         self.todo_repository.list()
     }

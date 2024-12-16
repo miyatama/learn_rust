@@ -10,3 +10,4 @@ mock = ["mockall"]
 [dependencies]
 mockall = {version = "0.9", optional = true}
 util = {path = "../util"}
+domain = {path = "../domain"}

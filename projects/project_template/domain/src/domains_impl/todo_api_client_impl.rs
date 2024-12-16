@@ -5,8 +5,8 @@ use util::Todo;
 #[derive(Debug, Clone)]
 pub struct TodoApiClientImpl {}
 
-impl Default for TodoApiClientImpl {
-    fn default() -> Self {
+impl TodoApiClientImpl {
+    pub fn new() -> Self {
         Self {}
     }
 }
