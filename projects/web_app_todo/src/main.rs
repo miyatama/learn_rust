@@ -1,10 +1,16 @@
+mod util;
+
 use actix_web::{get, http::header, post, web, App, HttpResponse, HttpServer, ResponseError};
 use askama::Template;
+use log::{debug, info, LevelFilter};
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::params;
-use serde::{Serialize,Deserialize};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use self::util::app_logger::AppLogger;
+
+static LOGGER: AppLogger = AppLogger {};
 
 #[derive(Error, Debug)]
 enum MyError {
@@ -20,14 +26,26 @@ enum MyError {
 
 impl ResponseError for MyError {}
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Todos {
+    todos: Vec<TodoEntry>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct TodoEntry {
     id: u32,
     text: String,
 }
+
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate {
     entries: Vec<TodoEntry>,
+}
+
+#[derive(Deserialize)]
+struct GetTodosParams {
+    text: String,
 }
 
 #[derive(Deserialize)]
@@ -65,6 +83,29 @@ async fn index(db: web::Data<Pool<SqliteConnectionManager>>) -> Result<HttpRespo
         .body(response_body))
 }
 
+#[get("/todos")]
+async fn get_todos(
+    params: web::Json<GetTodosParams>,
+    db: web::Data<r2d2::Pool<SqliteConnectionManager>>,
+) -> Result<HttpResponse, MyError> {
+    info!("call /todos");
+    let conn = db.get()?;
+    let mut statement = conn.prepare("SELECT id, text FROM todo")?;
+    let rows = statement.query_map(params![], |row| {
+        let id = row.get(0)?;
+        let text = row.get(1)?;
+        Ok(TodoEntry { id: id, text: text })
+    })?;
+    let mut todos = Vec::new();
+    for row in rows {
+        if row.is_ok() {
+            todos.push(row.unwrap());
+        }
+    }
+    debug!("/todos response: {:?}", todos);
+    Ok(HttpResponse::Ok().json(Todos { todos: todos }))
+}
+
 #[post("/add")]
 async fn add_todo(
     params: web::Form<AddParams>,
@@ -98,6 +139,8 @@ async fn update_memo(params: web::Json<AddParams>) -> Result<HttpResponse, MyErr
 
 #[actix_rt::main]
 async fn main() -> Result<(), actix_web::Error> {
+    log::set_logger(&LOGGER).unwrap();
+    log::set_max_level(LevelFilter::Debug);
     let manager = SqliteConnectionManager::file("todo.db");
     let pool = Pool::new(manager).expect("failed to initialize the connection pool");
     let conn = pool
@@ -115,6 +158,7 @@ async fn main() -> Result<(), actix_web::Error> {
     HttpServer::new(move || {
         App::new()
             .service(index)
+            .service(get_todos)
             .service(add_todo)
             .service(delete_todo)
             .service(update_memo)

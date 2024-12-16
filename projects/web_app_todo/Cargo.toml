@@ -15,4 +15,5 @@ r2d2 = "0.8.10"
 r2d2_sqlite = "0.25.0"
 serde = {version = "1.0.214", features = ["derive"]}
 time = "0.3.36"
+log = {version = "0.4.22", features = ["std", "serde"]}
 
