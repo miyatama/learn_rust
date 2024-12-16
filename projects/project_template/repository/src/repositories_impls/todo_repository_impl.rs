@@ -1,5 +1,5 @@
 use crate::repositories::todo_repository::TodoRepository;
-use domain::TodoApiClientImpl;
+use domain::{TodoApiClient, TodoApiClientImpl};
 use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
@@ -18,35 +18,21 @@ impl TodoRepositoryImpl {
 }
 
 impl TodoRepository for TodoRepositoryImpl {
-    fn create(&self) -> AppResult<Todo> {
+    async fn create(&self) -> AppResult<Todo> {
         // TODO call domain
         Ok(Todo {
             id: 0,
             text: "".to_string(),
         })
     }
-    fn update(&self, _todo: Todo) -> AppResult<Todo> {
+    async fn update(&self, _todo: Todo) -> AppResult<Todo> {
         // TODO call domain
         Ok(Todo {
             id: 0,
             text: "".to_string(),
         })
     }
-    fn list(&self) -> AppResult<Vec<Todo>> {
-        // TODO call domain
-        Ok(vec![
-            Todo {
-                id: 1,
-                text: "get".to_string(),
-            },
-            Todo {
-                id: 22,
-                text: "the".to_string(),
-            },
-            Todo {
-                id: 80,
-                text: "money".to_string(),
-            },
-        ])
+    async fn list(&self) -> AppResult<Vec<Todo>> {
+        self.todo_api_client.list().await
     }
 }

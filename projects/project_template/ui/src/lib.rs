@@ -29,7 +29,7 @@ pub async fn run(config: &Config) -> AppResult<()> {
     match config.subcommand {
         SubCommands::List { number } => {
             let usecase = usecases.get_todo_list();
-            match usecase.run() {
+            match usecase.run().await {
                 Ok(todos) => {
                     let number = number as usize;
                     let max_index = min(number, todos.len());

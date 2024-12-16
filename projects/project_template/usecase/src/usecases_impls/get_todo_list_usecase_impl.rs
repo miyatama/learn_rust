@@ -18,7 +18,7 @@ impl GetTodoListUseCaseImpl {
 }
 
 impl GetTodoListUseCase for GetTodoListUseCaseImpl {
-    fn run(&self) -> AppResult<Vec<Todo>> {
-        self.todo_repository.list()
+    async fn run(&self) -> AppResult<Vec<Todo>> {
+        self.todo_repository.list().await
     }
 }
