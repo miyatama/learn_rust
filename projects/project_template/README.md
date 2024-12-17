@@ -61,6 +61,6 @@ classDiagram
 + [x]Domainsのインジェクション
 + [x]Repositories内の全部参照に切り替えたい
 + [x]UseCases内の全部参照に切り替えたい
-+ [ ]Domainsの実装
++ [x]Domainsの実装
 + [ ]テスト組み込み
 + [ ]setting機能追加
