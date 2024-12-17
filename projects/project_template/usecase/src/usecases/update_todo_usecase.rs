@@ -3,5 +3,5 @@ use util::Todo;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 pub trait UpdateTodoUseCase {
-    fn run(&self) -> AppResult<Todo>;
+    async fn run(&self, id: u32, text: String) -> AppResult<Todo>;
 }

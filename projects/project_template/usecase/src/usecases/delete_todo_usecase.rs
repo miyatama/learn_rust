@@ -2,6 +2,6 @@ use util::AppResult;
 use util::Todo;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
-pub trait AddTodoUseCase {
-    async fn run(&self, text: String) -> AppResult<Todo>;
+pub trait DeleteTodoUseCase {
+    async fn run(&self, id: u32) -> AppResult<()>;
 }

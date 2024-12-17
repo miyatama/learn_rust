@@ -18,21 +18,26 @@ impl TodoRepositoryImpl {
 }
 
 impl TodoRepository for TodoRepositoryImpl {
-    async fn create(&self) -> AppResult<Todo> {
-        // TODO call domain
-        Ok(Todo {
-            id: 0,
-            text: "".to_string(),
-        })
+    async fn create(&self, text: String) -> AppResult<Todo> {
+        self.todo_api_client
+            .create(Todo { id: 0, text: text })
+            .await
     }
-    async fn update(&self, _todo: Todo) -> AppResult<Todo> {
-        // TODO call domain
-        Ok(Todo {
-            id: 0,
-            text: "".to_string(),
-        })
+
+    async fn update(&self, todo: Todo) -> AppResult<Todo> {
+        self.todo_api_client.update(todo).await
     }
+
     async fn list(&self) -> AppResult<Vec<Todo>> {
         self.todo_api_client.list().await
+    }
+
+    async fn delete(&self, id: u32) -> AppResult<()> {
+        self.todo_api_client
+            .delete(Todo {
+                id: id,
+                text: "".to_string(),
+            })
+            .await
     }
 }

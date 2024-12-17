@@ -2,7 +2,11 @@ use clap::{Parser, Subcommand};
 use log::info;
 use std::cmp::min;
 use std::sync::Arc;
-use usecase::{GetTodoListUseCase, GetTodoListUseCaseImpl, UseCases, UseCasesImpls};
+use usecase::{
+    AddTodoUseCase, AddTodoUseCaseImpl, DeleteTodoUseCase, DeleteTodoUseCaseImpl,
+    GetTodoListUseCase, GetTodoListUseCaseImpl, UpdateTodoUseCase, UpdateTodoUseCaseImpl, UseCases,
+    UseCasesImpls,
+};
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -15,23 +19,36 @@ pub struct Config {
 #[derive(Debug, Subcommand)]
 enum SubCommands {
     List {
-        #[clap(short = 'l', long = "number", required = true, ignore_case = true)]
+        #[clap(short = 'n', long = "number", required = true, ignore_case = true)]
         number: u32,
     },
-    Add,
-    Update,
+    Add {
+        #[clap(short = 't', long = "text", required = true, ignore_case = true)]
+        text: String,
+    },
+    Update {
+        #[clap(long = "id", required = true, ignore_case = true)]
+        id: u32,
+
+        #[clap(short = 't', long = "text", required = true, ignore_case = true)]
+        text: String,
+    },
+    Delete {
+        #[clap(long = "id", required = true, ignore_case = true)]
+        id: u32,
+    },
 }
 
 pub async fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
 
     let usecases = UseCasesImpls::new().await;
-    match config.subcommand {
+    match &config.subcommand {
         SubCommands::List { number } => {
             let usecase = usecases.get_todo_list();
             match usecase.run().await {
                 Ok(todos) => {
-                    let number = number as usize;
+                    let number = *number as usize;
                     let max_index = min(number, todos.len());
                     for i in 0..max_index {
                         let todo = &todos[i];
@@ -44,11 +61,33 @@ pub async fn run(config: &Config) -> AppResult<()> {
                 }
             }
         }
-        SubCommands::Add => {
-            info!("call add");
+        SubCommands::Add { text } => {
+            let usecase = usecases.add_todo();
+            match usecase.run(text.clone()).await {
+                Ok(todo) => {
+                    info!("add succeed: {} - {}", &todo.id, &todo.text);
+                    return Ok(());
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            }
         }
-        SubCommands::Update => {
-            info!("call update");
+        SubCommands::Update { id, text } => {
+            let usecase = usecases.update_todo();
+            match usecase.run(*id, text.clone()).await {
+                Ok(todo) => {
+                    info!("update succeed: {} - {}", &todo.id, &todo.text);
+                    return Ok(());
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            }
+        }
+        SubCommands::Delete { id } => {
+            let usecase = usecases.delete_todo();
+            return usecase.run(*id).await;
         }
     }
     Ok(())

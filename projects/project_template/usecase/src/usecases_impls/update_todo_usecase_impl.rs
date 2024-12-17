@@ -1,5 +1,5 @@
 use crate::usecases::update_todo_usecase::UpdateTodoUseCase;
-use repository::TodoRepositoryImpl;
+use repository::{TodoRepository, TodoRepositoryImpl};
 use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
@@ -18,11 +18,9 @@ impl UpdateTodoUseCaseImpl {
 }
 
 impl UpdateTodoUseCase for UpdateTodoUseCaseImpl {
-    fn run(&self) -> AppResult<Todo> {
-        // TODO call repository
-        Ok(Todo {
-            id: 0,
-            text: "".to_string(),
-        })
+    async fn run(&self, id: u32, text: String) -> AppResult<Todo> {
+        self.todo_repository
+            .update(Todo { id: id, text: text })
+            .await
     }
 }

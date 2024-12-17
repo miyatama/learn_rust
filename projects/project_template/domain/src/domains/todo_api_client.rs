@@ -6,4 +6,5 @@ pub trait TodoApiClient {
     async fn list(&self) -> AppResult<Vec<Todo>>;
     async fn create(&self, todo: Todo) -> AppResult<Todo>;
     async fn update(&self, todo: Todo) -> AppResult<Todo>;
+    async fn delete(&self, todo: Todo) -> AppResult<()>;
 }
