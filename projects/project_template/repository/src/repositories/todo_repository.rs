@@ -2,10 +2,7 @@ use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
-#[cfg(test)]
-use mockall::{automock, predicate::*};
-
-#[cfg_attr(test, automock)]
+#[cfg_attr(feature="mock", mockall::automock)]
 pub trait TodoRepository {
     fn create(&self, text: String) -> impl Future<Output = AppResult<Todo>> + Send;
     fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Send;

@@ -33,20 +33,19 @@ mod tests {
     #[tokio::test]
     async fn add_todo_usecase_success() {
         let text = "test_parameter".to_string();
-        let expect = Ok(Todo {
+        let expect = Todo {
             id: 100,
             text: "test message".to_string(),
-        });
+        };
         let mock_todo_repository = MockTodoRepository::new();
         mock_todo_repository
             .expect_create()
             .with(predicate::eq(text))
             .times(1)
-            .return_const(expect);
+            .return_const(Ok(expect.clone()));
         let usecase = AddTodoUseCaseImpl::new(mock_todo_repository);
         let result = usecase.run(text).await;
-        assert_eq!(expect.is_ok(), result.is_ok());
-        let expect = expect.unwrap();
+        assert_eq!(result.is_ok(), true);
         let result = result.unwrap();
         assert_eq!(expect.id, result.id);
         assert_eq!(expect.text, result.text);

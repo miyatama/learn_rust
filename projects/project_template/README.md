@@ -66,6 +66,8 @@ classDiagram
 + [x]Repositories内の全部参照に切り替えたい
 + [x]UseCases内の全部参照に切り替えたい
 + [x]Domainsの実装
++ [ ]async -> Futureとしたが、Futureを内部に閉じ込めてIFはシンプルにAppResultとする
++ [ ]各層のimplはtraitを参照させる。直接implを参照させない。
 + [ ]テスト組み込み
 + [ ]setting機能追加
 

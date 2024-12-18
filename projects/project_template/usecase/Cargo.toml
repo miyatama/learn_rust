@@ -10,3 +10,4 @@ repository = {path = "../repository"}
 [dev-dependencies]
 mockall = "0.13.1"
 tokio = {version = "1.41.1", features = ["full"]}
+repository = {path = "../repository", features = ["mock"]}
