@@ -108,4 +108,4 @@ help: you can alternatively desugar to a normal `fn` that returns `impl Future` 
 
 ```
 
-トレイトに`async fun`を定義するのは良くない。`Future <Output = > + Sync`で定義する。
+トレイトに`async fun`を定義するのは良くない。`Future <Output = > + Sync`で定義する。Domain内部は`async move {}`でFutureを作って返す。
