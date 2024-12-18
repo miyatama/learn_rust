@@ -3,11 +3,9 @@ name = "repository"
 version = "0.1.0"
 edition = "2021"
 
-[features]
-mock = ["mockall"]
-
-
 [dependencies]
-mockall = {version = "0.9", optional = true}
 util = {path = "../util"}
 domain = {path = "../domain"}
+
+[dev-dependencies]
+mockall = "0.13.1"

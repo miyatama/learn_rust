@@ -1,7 +1,11 @@
+use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 pub trait GetTodoListUseCase {
-    async fn run(&self) -> AppResult<Vec<Todo>>;
+    fn run(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Send;
 }

@@ -1,7 +1,10 @@
+use std::future::Future;
 use util::AppResult;
-use util::Todo;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 pub trait DeleteTodoUseCase {
-    async fn run(&self, id: u32) -> AppResult<()>;
+    fn run(&self, id: u32) -> impl Future<Output = AppResult<()>> + Send;
 }

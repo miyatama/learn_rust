@@ -1,10 +1,8 @@
 use clap::{Parser, Subcommand};
 use log::info;
 use std::cmp::min;
-use std::sync::Arc;
 use usecase::{
-    AddTodoUseCase, AddTodoUseCaseImpl, DeleteTodoUseCase, DeleteTodoUseCaseImpl,
-    GetTodoListUseCase, GetTodoListUseCaseImpl, UpdateTodoUseCase, UpdateTodoUseCaseImpl, UseCases,
+    AddTodoUseCase, DeleteTodoUseCase, GetTodoListUseCase, UpdateTodoUseCase, UseCases,
     UseCasesImpls,
 };
 use util::AppResult;
@@ -90,7 +88,6 @@ pub async fn run(config: &Config) -> AppResult<()> {
             return usecase.run(*id).await;
         }
     }
-    Ok(())
 }
 
 pub fn get_args() -> AppResult<Config> {

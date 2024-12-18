@@ -1,10 +1,11 @@
+use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 pub trait TodoApiClient {
-    async fn list(&self) -> AppResult<Vec<Todo>>;
-    async fn create(&self, todo: Todo) -> AppResult<Todo>;
-    async fn update(&self, todo: Todo) -> AppResult<Todo>;
-    async fn delete(&self, todo: Todo) -> AppResult<()>;
+    fn list(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Sync;
+    fn create(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync;
+    fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync;
+    fn delete(&self, todo: Todo) -> impl Future<Output = AppResult<()>> + Sync;
 }

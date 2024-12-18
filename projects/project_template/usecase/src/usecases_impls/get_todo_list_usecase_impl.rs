@@ -1,5 +1,6 @@
 use crate::usecases::get_todo_list_usecase::GetTodoListUseCase;
 use repository::{TodoRepository, TodoRepositoryImpl};
+use std::future::Future;
 use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
@@ -18,7 +19,7 @@ impl GetTodoListUseCaseImpl {
 }
 
 impl GetTodoListUseCase for GetTodoListUseCaseImpl {
-    async fn run(&self) -> AppResult<Vec<Todo>> {
-        self.todo_repository.list().await
+    fn run(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Send {
+        self.todo_repository.list()
     }
 }

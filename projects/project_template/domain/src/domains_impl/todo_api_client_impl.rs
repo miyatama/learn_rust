@@ -3,6 +3,7 @@ use log::debug;
 use reqwest;
 use reqwest::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
@@ -42,73 +43,81 @@ struct DeleteTodoParam {
 }
 
 impl TodoApiClient for TodoApiClientImpl {
-    async fn list(&self) -> AppResult<Vec<Todo>> {
-        let param = GetTodoParam {
-            text: "".to_string(),
-        };
-        let url = "http://localhost:8080/todos";
-        let param_string = serde_json::to_string(&param).unwrap();
-        let client = reqwest::Client::new();
-        let res = client
-            .get(url)
-            .header(CONTENT_TYPE, "application/json")
-            .body(param_string)
-            .send()
-            .await?;
-        let content = res.text().await?;
-        debug!("get todo response: {}", &content);
-        let response: GetTodoResponse = serde_json::from_str(&content).unwrap();
-        Ok(response.todos)
+    fn list(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Sync {
+        async {
+            let param = GetTodoParam {
+                text: "".to_string(),
+            };
+            let url = "http://localhost:8080/todos";
+            let param_string = serde_json::to_string(&param).unwrap();
+            let client = reqwest::Client::new();
+            let res = client
+                .get(url)
+                .header(CONTENT_TYPE, "application/json")
+                .body(param_string)
+                .send()
+                .await?;
+            let content = res.text().await?;
+            debug!("get todo response: {}", &content);
+            let response: GetTodoResponse = serde_json::from_str(&content).unwrap();
+            Ok(response.todos)
+        }
     }
 
-    async fn create(&self, todo: Todo) -> AppResult<Todo> {
-        let param = AddTodoParam { text: todo.text };
-        let url = "http://localhost:8080/todo";
-        let param_string = serde_json::to_string(&param).unwrap();
-        let client = reqwest::Client::new();
-        let res = client
-            .post(url)
-            .header(CONTENT_TYPE, "application/json")
-            .body(param_string)
-            .send()
-            .await?;
-        let content = res.text().await?;
-        debug!("create todo response: {}", &content);
-        let response: Todo = serde_json::from_str(&content).unwrap();
-        Ok(response)
+    fn create(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync {
+        async move {
+            let param = AddTodoParam { text: todo.text };
+            let url = "http://localhost:8080/todo";
+            let param_string = serde_json::to_string(&param).unwrap();
+            let client = reqwest::Client::new();
+            let res = client
+                .post(url)
+                .header(CONTENT_TYPE, "application/json")
+                .body(param_string)
+                .send()
+                .await?;
+            let content = res.text().await?;
+            debug!("create todo response: {}", &content);
+            let response: Todo = serde_json::from_str(&content).unwrap();
+            Ok(response)
+        }
     }
 
-    async fn update(&self, todo: Todo) -> AppResult<Todo> {
-        let param = UpdateTodoParam {
-            id: todo.id,
-            text: todo.text,
-        };
-        let url = "http://localhost:8080/todo";
-        let param_string = serde_json::to_string(&param).unwrap();
-        let client = reqwest::Client::new();
-        let res = client
-            .put(url)
-            .header(CONTENT_TYPE, "application/json")
-            .body(param_string)
-            .send()
-            .await?;
-        let content = res.text().await?;
-        debug!("update todo response: {}", &content);
-        let response: Todo = serde_json::from_str(&content).unwrap();
-        Ok(response)
+    fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync {
+        async move {
+            let param = UpdateTodoParam {
+                id: todo.id,
+                text: todo.text,
+            };
+            let url = "http://localhost:8080/todo";
+            let param_string = serde_json::to_string(&param).unwrap();
+            let client = reqwest::Client::new();
+            let res = client
+                .put(url)
+                .header(CONTENT_TYPE, "application/json")
+                .body(param_string)
+                .send()
+                .await?;
+            let content = res.text().await?;
+            debug!("update todo response: {}", &content);
+            let response: Todo = serde_json::from_str(&content).unwrap();
+            Ok(response)
+        }
     }
 
-    async fn delete(&self, todo: Todo) -> AppResult<()> {
-        let param = DeleteTodoParam { id: todo.id };
-        let url = "http://localhost:8080/todo";
-        let param_string = serde_json::to_string(&param).unwrap();
-        let client = reqwest::Client::new();
-        let res = client
-            .delete(url)
-            .header(CONTENT_TYPE, "application/json")
-            .body(param_string)
-            .send()
-            .await?;
-        Ok(())
+    fn delete(&self, todo: Todo) -> impl Future<Output = AppResult<()>> + Sync {
+        async move {
+            let param = DeleteTodoParam { id: todo.id };
+            let url = "http://localhost:8080/todo";
+            let param_string = serde_json::to_string(&param).unwrap();
+            let client = reqwest::Client::new();
+            let _res = client
+                .delete(url)
+                .header(CONTENT_TYPE, "application/json")
+                .body(param_string)
+                .send()
+                .await?;
+            Ok(())
+        }
     }
 }

@@ -1,10 +1,14 @@
+use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
+#[cfg(test)]
+use mockall::{automock, predicate::*};
+
+#[cfg_attr(test, automock)]
 pub trait TodoRepository {
-    async fn create(&self, text: String) -> AppResult<Todo>;
-    async fn update(&self, todo: Todo) -> AppResult<Todo>;
-    async fn delete(&self, id: u32) -> AppResult<()>;
-    async fn list(&self) -> AppResult<Vec<Todo>>;
+    fn create(&self, text: String) -> impl Future<Output = AppResult<Todo>> + Send;
+    fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Send;
+    fn delete(&self, id: u32) -> impl Future<Output = AppResult<()>> + Send;
+    fn list(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Send;
 }

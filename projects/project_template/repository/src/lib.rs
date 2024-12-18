@@ -5,6 +5,9 @@ use domain::{Domains, DomainsImpl};
 pub use repositories::todo_repository::TodoRepository;
 pub use repositories_impls::todo_repository_impl::TodoRepositoryImpl;
 
+#[cfg(test)]
+pub use repositories::todo_repository::MockTodoRepository;
+
 pub trait Repositories {
     type TodoRepository: TodoRepository;
     fn todo_repository(&self) -> &Self::TodoRepository;

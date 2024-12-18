@@ -1,8 +1,8 @@
 use crate::usecases::delete_todo_usecase::DeleteTodoUseCase;
 use repository::{TodoRepository, TodoRepositoryImpl};
+use std::future::Future;
 use std::sync::Arc;
 use util::AppResult;
-use util::Todo;
 
 #[derive(Clone, Debug)]
 pub struct DeleteTodoUseCaseImpl {
@@ -18,7 +18,7 @@ impl DeleteTodoUseCaseImpl {
 }
 
 impl DeleteTodoUseCase for DeleteTodoUseCaseImpl {
-    async fn run(&self, id: u32) -> AppResult<()> {
-        self.todo_repository.delete(id).await
+    fn run(&self, id: u32) -> impl Future<Output = AppResult<()>> + Send {
+        self.todo_repository.delete(id)
     }
 }

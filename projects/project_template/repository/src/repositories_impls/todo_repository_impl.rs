@@ -1,5 +1,6 @@
 use crate::repositories::todo_repository::TodoRepository;
 use domain::{TodoApiClient, TodoApiClientImpl};
+use std::future::Future;
 use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
@@ -18,26 +19,22 @@ impl TodoRepositoryImpl {
 }
 
 impl TodoRepository for TodoRepositoryImpl {
-    async fn create(&self, text: String) -> AppResult<Todo> {
-        self.todo_api_client
-            .create(Todo { id: 0, text: text })
-            .await
+    fn create(&self, text: String) -> impl Future<Output = AppResult<Todo>> + Send {
+        self.todo_api_client.create(Todo { id: 0, text: text })
     }
 
-    async fn update(&self, todo: Todo) -> AppResult<Todo> {
-        self.todo_api_client.update(todo).await
+    fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Send {
+        self.todo_api_client.update(todo)
     }
 
-    async fn list(&self) -> AppResult<Vec<Todo>> {
-        self.todo_api_client.list().await
+    fn list(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Send {
+        self.todo_api_client.list()
     }
 
-    async fn delete(&self, id: u32) -> AppResult<()> {
-        self.todo_api_client
-            .delete(Todo {
-                id: id,
-                text: "".to_string(),
-            })
-            .await
+    fn delete(&self, id: u32) -> impl Future<Output = AppResult<()>> + Send {
+        self.todo_api_client.delete(Todo {
+            id: id,
+            text: "".to_string(),
+        })
     }
 }
