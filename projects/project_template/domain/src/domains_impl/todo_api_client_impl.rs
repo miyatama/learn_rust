@@ -1,9 +1,9 @@
 use crate::domains::todo_api_client::TodoApiClient;
+use futures::executor;
 use log::debug;
 use reqwest;
 use reqwest::header::CONTENT_TYPE;
 use serde::{Deserialize, Serialize};
-use std::future::Future;
 use util::AppResult;
 use util::Todo;
 
@@ -43,8 +43,8 @@ struct DeleteTodoParam {
 }
 
 impl TodoApiClient for TodoApiClientImpl {
-    fn list(&self) -> impl Future<Output = AppResult<Vec<Todo>>> + Sync {
-        async {
+    fn list(&self) -> AppResult<Vec<Todo>> {
+        let future = async {
             let param = GetTodoParam {
                 text: "".to_string(),
             };
@@ -61,11 +61,12 @@ impl TodoApiClient for TodoApiClientImpl {
             debug!("get todo response: {}", &content);
             let response: GetTodoResponse = serde_json::from_str(&content).unwrap();
             Ok(response.todos)
-        }
+        };
+        executor::block_on(future)
     }
 
-    fn create(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync {
-        async move {
+    fn create(&self, todo: Todo) -> AppResult<Todo> {
+        let future = async move {
             let param = AddTodoParam { text: todo.text };
             let url = "http://localhost:8080/todo";
             let param_string = serde_json::to_string(&param).unwrap();
@@ -80,11 +81,12 @@ impl TodoApiClient for TodoApiClientImpl {
             debug!("create todo response: {}", &content);
             let response: Todo = serde_json::from_str(&content).unwrap();
             Ok(response)
-        }
+        };
+        executor::block_on(future)
     }
 
-    fn update(&self, todo: Todo) -> impl Future<Output = AppResult<Todo>> + Sync {
-        async move {
+    fn update(&self, todo: Todo) -> AppResult<Todo> {
+        let future = async move {
             let param = UpdateTodoParam {
                 id: todo.id,
                 text: todo.text,
@@ -102,11 +104,12 @@ impl TodoApiClient for TodoApiClientImpl {
             debug!("update todo response: {}", &content);
             let response: Todo = serde_json::from_str(&content).unwrap();
             Ok(response)
-        }
+        };
+        executor::block_on(future)
     }
 
-    fn delete(&self, todo: Todo) -> impl Future<Output = AppResult<()>> + Sync {
-        async move {
+    fn delete(&self, todo: Todo) -> AppResult<()> {
+        let future = async move {
             let param = DeleteTodoParam { id: todo.id };
             let url = "http://localhost:8080/todo";
             let param_string = serde_json::to_string(&param).unwrap();
@@ -118,6 +121,7 @@ impl TodoApiClient for TodoApiClientImpl {
                 .send()
                 .await?;
             Ok(())
-        }
+        };
+        executor::block_on(future)
     }
 }

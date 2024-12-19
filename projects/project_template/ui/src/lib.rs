@@ -44,7 +44,7 @@ pub async fn run(config: &Config) -> AppResult<()> {
     match &config.subcommand {
         SubCommands::List { number } => {
             let usecase = usecases.get_todo_list();
-            match usecase.run().await {
+            match usecase.run() {
                 Ok(todos) => {
                     let number = *number as usize;
                     let max_index = min(number, todos.len());
@@ -61,7 +61,7 @@ pub async fn run(config: &Config) -> AppResult<()> {
         }
         SubCommands::Add { text } => {
             let usecase = usecases.add_todo();
-            match usecase.run(text.clone()).await {
+            match usecase.run(text.clone()) {
                 Ok(todo) => {
                     info!("add succeed: {} - {}", &todo.id, &todo.text);
                     return Ok(());
@@ -73,7 +73,7 @@ pub async fn run(config: &Config) -> AppResult<()> {
         }
         SubCommands::Update { id, text } => {
             let usecase = usecases.update_todo();
-            match usecase.run(*id, text.clone()).await {
+            match usecase.run(*id, text.clone()) {
                 Ok(todo) => {
                     info!("update succeed: {} - {}", &todo.id, &todo.text);
                     return Ok(());
@@ -85,7 +85,7 @@ pub async fn run(config: &Config) -> AppResult<()> {
         }
         SubCommands::Delete { id } => {
             let usecase = usecases.delete_todo();
-            return usecase.run(*id).await;
+            return usecase.run(*id);
         }
     }
 }

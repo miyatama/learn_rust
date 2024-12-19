@@ -70,6 +70,15 @@ classDiagram
 + [ ]各層のimplはtraitを参照させる。直接implを参照させない。
 + [ ]テスト組み込み
 + [ ]setting機能追加
++ [ ]Qiitaに記事を出す
+  + base
+    + struct only injection using async
+  + test
+    + divide trait
+    + async to future -> closure future
+    + write 1st test -> error mock is trait
+  + for test 
+    + trait injection
 
 ## problem
 
@@ -109,3 +118,33 @@ help: you can alternatively desugar to a normal `fn` that returns `impl Future` 
 ```
 
 トレイトに`async fun`を定義するのは良くない。`Future <Output = > + Sync`で定義する。Domain内部は`async move {}`でFutureを作って返す。
+
+### the trait bound `Pin<Box<(dyn std::future::Future<Output = Result<util::Todo, Box<(dyn std::error::Error + 'static)>>> + Send + 'static)>>: From<Result<util::Todo, _>>` is not satisfied
+
+```text
+error[E0277]: the trait bound `Pin<Box<(dyn std::future::Future<Output = Result<util::Todo, Box<(dyn std::error::Error + 'static)>>> + Send + 'static)>>: From<Result<util::Todo, _>>` is not satisfied
+  --> usecase\src\usecases_impls\add_todo_usecase_impl.rs:45:27
+   |
+45 |             .return_const(Ok(expect.clone()));
+   |              ------------ ^^^^^^^^^^^^^^^^^^ the trait `From<Result<util::Todo, _>>` is not implemented for `Pin<Box<(dyn std::future::Future<Output = Result<util::Todo, Box<(dyn std::error::Error + 'static)>>> + Send + 'static)>>`, which is required by `Result<util::Todo, _>: Into<Pin<Box<(dyn std::future::Future<Output = Result<util::Todo, Box<(dyn std::error::Error + 'static)>>> + Send + 'static)>>>`
+   |              |
+   |              required by a bound introduced by this call
+   |
+```
+
+Futureを引きまわすのではなく、一番下のレイヤーでFutureを待つ。`futures::executor`を利用。
+
+### mismatched types
+
+```text
+error[E0308]: mismatched types
+  --> usecase\src\usecases_impls\add_todo_usecase_impl.rs:46:47
+   |
+46 |         let usecase = AddTodoUseCaseImpl::new(mock_todo_repository);
+   |                       ----------------------- ^^^^^^^^^^^^^^^^^^^^ expected `TodoRepositoryImpl`, found `MockTodoRepository`      
+   |                       |
+   |                       arguments to this function are incorrect
+   |
+```
+
+mockall用にinjectionをtraitへ変更する

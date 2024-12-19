@@ -14,3 +14,4 @@ reqwest = "0.11.14"
 serde_json = "1.0.132"
 serde = {version = "1.0.214", features = ["derive"]}
 log = {version = "0.4.22", features = ["std", "serde"]}
+futures = "0.3.31"
