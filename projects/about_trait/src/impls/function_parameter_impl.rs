@@ -12,3 +12,7 @@ impl FunParam for FunParamImpl {
 pub fn call_param_trait(param: &impl FunParam) {
     println!("call param trait name is {}", param.get_name());
 }
+
+pub fn call_param_trait2<'a, P: FunParam>(param: &'a P) {
+    println!("call param trait 2 name is {}", param.get_name());
+}

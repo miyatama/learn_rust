@@ -2,10 +2,10 @@ mod impls;
 mod traits;
 
 use impls::{
-    call_param_trait, CallerTraitImpl, CallerTraitImpl2, FunParamImpl, HasConstImpl,
-    LogicTraitImpl, LogicTraitImpl2, SimpleTraitImpl,
+    call_param_trait2, call_param_trait, CallerTraitImpl, CallerTrait2Impl, FunParamImpl, HasConstImpl,
+    LogicTraitImpl, SimpleTraitImpl, 
 };
-use traits::{run_basics, CallerTrait, HasConst, LogicTrait, SimpleTrait};
+use traits::{run_basics, CallerTrait, HasConst, SimpleTrait, CallerTrait2};
 
 pub fn run() {
     println!("# いろんなtraitの使い方");
@@ -38,6 +38,7 @@ fn run_fun_param() {
     println!("## パラメタの引数にトレイトも指定できます");
     let fun_param = FunParamImpl {};
     call_param_trait(&fun_param);
+    call_param_trait2(&fun_param);
     println!("");
 }
 
@@ -47,6 +48,9 @@ fn run_has_trait() {
     let caller_trait = CallerTraitImpl::new(&logic_trait);
     let value = caller_trait.run();
     println!("caller result: {}", value);
-
+    let caller_trait = CallerTrait2Impl::new();
+    // let value = caller_trait.get_logic().run(); 
+    let value = caller_trait.get_logic(); 
+    println!("caller 2 result: {}", value);
     println!("");
 }

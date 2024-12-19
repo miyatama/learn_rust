@@ -55,7 +55,7 @@ impl NonDispatchable for S {
 }
 
 pub fn run_basics() {
-    let obj: Box<dyn NonDispatchable> = Box::new(S);
+    let _obj: Box<dyn NonDispatchable> = Box::new(S);
     /*
     obj.returns();
     obj.param(S);

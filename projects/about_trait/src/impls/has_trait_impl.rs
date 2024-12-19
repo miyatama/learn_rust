@@ -1,5 +1,5 @@
-use crate::traits::{CallerTrait, CallerTrait2, LogicTrait, LogicTrait2};
 use std::sync::Arc;
+use crate::traits::{CallerTrait, CallerTrait2, LogicTrait, LogicTrait2};
 
 pub struct LogicTraitImpl {
     value: u8,
@@ -50,21 +50,27 @@ impl LogicTrait2 for LogicTrait2Impl {
     }
 }
 
-pub struct CallerTrait2Impl<'a, L: LogicTrait2> {
-    main_logic: Arc<&'a L>,
+pub struct CallerTrait2Impl {
+    main_logic: Arc<dyn LogicTrait2>,
 }
 
-impl<'a, L: LogicTrait2> CallerTrait2Impl<'a, L> {
+impl CallerTrait2Impl
+{
     pub fn new() -> Self {
         let logic_trait = LogicTrait2Impl::new();
         Self {
-            main_logic: Arc::new(&logic_trait),
+            main_logic: Arc::new(logic_trait),
         }
     }
 }
 
-impl<'a, L: LogicTrait2> CallerTrait2<'a, L> for CallerTrait2Impl<'a, L> {
-    fn get_logic(&self) -> &L {
+impl CallerTrait2 for CallerTrait2Impl {
+    /*
+    fn get_logic(&self) -> LogicTrait2 {
         self.main_logic
+    }
+     */
+    fn get_logic(&self) -> u8{
+        5u8
     }
 }
