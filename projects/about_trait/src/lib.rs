@@ -1,13 +1,14 @@
 mod impls;
 mod traits;
 
-use impls::{SimpleTraitImpl, HasConstImpl};
-use traits::{SimpleTrait, HasConst};
+use impls::{HasConstImpl, SimpleTraitImpl};
+use traits::{run_basics, HasConst, SimpleTrait};
 
 pub fn run() {
     println!("# いろんなtraitの使い方");
     simple_trait();
-has_const();
+    has_const();
+    run_basics();
 }
 
 fn simple_trait() {
