@@ -7,6 +7,7 @@ use uuid::Uuid;
 */
 use crate::logics::entity::Client;
 use crate::logics::repository::ClientRepository;
+use crate::logics::repository_impl::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 use uuid::Uuid;
@@ -25,6 +26,24 @@ impl<T: ClientRepository> GetClientHandler<T> {
         Ok(client)
     }
 }
+
+/*
+// ↓こういうのがやりたかったけどむりっぽい
+pub struct GetClientHandler2<T: ClientRepository> {
+    client_repo: Rc<T>,
+}
+
+impl<T: ClientRepository> GetClientHandler2<T> {
+    pub fn new() -> Self {
+        let repository = InMemoryClientRepository::new();
+        Self { client_repo: Rc::new(repository as T) }
+    }
+
+    pub fn get_repository(&self) -> Box<ClientRepository> {
+        Box::new(self.client_repo)
+    }
+}
+ */
 
 pub struct LimitGetClientHandlerV1 {
     client_repo: Rc<LimitInMemoryClientRepository>,
