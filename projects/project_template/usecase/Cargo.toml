@@ -11,3 +11,5 @@ repository = {path = "../repository"}
 mockall = "0.13.1"
 tokio = {version = "1.41.1", features = ["full"]}
 repository = {path = "../repository", features = ["mock"]}
+domain = {path = "../domain", features = ["mock"]}
+fake = "3.0.1"

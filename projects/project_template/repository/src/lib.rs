@@ -2,11 +2,12 @@ mod repositories;
 mod repositories_impls;
 
 use domain::{Domains, DomainsImpl};
-pub use repositories::todo_repository::TodoRepository;
-pub use repositories_impls::todo_repository_impl::TodoRepositoryImpl;
+use mockall_double::double;
 
-#[cfg(feature = "mock")]
-pub use repositories::todo_repository::MockTodoRepository;
+pub use repositories::todo_repository::TodoRepository;
+
+#[double]
+pub use repositories_impls::todo_repository_impl::TodoRepositoryImpl;
 
 pub trait Repositories {
     type TodoRepository: TodoRepository;

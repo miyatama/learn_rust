@@ -26,8 +26,10 @@ impl AddTodoUseCase for AddTodoUseCaseImpl {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use domain::TodoApiClientImpl;
+    use fake::{Fake, Faker};
     use mockall::predicate;
-    use repository::MockTodoRepository;
+    use repository::TodoRepositoryImpl;
 
     #[tokio::test]
     async fn add_todo_usecase_success() {
@@ -36,14 +38,15 @@ mod tests {
             id: 100,
             text: "test message".to_string(),
         };
-        let mock_todo_repository = MockTodoRepository::new();
+        let client = Faker.fake::<TodoApiClientImpl>();
+        let mock_todo_repository = TodoRepositoryImpl::new(client);
         mock_todo_repository
             .expect_create()
             .with(predicate::eq(text))
             .times(1)
             .return_const(Ok(expect.clone()));
         let usecase = AddTodoUseCaseImpl::new(mock_todo_repository);
-        let result = usecase.run(text).await;
+        let result = usecase.run(text);
         assert_eq!(result.is_ok(), true);
         let result = result.unwrap();
         assert_eq!(expect.id, result.id);
