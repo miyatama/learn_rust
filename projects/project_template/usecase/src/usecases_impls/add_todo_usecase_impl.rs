@@ -1,4 +1,5 @@
 use crate::usecases::add_todo_usecase::AddTodoUseCase;
+
 use repository::{TodoRepository, TodoRepositoryImpl};
 use std::sync::Arc;
 use util::AppResult;
@@ -26,10 +27,7 @@ impl AddTodoUseCase for AddTodoUseCaseImpl {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use domain::TodoApiClientImpl;
-    use fake::{Fake, Faker};
     use mockall::predicate;
-    use repository::TodoRepositoryImpl;
 
     #[tokio::test]
     async fn add_todo_usecase_success() {
@@ -38,8 +36,7 @@ mod tests {
             id: 100,
             text: "test message".to_string(),
         };
-        let client = Faker.fake::<TodoApiClientImpl>();
-        let mock_todo_repository = TodoRepositoryImpl::new(client);
+        let mock_todo_repository = TodoRepositoryImpl::new();
         mock_todo_repository
             .expect_create()
             .with(predicate::eq(text))

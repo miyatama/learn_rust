@@ -2,19 +2,15 @@ mod repositories;
 mod repositories_impls;
 
 use domain::{Domains, DomainsImpl};
-use mockall_double::double;
+pub use repositories::{TodoRepository};
+pub use repositories_impls::{TodoRepositoryImpl};
 
-pub use repositories::todo_repository::TodoRepository;
-
-#[double]
-pub use repositories_impls::todo_repository_impl::TodoRepositoryImpl;
 
 pub trait Repositories {
     type TodoRepository: TodoRepository;
     fn todo_repository(&self) -> &Self::TodoRepository;
 }
 
-#[derive(Clone, Debug)]
 pub struct RepositoriesImpl {
     todo_repository: TodoRepositoryImpl,
 }

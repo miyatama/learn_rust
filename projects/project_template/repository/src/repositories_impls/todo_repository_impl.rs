@@ -1,7 +1,5 @@
-use crate::repositories::todo_repository::TodoRepository;
+use crate::repositories::TodoRepository;
 use domain::{TodoApiClient, TodoApiClientImpl};
-#[cfg(test)]
-use mockall::automock;
 use std::sync::Arc;
 use util::AppResult;
 use util::Todo;
@@ -19,7 +17,7 @@ impl TodoRepositoryImpl {
     }
 }
 
-#[cfg_attr(test, automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 impl TodoRepository for TodoRepositoryImpl {
     fn create(&self, text: String) -> AppResult<Todo> {
         self.todo_api_client.create(Todo { id: 0, text: text })
