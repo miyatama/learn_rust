@@ -7,7 +7,7 @@ use uuid::Uuid;
 */
 use crate::logics::entity::Client;
 use crate::logics::repository::ClientRepository;
-use crate::logics::repository_impl::InMemoryClientRepository;
+// use crate::logics::repository_impl::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 use uuid::Uuid;

@@ -1,12 +1,16 @@
+mod layers;
 mod logics;
-use crate::logics::handlers::{GetClientHandler2, GetClientHandler, LimitGetClientHandlerV1, LimitGetClientHandlerV2};
+// UsecaseHandler
+use crate::layers::{UsecaseHandlerImpl};
+use crate::logics::handlers::{GetClientHandler, LimitGetClientHandlerV1, LimitGetClientHandlerV2};
+// GetClientHandler2
 use crate::logics::repository_impl::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 
 pub fn run() {
     let client_repository = InMemoryClientRepository::new();
-    let handler = GetClientHandler::new(Rc::new(client_repository));
+    let _handler = GetClientHandler::new(Rc::new(client_repository));
 
     // ↓これはだめ
     /*
@@ -15,6 +19,8 @@ pub fn run() {
      */
 
     let client_repository = LimitInMemoryClientRepository::new(100usize);
-    let handler = LimitGetClientHandlerV1::new(Rc::new(client_repository));
-    let handler = LimitGetClientHandlerV2::new();
+    let _handler = LimitGetClientHandlerV1::new(Rc::new(client_repository));
+    let _handler = LimitGetClientHandlerV2::new();
+
+    let _handler = UsecaseHandlerImpl::new();
 }
