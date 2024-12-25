@@ -70,7 +70,7 @@ impl LimitGetClientHandlerV2 {
         let client_repo = Rc::new(LimitInMemoryClientRepository::new(10_usize));
 
         #[cfg(test)]
-        let client_repo = Rc::new(LimitInMemoryClientRepository::new());
+        let client_repo = Rc::new(MockLimitInMemoryClientRepository::new());
 
         Self { client_repo }
     }
@@ -93,13 +93,14 @@ mod tests {
     use super::*;
     use crate::logics::entity::Client;
     use crate::logics::repository::MockClientRepository;
-    use fake::{Fake, Faker};
+    use fake::{uuid::UUIDv4, Fake, Faker};
     use mockall::predicate;
     use std::rc::Rc;
 
     #[test]
     fn get_client_handler() {
-        let client = Faker.fake::<Client>();
+        // let client = Faker.fake::<Client>();
+        let client = Client::new(UUIDv4.fake());
         let id = client.id();
 
         let mut mock_repo = MockClientRepository::new();
@@ -110,18 +111,20 @@ mod tests {
             .return_const(Ok(client.clone()));
 
         let handler = GetClientHandler::new(Rc::new(mock_repo));
-        let clietn2 = handler.execute().unwrap();
+        let client2 = handler.execute().unwrap();
 
-        asert_eq!(client, client2);
+        assert_eq!(client, client2);
     }
 
     #[test]
     fn limit_get_client_handler_v1() {
-        let client = Faker.fake::<Client>();
+        // let client = Faker.fake::<Client>();
+        let client = Client::new(UUIDv4.fake());
         let id = client.id();
 
         // doubleを使っているのでMockLimitInMemoryClientRepositoryを使う必要がない
-        let mut mock_repo = LimitInMemoryClientRepository::new();
+        // let mut mock_repo = LimitInMemoryClientRepository::new();
+        let mut mock_repo = MockLimitInMemoryClientRepository::new();
         mock_repo
             .expect_by_id()
             .with(preidcate::eq(id))
@@ -129,14 +132,15 @@ mod tests {
             .return_const(Ok(client.clone()));
 
         let handler = LimitGetClientHandlerV1::new(Rc::new(mock_repo));
-        let clietn2 = handler.execute().unwrap();
+        let client2 = handler.execute().unwrap();
 
-        asert_eq!(client, client2);
+        assert_eq!(client, client2);
     }
 
     #[test]
     fn limit_get_client_handler_v2() {
-        let client = Faker.fake::<Client>();
+        // let client = Faker.fake::<Client>();
+        let client = Client::new(UUIDv4.fake());
         let id = client.id();
 
         // doubleを使っているのでMockLimitInMemoryClientRepositoryを使う必要がない
@@ -149,8 +153,8 @@ mod tests {
 
         let handler = LimitGetClientHandlerV::new();
         handler.set_client_repo(Rc::new(mock_repo));
-        let clietn2 = handler.execute().unwrap();
+        let client2 = handler.execute().unwrap();
 
-        asert_eq!(client, client2);
+        assert_eq!(client, client2);
     }
 }

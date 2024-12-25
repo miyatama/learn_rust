@@ -1,12 +1,15 @@
 pub mod entity;
 pub mod handlers;
 pub mod repository;
-pub mod repository_impl;
+mod repository_impl;
 
 use mockall_double::double;
 
-#[double]
+// #[double]
 pub use repository_impl::LimitInMemoryClientRepository;
+pub use repository_impl::MockLimitInMemoryClientRepository;
+
+pub use repository_impl::InMemoryClientRepository;
 
 // doubleの展開誤
 /*

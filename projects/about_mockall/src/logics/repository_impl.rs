@@ -4,6 +4,7 @@ use indexmap::IndexMap;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use uuid::Uuid;
+use mockall::automock;
 
 pub struct InMemoryClientRepository {
     clients: RefCell<HashMap<Uuid, Client>>,
@@ -46,7 +47,7 @@ impl LimitInMemoryClientRepository {
     }
 }
 
-#[cfg_attr(test, automock)]
+#[automock]
 impl LimitInMemoryClientRepository {
     pub fn by_id(&self, id: Uuid) -> Result<Client, String> {
         match self.clients.borrow().get(&id) {

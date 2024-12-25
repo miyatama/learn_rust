@@ -4,7 +4,7 @@ mod logics;
 use crate::layers::{GetTodoUsecase, UsecaseHandler, UsecaseHandlerImpl};
 use crate::logics::handlers::{GetClientHandler, LimitGetClientHandlerV1, LimitGetClientHandlerV2};
 // GetClientHandler2
-use crate::logics::repository_impl::InMemoryClientRepository;
+use crate::logics::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 

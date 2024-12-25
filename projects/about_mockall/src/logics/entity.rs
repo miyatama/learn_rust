@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Client {
     id: Uuid,
 }
