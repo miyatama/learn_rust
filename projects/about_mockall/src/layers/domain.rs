@@ -2,6 +2,10 @@ mod todo_client;
 mod todo_client_impl;
 
 pub use todo_client::TodoClient;
+
+use mockall_double::double;
+
+#[double]
 pub use todo_client_impl::TodoClientImpl;
 
 pub trait DomainHandler {

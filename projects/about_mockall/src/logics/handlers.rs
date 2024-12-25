@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::logics::entity::Client;
 use crate::logics::repository::ClientRepository;
 // use crate::logics::repository_impl::InMemoryClientRepository;
-use crate::logics::LimitInMemoryClientRepository;
+use crate::logics::repository_impl::LimitInMemoryClientRepository;
 use std::rc::Rc;
 use uuid::Uuid;
 
@@ -91,8 +91,8 @@ impl LimitGetClientHandlerV2 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity::Client;
-    use crate::repository::MockClientRepository;
+    use crate::logics::entity::Client;
+    use crate::logics::repository::MockClientRepository;
     use fake::{Fake, Faker};
     use mockall::predicate;
     use std::rc::Rc;

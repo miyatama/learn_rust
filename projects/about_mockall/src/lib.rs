@@ -1,7 +1,7 @@
 mod layers;
 mod logics;
 // UsecaseHandler
-use crate::layers::{UsecaseHandlerImpl};
+use crate::layers::{GetTodoUsecase, UsecaseHandler, UsecaseHandlerImpl};
 use crate::logics::handlers::{GetClientHandler, LimitGetClientHandlerV1, LimitGetClientHandlerV2};
 // GetClientHandler2
 use crate::logics::repository_impl::InMemoryClientRepository;
@@ -22,5 +22,7 @@ pub fn run() {
     let _handler = LimitGetClientHandlerV1::new(Rc::new(client_repository));
     let _handler = LimitGetClientHandlerV2::new();
 
-    let _handler = UsecaseHandlerImpl::new();
+    let handler = UsecaseHandlerImpl::new();
+    let value = handler.get_todo_usecase().run();
+    println!("result: {:?}", value);
 }

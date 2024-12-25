@@ -15,6 +15,8 @@ pub trait ClientRepository {
 #[cfg_attr(test, automock)]
 pub trait ClientRepository {
     fn by_id(&self, id: Uuid) -> Result<Client, String>;
+    #[allow(dead_code)]
     fn save(&self, client: Client);
+    #[allow(dead_code)]
     fn next_identity(&self) -> Uuid;
 }

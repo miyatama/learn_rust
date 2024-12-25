@@ -1,7 +1,10 @@
 mod todo_repository;
 mod todo_repository_impl;
 
+use mockall_double::double;
 pub use todo_repository::TodoRepository;
+
+#[double]
 pub use todo_repository_impl::TodoRepositoryImpl;
 
 use crate::layers::{DomainHandler, DomainHandlerImpl};
@@ -20,6 +23,11 @@ impl RepositoryHandlerImpl {
     pub fn new() -> Self {
         let handler = DomainHandlerImpl::new();
         let todo_client = handler.get_todo_client();
+
+        #[cfg(test)]
+        let todo_repository = TodoRepositoryImpl::new();
+
+        #[cfg(not(test))]
         let todo_repository = TodoRepositoryImpl::new(todo_client.clone());
         Self {
             todo_repository: todo_repository,
