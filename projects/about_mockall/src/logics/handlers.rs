@@ -78,6 +78,7 @@ impl LimitGetClientHandlerV2 {
 
 #[cfg(test)]
 impl LimitGetClientHandlerV2 {
+    #[allow(dead_code)]
     fn set_client_repo(&mut self, new_client_repo: Rc<LimitInMemoryClientRepository>) {
         self.client_repo = new_client_repo;
     }

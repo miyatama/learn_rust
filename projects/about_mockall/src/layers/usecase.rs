@@ -22,6 +22,7 @@ pub struct UsecaseHandlerImpl {
 impl UsecaseHandlerImpl {
     pub fn new() -> Self {
         let hadler = RepositoryHandlerImpl::new();
+        #[cfg_attr(test, allow(unused_variables))]
         let todo_repository = hadler.get_todo_repository();
         #[cfg(test)]
         let get_todo = GetTodoUsecaseImpl::new();

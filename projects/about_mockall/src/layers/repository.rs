@@ -22,6 +22,7 @@ pub struct RepositoryHandlerImpl {
 impl RepositoryHandlerImpl {
     pub fn new() -> Self {
         let handler = DomainHandlerImpl::new();
+        #[cfg_attr(test, allow(unused_variables))]
         let todo_client = handler.get_todo_client();
 
         #[cfg(test)]
