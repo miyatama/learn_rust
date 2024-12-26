@@ -3,11 +3,11 @@ pub mod handlers;
 pub mod repository;
 mod repository_impl;
 
-use mockall_double::double;
+// use mockall_double::double;
 
 // #[double]
 pub use repository_impl::LimitInMemoryClientRepository;
-pub use repository_impl::MockLimitInMemoryClientRepository;
+// pub use repository_impl::MockLimitInMemoryClientRepository;
 
 pub use repository_impl::InMemoryClientRepository;
 
