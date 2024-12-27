@@ -1,10 +1,10 @@
+mod domain_impls;
 mod todo2_repository;
-mod todo2_repository_impl;
 
+pub use domain_impls::todo2_client_impl::Todo2ClientImpl;
 pub use todo2_repository::Todo2Repository;
-pub use todo2_repository_impl::Todo2RepositoryImpl;
 
-use crate::layers_trait_mock::{DomainHandler, DomainHandlerImpl};
+use crate::layers_trait_mock::DomainHandler;
 
 pub trait RepositoryHandler {
     type Todo2RepositoryType: Todo2Repository;
@@ -12,24 +12,22 @@ pub trait RepositoryHandler {
     fn get_todo2_repository(&self) -> &Self::Todo2RepositoryType;
 }
 
-pub struct RepositoryHandlerImpl {
-    todo2_repository: Todo2RepositoryImpl,
+pub struct DomainHandlerImpl {
+    todo2_client: Todo2ClientImpl,
 }
 
-impl RepositoryHandlerImpl {
+impl DomainHandlerImpl {
     pub fn new() -> Self {
-        let handler = DomainHandlerImpl::new();
-        let todo2_client = handler.get_todo2_client();
-        let todo2_repository = Todo2RepositoryImpl::new(todo2_client.clone());
+        let todo2_client = Todo2ClientImpl::new();
         Self {
-            todo2_repository: todo2_repository,
+            todo2_client: todo2_client,
         }
     }
 }
 
-impl RepositoryHandler for RepositoryHandlerImpl {
-    type Todo2RepositoryType = Todo2RepositoryImpl;
-    fn get_todo2_repository(&self) -> &Self::Todo2RepositoryType {
-        &self.todo2_repository
+impl DomainHandler for DomainHandlerImpl {
+    type Todo2ClientType = Todo2ClientImpl;
+    fn get_todo2_client(&self) -> &Self::Todo2ClientType {
+        &self.todo2_client
     }
 }

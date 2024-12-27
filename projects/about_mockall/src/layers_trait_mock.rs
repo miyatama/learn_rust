@@ -1,11 +1,11 @@
 mod data;
 mod domain;
 mod repository;
+mod ui;
 mod usecase;
 
 pub use data::Todo2;
-pub use domain::{DomainHandler, DomainHandlerImpl, Todo2Client, Todo2ClientImpl};
-pub use repository::{
-    RepositoryHandler, RepositoryHandlerImpl, Todo2Repository, Todo2RepositoryImpl,
-};
-pub use usecase::{GetTodo2Usecase, UsecaseHandler, UsecaseHandlerImpl};
+pub use domain::{DomainHandler, Todo2Client};
+pub use repository::{DomainHandlerImpl, RepositoryHandler, Todo2ClientImpl, Todo2Repository};
+pub use ui::UsecaseHandlerImpl;
+pub use usecase::{GetTodo2Usecase, RepositoryHandlerImpl, Todo2RepositoryImpl, UsecaseHandler};

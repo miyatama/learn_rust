@@ -1,10 +1,10 @@
 mod get_todo2_usecase;
-mod get_todo2_usecase_impl;
+mod repository_impls;
 
 pub use get_todo2_usecase::GetTodo2Usecase;
-pub use get_todo2_usecase_impl::GetTodo2UsecaseImpl;
+pub use repository_impls::todo2_repository_impl::Todo2RepositoryImpl;
 
-use crate::layers_trait_mock::{RepositoryHandler, RepositoryHandlerImpl};
+use crate::layers_trait_mock::{DomainHandler, DomainHandlerImpl, RepositoryHandler};
 
 #[cfg_attr(test, allow(dead_code))]
 pub trait UsecaseHandler {
@@ -12,24 +12,24 @@ pub trait UsecaseHandler {
     fn get_todo2_usecase(&self) -> &Self::GetTodo2UsecaseType;
 }
 
-pub struct UsecaseHandlerImpl {
-    get_todo2: GetTodo2UsecaseImpl,
+pub struct RepositoryHandlerImpl {
+    todo2_repository: Todo2RepositoryImpl,
 }
 
-impl UsecaseHandlerImpl {
+impl RepositoryHandlerImpl {
     pub fn new() -> Self {
-        let hadler = RepositoryHandlerImpl::new();
-        let todo2_repository = hadler.get_todo2_repository();
-        let get_todo2 = GetTodo2UsecaseImpl::new(todo2_repository.clone());
+        let handler = DomainHandlerImpl::new();
+        let todo2_client = handler.get_todo2_client();
+        let todo2_repository = Todo2RepositoryImpl::new(todo2_client.clone());
         Self {
-            get_todo2: get_todo2,
+            todo2_repository: todo2_repository,
         }
     }
 }
 
-impl UsecaseHandler for UsecaseHandlerImpl {
-    type GetTodo2UsecaseType = GetTodo2UsecaseImpl;
-    fn get_todo2_usecase(&self) -> &Self::GetTodo2UsecaseType {
-        &self.get_todo2
+impl RepositoryHandler for RepositoryHandlerImpl {
+    type Todo2RepositoryType = Todo2RepositoryImpl;
+    fn get_todo2_repository(&self) -> &Self::Todo2RepositoryType {
+        &self.todo2_repository
     }
 }

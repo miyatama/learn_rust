@@ -1,6 +1,7 @@
 use crate::layers_trait_mock::Todo2;
+use mockall::automock;
 
-#[cfg_attr(test, allow(dead_code))]
+#[automock]
 pub trait Todo2Repository {
     fn get_todos(&self) -> Vec<Todo2>;
 }
