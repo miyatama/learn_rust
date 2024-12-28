@@ -1,24 +1,23 @@
 use crate::usecases::add_todo_usecase::AddTodoUseCase;
 
-use repository::{TodoRepository, TodoRepositoryImpl};
-use std::sync::Arc;
+use repository::{RepositoryHandler, TodoRepository};
 use util::AppResult;
 use util::Todo;
 
 #[derive(Clone, Debug)]
-pub struct AddTodoUseCaseImpl {
-    todo_repository: Arc<TodoRepositoryImpl>,
+pub struct AddTodoUseCaseImpl<'r, R: RepositoryHandler> {
+    todo_repository: &'r R::Todo,
 }
 
-impl AddTodoUseCaseImpl {
-    pub fn new(todo_repository: TodoRepositoryImpl) -> Self {
+impl<'r, R: RepositoryHandler> AddTodoUseCaseImpl<'r, R> {
+    pub fn new(handler: &'r R) -> Self {
         Self {
-            todo_repository: Arc::new(todo_repository),
+            todo_repository: handler.todo_repository(),
         }
     }
 }
 
-impl AddTodoUseCase for AddTodoUseCaseImpl {
+impl<'r, R: RepositoryHandler> AddTodoUseCase for AddTodoUseCaseImpl<'r, R> {
     fn run(&self, text: String) -> AppResult<Todo> {
         self.todo_repository.create(text)
     }

@@ -1,43 +1,35 @@
 mod repositories;
 mod repositories_impls;
 
-use domain::{DomainHandler, DomainHandlerImpl};
+use domain::DomainHandler;
 pub use repositories::TodoRepository;
-
-#[cfg(feature = "mock")]
-use mockall_double::double;
-
-#[cfg_attr(feature = "mock", double)]
 pub use repositories_impls::TodoRepositoryImpl;
 
-pub trait RepositoryHandler {
-    type TodoRepository: TodoRepository;
-    fn todo_repository(&self) -> &Self::TodoRepository;
+use std::fmt::Debug;
+use std::clone::Clone;
+
+pub trait RepositoryHandler: Debug + Clone  {
+    type Todo: TodoRepository;
+    fn todo_repository(&self) -> &Self::Todo;
 }
 
-pub struct RepositoryHandlerImpl {
-    todo_repository: TodoRepositoryImpl,
+#[derive(Debug, Clone)]
+pub struct RepositoryHandlerImpl<'d, D: DomainHandler> {
+    todo_repository: TodoRepositoryImpl<'d, D>,
 }
 
-impl RepositoryHandlerImpl {
-    pub fn new() -> Self {
-        let domains = DomainHandlerImpl::new();
-        let todo_api_client = domains.todo_api_client();
-
-        #[cfg(test)]
-        let todo_repository = TodoRepositoryImpl::new();
-        #[cfg(not(test))]
-        let todo_repository = TodoRepositoryImpl::new(todo_api_client.clone());
-
+impl<'d, D: DomainHandler> RepositoryHandlerImpl<'d, D> {
+    pub fn new(handler: &'d D) -> Self {
+        let todo_repository = TodoRepositoryImpl::new(handler);
         Self {
             todo_repository: todo_repository,
         }
     }
 }
 
-impl RepositoryHandler for RepositoryHandlerImpl {
-    type TodoRepository = TodoRepositoryImpl;
-    fn todo_repository(&self) -> &Self::TodoRepository {
+impl<'d, D: DomainHandler> RepositoryHandler for RepositoryHandlerImpl<'d, D> {
+    type Todo = TodoRepositoryImpl<'d, D>;
+    fn todo_repository(&self) -> &Self::Todo {
         &self.todo_repository
     }
 }

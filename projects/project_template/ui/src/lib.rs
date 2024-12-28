@@ -5,6 +5,8 @@ use usecase::{
     AddTodoUseCase, DeleteTodoUseCase, GetTodoListUseCase, UpdateTodoUseCase, UseCases,
     UseCasesImpls,
 };
+use repository::{RepositoryHandlerImpl};
+use domain::{DomainHandlerImpl};
 use util::AppResult;
 
 #[derive(Debug, Parser)]
@@ -40,7 +42,9 @@ enum SubCommands {
 pub async fn run(config: &Config) -> AppResult<()> {
     info!("config: {:?}", config);
 
-    let usecases = UseCasesImpls::new().await;
+    let domain_hanler = DomainHandlerImpl::new();
+    let repository_handler = RepositoryHandlerImpl::new(&domain_hanler);
+    let usecases = UseCasesImpls::new(&repository_handler).await;
     match &config.subcommand {
         SubCommands::List { number } => {
             let usecase = usecases.get_todo_list();
