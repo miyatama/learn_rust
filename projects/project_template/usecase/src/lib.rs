@@ -1,7 +1,7 @@
 mod usecases;
 mod usecases_impls;
 
-use repository::{Repositories, RepositoriesImpl};
+use repository::{RepositoryHandler, RepositoryHandlerImpl };
 pub use usecases::add_todo_usecase::AddTodoUseCase;
 pub use usecases::delete_todo_usecase::DeleteTodoUseCase;
 pub use usecases::get_todo_list_usecase::GetTodoListUseCase;
@@ -12,7 +12,7 @@ pub use usecases_impls::get_todo_list_usecase_impl::GetTodoListUseCaseImpl;
 pub use usecases_impls::update_todo_usecase_impl::UpdateTodoUseCaseImpl;
 
 pub trait UseCases {
-    type Repositories: Repositories;
+    type Handler: RepositoryHandler;
     fn get_todo_list(&self) -> &GetTodoListUseCaseImpl;
     fn add_todo(&self) -> &AddTodoUseCaseImpl;
     fn update_todo(&self) -> &UpdateTodoUseCaseImpl;
@@ -29,7 +29,7 @@ pub struct UseCasesImpls {
 
 impl UseCasesImpls {
     pub async fn new() -> UseCasesImpls {
-        let repositories = RepositoriesImpl::new();
+        let repositories = RepositoryHandlerImpl::new();
         let todo_repository = repositories.todo_repository();
         let get_todo_list_usecase = GetTodoListUseCaseImpl::new(todo_repository.clone());
         let add_todo_usecase = AddTodoUseCaseImpl::new(todo_repository.clone());
@@ -45,7 +45,7 @@ impl UseCasesImpls {
 }
 
 impl UseCases for UseCasesImpls {
-    type Repositories = RepositoriesImpl;
+    type Handler = RepositoryHandlerImpl;
 
     fn get_todo_list(&self) -> &GetTodoListUseCaseImpl {
         &self.get_todo_list_usecase

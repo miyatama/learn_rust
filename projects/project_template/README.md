@@ -58,6 +58,8 @@ classDiagram
 + [RustのテストのTIPS](https://qiita.com/aoyagikouhei/items/dadafc8d6295db76ef0e#asyncawait%E3%81%AE%E3%83%86%E3%82%B9%E3%83%88)
 + [Rust Crate Warning About Workspace Resolver - What is it, how to fix it?](https://forum.dfinity.org/t/rust-crate-warning-about-workspace-resolver-what-is-it-how-to-fix-it/23883)
 + [Rust の Future について](https://blog.tiqwab.com/2022/03/26/rust-future.html)
++ [[Rust] フィーチャーフラグの使い方](https://qiita.com/osanshouo/items/43271813b5d62e89d598)
++ [Rustのマクロ展開後のコードを確認する](https://scrapbox.io/emanon001/Rust%E3%81%AE%E3%83%9E%E3%82%AF%E3%83%AD%E5%B1%95%E9%96%8B%E5%BE%8C%E3%81%AE%E3%82%B3%E3%83%BC%E3%83%89%E3%82%92%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B)
 
 ## will
 
@@ -66,8 +68,9 @@ classDiagram
 + [x]Repositories内の全部参照に切り替えたい
 + [x]UseCases内の全部参照に切り替えたい
 + [x]Domainsの実装
-+ [ ]async -> Futureとしたが、Futureを内部に閉じ込めてIFはシンプルにAppResultとする
-+ [ ]各層のimplはtraitを参照させる。直接implを参照させない。
++ [x]async -> Futureとしたが、Futureを内部に閉じ込めてIFはシンプルにAppResultとする
++ [x]各層のimplはtraitを参照させる。直接implを参照させない。
+  + traitを参照させようとしたら実態が見れないと怒られたので実装参照で実施
 + [ ]テスト組み込み
 + [ ]setting機能追加
 + [ ]Qiitaに記事を出す
