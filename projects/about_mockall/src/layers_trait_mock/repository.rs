@@ -7,9 +7,9 @@ pub use todo2_repository::Todo2Repository;
 use crate::layers_trait_mock::DomainHandler;
 
 pub trait RepositoryHandler {
-    type Todo2RepositoryType: Todo2Repository;
+    type Todo2Repository: Todo2Repository;
     // Copyトレイトが必要となる為、参照で保持する。
-    fn get_todo2_repository(&self) -> &Self::Todo2RepositoryType;
+    fn get_todo2_repository(&self) -> &Self::Todo2Repository;
 }
 
 pub struct DomainHandlerImpl {

@@ -1,19 +1,18 @@
-use crate::layers_trait_mock::{GetTodo2Usecase, Todo2, Todo2Repository, Todo2RepositoryImpl};
-use std::sync::Arc;
+use crate::layers_trait_mock::{GetTodo2Usecase, RepositoryHandler, Todo2, Todo2Repository};
 
-pub struct GetTodo2UsecaseImpl {
-    repository: Arc<Todo2RepositoryImpl>,
+pub struct GetTodo2UsecaseImpl<'r, R: RepositoryHandler> {
+    repository: &'r R::Todo2Repository,
 }
 
-impl GetTodo2UsecaseImpl {
-    pub fn new(repository: Todo2RepositoryImpl) -> Self {
+impl<'r, R: RepositoryHandler> GetTodo2UsecaseImpl<'r, R> {
+    pub fn new(handler: &'r R) -> Self {
         Self {
-            repository: Arc::new(repository),
+            repository: handler.get_todo2_repository(),
         }
     }
 }
 
-impl GetTodo2Usecase for GetTodo2UsecaseImpl {
+impl<'r, R: RepositoryHandler> GetTodo2Usecase for GetTodo2UsecaseImpl<'r, R> {
     fn run(&self) -> Vec<Todo2> {
         self.repository.get_todos()
     }
@@ -21,7 +20,7 @@ impl GetTodo2Usecase for GetTodo2UsecaseImpl {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    // use super::*;
 
     #[test]
     fn get_todos() {

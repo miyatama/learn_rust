@@ -28,8 +28,8 @@ impl RepositoryHandlerImpl {
 }
 
 impl RepositoryHandler for RepositoryHandlerImpl {
-    type Todo2RepositoryType = Todo2RepositoryImpl;
-    fn get_todo2_repository(&self) -> &Self::Todo2RepositoryType {
+    type Todo2Repository = Todo2RepositoryImpl;
+    fn get_todo2_repository(&self) -> &Self::Todo2Repository {
         &self.todo2_repository
     }
 }
