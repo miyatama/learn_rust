@@ -1,3 +1,4 @@
+#[cfg_attr(feature = "mock", allow(unused_imports))]
 use crate::TodoApiClient;
 
 #[cfg_attr(feature = "mock", mockall::automock)]

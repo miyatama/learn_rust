@@ -35,3 +35,27 @@ impl<'r, R: DomainHandler> TodoRepository for TodoRepositoryImpl<'r, R> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_create() {
+        let expect_todo = Todo {
+            id: 100,
+            text: "test2".to_string(),
+        };
+        let mock_todo_api_client = TodoApiClient::new();
+        mock_todo_api_client
+            .expect_create()
+            .times(1)
+            .return_const(expect_todo);
+        let mock_domain_handler = DomainHandler::new();
+        mock_domain_handler
+            .expect_todo_api_client()
+            .times(1)
+            .return_const(mock_todo_api_client);
+        let repository = TodoRepositoryImpl::new(mock_domain_handler);
+        let result = repository.create("test".to_string());
+        assert_eq!(expect, result);
+    }
+}
