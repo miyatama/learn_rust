@@ -4,16 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-mock = ["mockall"]
+mock = ["mockall", "mockall_double"]
 
 [dependencies]
 util = {path = "../util"}
 domain = {path = "../domain"}
-mockall = {version = "0.13.1", optional = true}
-# TODO なぜかdev-depenciesにmockall_doubleを定義するとtestコマンドでエラーとなる
-# 4 | use mockall_double::double;
-#   |     ^^^^^^^^^^^^^^ use of undeclared crate or module `mockall_double`
-mockall_double = "0.3.1"
+mockall = {version = "0.9", optional = true}
+mockall_double = {version = "0.3.1", optional = true}
 
 [dev-dependencies]
 fake = "3.0.1"
+domain = {path = "../domain", features = ["mock"]}

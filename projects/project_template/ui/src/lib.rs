@@ -1,12 +1,12 @@
 use clap::{Parser, Subcommand};
+use domain::DomainHandlerImpl;
 use log::info;
+use repository::RepositoryHandlerImpl;
 use std::cmp::min;
 use usecase::{
     AddTodoUseCase, DeleteTodoUseCase, GetTodoListUseCase, UpdateTodoUseCase, UseCases,
     UseCasesImpls,
 };
-use repository::{RepositoryHandlerImpl};
-use domain::{DomainHandlerImpl};
 use util::AppResult;
 
 #[derive(Debug, Parser)]

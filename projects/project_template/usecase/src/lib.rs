@@ -22,7 +22,6 @@ pub trait UseCases {
     fn delete_todo(&self) -> &Self::DeleteTodo;
 }
 
-#[derive(Clone, Debug)]
 pub struct UseCasesImpls<'r, R: RepositoryHandler> {
     get_todo_list_usecase: GetTodoListUseCaseImpl<'r, R>,
     add_todo_usecase: AddTodoUseCaseImpl<'r, R>,

@@ -1,7 +1,7 @@
 use util::AppResult;
 
 #[cfg(test)]
-use mockall::{automock, predicate::*};
+use mockall::automock;
 
 #[cfg_attr(test, automock)]
 pub trait DeleteTodoUseCase {

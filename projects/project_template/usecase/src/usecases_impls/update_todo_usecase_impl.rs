@@ -3,7 +3,6 @@ use repository::{RepositoryHandler, TodoRepository};
 use util::AppResult;
 use util::Todo;
 
-#[derive(Clone, Debug)]
 pub struct UpdateTodoUseCaseImpl<'r, R: RepositoryHandler> {
     todo_repository: &'r R::Todo,
 }

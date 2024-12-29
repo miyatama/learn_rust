@@ -3,7 +3,6 @@ use domain::{DomainHandler, TodoApiClient};
 use util::AppResult;
 use util::Todo;
 
-#[derive(Debug, Clone)]
 pub struct TodoRepositoryImpl<'r, R: DomainHandler> {
     todo_api_client: &'r R::TodoApi,
 }

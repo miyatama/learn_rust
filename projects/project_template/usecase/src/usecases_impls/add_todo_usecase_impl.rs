@@ -4,7 +4,6 @@ use repository::{RepositoryHandler, TodoRepository};
 use util::AppResult;
 use util::Todo;
 
-#[derive(Clone, Debug)]
 pub struct AddTodoUseCaseImpl<'r, R: RepositoryHandler> {
     todo_repository: &'r R::Todo,
 }
@@ -35,13 +34,18 @@ mod tests {
             id: 100,
             text: "test message".to_string(),
         };
-        let mock_todo_repository = TodoRepositoryImpl::new();
+        let mock_todo_repository = TodoRepository::new();
         mock_todo_repository
             .expect_create()
             .with(predicate::eq(text))
             .times(1)
             .return_const(Ok(expect.clone()));
-        let usecase = AddTodoUseCaseImpl::new(mock_todo_repository);
+        let mock_repository_handler = RepositoryHandler::new();
+        mock_repository_handler
+            .expect_todo_repository()
+            .times(1)
+            .return_const(mock_todo_repository);
+        let usecase = AddTodoUseCaseImpl::new(mock_repository_handler);
         let result = usecase.run(text);
         assert_eq!(result.is_ok(), true);
         let result = result.unwrap();

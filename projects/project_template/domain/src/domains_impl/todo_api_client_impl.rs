@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 use util::AppResult;
 use util::Todo;
 
-#[derive(Debug, Clone)]
 pub struct TodoApiClientImpl {}
 
 impl TodoApiClientImpl {
