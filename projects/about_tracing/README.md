@@ -45,3 +45,5 @@ tracing-subscriber = {version = "0.3.19", features = ["std", "env-filter", "regi
 + [公式 - tracing](https://docs.rs/tracing/latest/tracing/)
 + [Rust での tracing](https://blog.ojisan.io/rust-tracing/)
 + [tracing/tracing-subscriberでログが出力される仕組みを理解する](https://blog.ymgyt.io/entry/how-tracing-and-tracing-subscriber-write-events/)
++ [OpenTelemetryに触れてみた](https://zenn.dev/yuta28/articles/what-is-opentelemetry)
++ [公式 - opentelemetry](https://opentelemetry.io/)
