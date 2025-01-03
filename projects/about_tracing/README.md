@@ -2,6 +2,15 @@
 
 + トレースする単位がspan
 
+こんな感じにログが出る
+
+```text
+2025-01-03T09:25:28.625136Z  INFO span_1{key="hello"}:func01: about_tracing: func01
+2025-01-03T09:25:28.625356Z  INFO span_1{key="hello"}:func01:func_b_01: about_tracing: func_b_01
+2025-01-03T09:25:28.625599Z  INFO span_1{key="hello"}: about_tracing: func02
+2025-01-03T09:25:28.625718Z  INFO span_1{key="hello"}:func_b_01: about_tracing: func_b_01
+```
+
 # problems
 
 ## could not find `EnvFilter` in `tracing_subscriber`
@@ -38,7 +47,7 @@ Cargo.tomlを変更
 tracing-subscriber = {version = "0.3.19", features = ["std", "env-filter", "registry"]}
 ```
 
-↑だけだとだめ
+↑だけだとだめ。[tracing/tracing-subscriberでログが出力される仕組みを理解する](https://blog.ymgyt.io/entry/how-tracing-and-tracing-subscriber-write-events/)を元に勉強しなおし。
 
 # reference
 

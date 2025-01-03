@@ -1,12 +1,10 @@
-use tracing::{event, Level, info};
+use tracing::{event, Level, info, info_span};
 fn main() {
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "debug".into()),
-        )
-        .with(tracing_subscriber::fmt::layer())
+    tracing_subscriber::fmt()
         .init();
+
+    let span = info_span!("span_1", key="hello");
+    let _guard = span.enter();
 
     func01();
     func02();
