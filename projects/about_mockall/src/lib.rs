@@ -1,7 +1,8 @@
+mod getting_started;
 mod layers;
 mod layers_trait_mock;
 mod logics;
-mod getting_started;
+mod static_return_values;
 
 // UsecaseHandler
 use crate::layers::{GetTodoUsecase, UsecaseHandler, UsecaseHandlerImpl};
@@ -16,6 +17,7 @@ use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 
 use crate::getting_started::call_getting_started_func;
+use crate::static_return_values::call_static_return_values;
 
 pub fn run() {
     let client_repository = InMemoryClientRepository::new();
@@ -41,4 +43,5 @@ pub fn run() {
     println!("result: {:?}", value);
 
     call_getting_started_func();
+    call_static_return_values();
 }
