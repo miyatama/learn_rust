@@ -1,5 +1,5 @@
-use mockall::*;
 use mockall::predicate::*;
+use mockall::*;
 
 #[automock]
 trait MyTrait {
