@@ -1,19 +1,21 @@
 mod layers;
 mod layers_trait_mock;
 mod logics;
+mod getting_started;
 
 // UsecaseHandler
 use crate::layers::{GetTodoUsecase, UsecaseHandler, UsecaseHandlerImpl};
 use crate::layers_trait_mock::{
-    GetTodo2Usecase, UsecaseHandler as TraitMockUsecaseHandler,
-    UsecaseHandlerImpl as TraitMockUsecaseHandlerImpl,
-    RepositoryHandlerImpl as TraitMockRepositoryHanlderImpl,
+    GetTodo2Usecase, RepositoryHandlerImpl as TraitMockRepositoryHanlderImpl,
+    UsecaseHandler as TraitMockUsecaseHandler, UsecaseHandlerImpl as TraitMockUsecaseHandlerImpl,
 };
 use crate::logics::handlers::{GetClientHandler, LimitGetClientHandlerV1, LimitGetClientHandlerV2};
 // GetClientHandler2
 use crate::logics::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
+
+use crate::getting_started::call_getting_started_func;
 
 pub fn run() {
     let client_repository = InMemoryClientRepository::new();
@@ -37,4 +39,6 @@ pub fn run() {
     let handler = TraitMockUsecaseHandlerImpl::new(&repository_handler);
     let value = handler.get_todo2_usecase().run();
     println!("result: {:?}", value);
+
+    call_getting_started_func();
 }
