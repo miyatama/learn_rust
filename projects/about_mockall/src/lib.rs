@@ -2,6 +2,7 @@ mod getting_started;
 mod layers;
 mod layers_trait_mock;
 mod logics;
+mod matching_multiple_values;
 mod static_return_values;
 
 // UsecaseHandler
@@ -17,6 +18,7 @@ use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 
 use crate::getting_started::call_getting_started_func;
+use crate::matching_multiple_values::call_matching_multiple_values;
 use crate::static_return_values::call_static_return_values;
 
 pub fn run() {
@@ -44,4 +46,5 @@ pub fn run() {
 
     call_getting_started_func();
     call_static_return_values();
+    call_matching_multiple_values();
 }
