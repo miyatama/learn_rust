@@ -31,3 +31,5 @@ mockallを使いこなしたい！
 + [Rustで快適にテストしたいときに読む記事](https://techblog.paild.co.jp/entry/2023/10/23/100943)
 + crate.io
   + [mockall](https://crates.io/crates/mockall)
++ docs
+  + [mockall](https://docs.rs/mockall/latest/mockall/)
