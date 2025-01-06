@@ -1,4 +1,5 @@
 mod call_counts;
+mod checkpoints;
 mod getting_started;
 mod layers;
 mod layers_trait_mock;
@@ -20,6 +21,7 @@ use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 
 use crate::call_counts::call_call_counts;
+use crate::checkpoints::call_checkpoints;
 use crate::getting_started::call_getting_started_func;
 use crate::matching_multiple_values::call_matching_multiple_values;
 use crate::sequence::call_sequence;
