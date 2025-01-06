@@ -5,6 +5,7 @@ mod layers;
 mod layers_trait_mock;
 mod logics;
 mod matching_multiple_values;
+mod references;
 mod sequence;
 mod static_return_values;
 
@@ -24,6 +25,7 @@ use crate::call_counts::call_call_counts;
 use crate::checkpoints::call_checkpoints;
 use crate::getting_started::call_getting_started_func;
 use crate::matching_multiple_values::call_matching_multiple_values;
+use crate::references::call_references;
 use crate::sequence::call_sequence;
 use crate::static_return_values::call_static_return_values;
 
@@ -55,4 +57,5 @@ pub fn run() {
     call_matching_multiple_values();
     call_call_counts();
     call_sequence();
+    call_references();
 }
