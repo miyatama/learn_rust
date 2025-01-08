@@ -1,15 +1,13 @@
 use futures::executor;
 use mockall::predicate::*;
 use mockall::*;
-use std::future::{Future, ready};
+use std::future::{ready, Future};
 
 struct Foo {}
 #[automock]
 impl Foo {
     fn foo(&self) -> impl Future<Output = i32> {
-        async {
-            500
-        }
+        async { 500 }
     }
 }
 
