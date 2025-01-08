@@ -10,7 +10,7 @@ impl Foo {
 }
 
 pub fn call_impl_trait() {
-    let foo = Foo{};
+    let foo = Foo {};
     let debugger = foo.foo();
     println!("call_impl_trait: {:?}", debugger);
 }

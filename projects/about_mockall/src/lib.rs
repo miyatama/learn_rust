@@ -1,6 +1,7 @@
 mod call_counts;
 mod checkpoints;
 mod getting_started;
+mod impl_future;
 mod impl_trait;
 mod layers;
 mod layers_trait_mock;
@@ -25,6 +26,7 @@ use std::rc::Rc;
 use crate::call_counts::call_call_counts;
 use crate::checkpoints::call_checkpoints;
 use crate::getting_started::call_getting_started_func;
+use crate::impl_future::call_impl_future;
 use crate::impl_trait::call_impl_trait;
 use crate::matching_multiple_values::call_matching_multiple_values;
 use crate::references::call_references;
@@ -61,4 +63,5 @@ pub fn run() {
     call_sequence();
     call_references();
     call_impl_trait();
+    call_impl_future();
 }

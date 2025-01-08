@@ -9,3 +9,4 @@ mockall_double = "0.3.1"
 uuid = { version = "1.11.0", features = [ "v4", "fast-rng", "macro-diagnostics" ] }
 indexmap = "2.7.0"
 fake = {version = "3.0.1", features = ["uuid"]}
+futures = "0.3.31"
