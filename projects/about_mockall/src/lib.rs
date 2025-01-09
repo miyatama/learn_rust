@@ -1,5 +1,6 @@
 mod call_counts;
 mod checkpoints;
+mod generics;
 mod getting_started;
 mod impl_future;
 mod impl_trait;
@@ -26,6 +27,7 @@ use std::rc::Rc;
 
 use crate::call_counts::call_call_counts;
 use crate::checkpoints::call_checkpoints;
+use crate::generics::call_generics;
 use crate::getting_started::call_getting_started_func;
 use crate::impl_future::call_impl_future;
 use crate::impl_trait::call_impl_trait;
@@ -67,4 +69,5 @@ pub fn run() {
     call_impl_trait();
     call_impl_future();
     call_mocking_structs();
+    call_generics();
 }
