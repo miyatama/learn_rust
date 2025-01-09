@@ -1,5 +1,3 @@
-use mockall::predicate::*;
-use mockall::*;
 use mockall_double::double;
 
 mod thing {

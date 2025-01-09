@@ -9,7 +9,7 @@ trait Foo {
 pub fn call_generics() {
     struct FooStruct {}
     impl Foo for FooStruct {
-        fn foo<T: 'static>(&self, t: T) -> i32 {
+        fn foo<T: 'static>(&self, _t: T) -> i32 {
             2i32
         }
     }

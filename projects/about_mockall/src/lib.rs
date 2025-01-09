@@ -64,6 +64,7 @@ pub fn run() {
     call_static_return_values();
     call_matching_multiple_values();
     call_call_counts();
+    call_checkpoints();
     call_sequence();
     call_references();
     call_impl_trait();

@@ -17,6 +17,7 @@ trait Container {
 }
 
 #[automock]
+#[allow(dead_code)]
 trait Foo {
     fn name(&self) -> &str;
     fn name2(&self) -> &dyn Display;
@@ -36,20 +37,21 @@ pub fn call_references() {
         thing: Thing,
     }
     impl Container for MyContainer {
-        fn get(&self, i: u32) -> &'static Thing {
+        fn get(&self, _i: u32) -> &'static Thing {
             &THING
         }
         fn get2(&mut self, i: u32) -> &Thing {
             self.thing = Thing(i);
             &self.thing
         }
-        fn get3(&mut self, i: u32) -> &mut Thing {
+        fn get3(&mut self, _i: u32) -> &mut Thing {
             &mut self.thing
         }
     }
     let mut mock = MyContainer { thing: Thing(10) };
     func02(&mock);
     func03(&mut mock);
+    func04(&mut mock);
 }
 
 fn func01(mock: &dyn MyTrait) -> u32 {
@@ -63,6 +65,10 @@ fn func02(mock: &dyn Container) -> u32 {
 
 fn func03(mock: &mut dyn Container) -> u32 {
     mock.get2(500).0
+}
+
+fn func04(mock: &mut dyn Container) -> u32 {
+    mock.get3(500).0
 }
 
 #[cfg(test)]

@@ -33,6 +33,7 @@ pub fn call_static_return_values() {
     let trait_struct = MyStruct {};
     let _return_val = func01(&trait_struct);
     let _return_val2 = func02(&trait_struct);
+    let _return_val3 = func03(&trait_struct);
 }
 
 fn func01(x: &dyn MyTrait) -> u32 {
@@ -50,6 +51,7 @@ fn func03(x: &dyn MyTrait) -> u32 {
     *value
 }
 
+#[cfg(test)]
 fn do_something() {}
 
 #[cfg(test)]

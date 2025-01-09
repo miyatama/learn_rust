@@ -1,7 +1,9 @@
 use futures::executor;
 use mockall::predicate::*;
 use mockall::*;
-use std::future::{ready, Future};
+#[cfg(test)]
+use std::future::ready;
+use std::future::Future;
 
 struct Foo {}
 #[automock]
@@ -27,7 +29,8 @@ mod tests {
         let mut mock = MockFoo::new();
         mock.expect_foo().returning(|| Box::pin(ready(42)));
         let debugger = mock.foo();
+        let expect = 42;
         let value = executor::block_on(debugger);
-        assert_eq!(42, 42);
+        assert_eq!(expect, value);
     }
 }
