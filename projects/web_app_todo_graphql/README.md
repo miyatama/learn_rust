@@ -9,3 +9,4 @@ GraphQLを利用したTODOサービス
 + crate
   + [axum](https://crates.io/crates/axum)
   + [tokio](https://crates.io/crates/tokio)
+  + [async-graphql](https://crates.io/crates/async-graphql)
