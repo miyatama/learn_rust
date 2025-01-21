@@ -6,6 +6,7 @@ GraphQLを利用したTODOサービス
 
 + GraphQL
   + [Rust で GraphQL server を書いてみた](https://zenn.dev/takurinton/articles/bab60687f17c2b)
+  + [async-graph example - axum](https://github.com/async-graphql/examples/tree/master/axum)
 + crate
   + [axum](https://crates.io/crates/axum)
   + [tokio](https://crates.io/crates/tokio)
