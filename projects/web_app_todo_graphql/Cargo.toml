@@ -7,7 +7,9 @@ edition = "2021"
 axum = "0.8.1"
 tokio = {version = "1.43.0", features = ["full"]}
 async-graphql = "7.0.13"
+async-graphql-axum = "7.0.13"
 rusqlite = {version = "0.32.1", features=["bundled"]}
 r2d2 = "0.8.10"
 r2d2_sqlite = "0.25.0"
 serde = {version = "1.0.214", features = ["derive"]}
+slab = "0.4.9"

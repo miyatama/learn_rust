@@ -1,4 +1,6 @@
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Object, Schema, Request};
+use async_graphql::{
+    http::GraphiQLSource, EmptyMutation, EmptySubscription, Object, Request, Schema,
+};
 use axum::{
     extract::Extension,
     response::{Html, IntoResponse},
@@ -7,9 +9,8 @@ use axum::{
 };
 use std::error::Error;
 
-mod resolvers;
-use resolvers::TodoRoot;
-pub type Todo = Schema<TodoRoot, EmptyMutation, EmptySubscription>;
+mod models;
+pub type Todo = Schema<models::QueryRoot, EmptyMutation, EmptySubscription>;
 
 async fn graphql_handler(schema: Extension<Todo>, req: Json<Request>) -> Json<Response> {
     schema.execute(req.0).await.into()
