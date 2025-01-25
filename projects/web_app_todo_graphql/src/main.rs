@@ -1,36 +1,24 @@
-use async_graphql::{
-    http::GraphiQLSource, EmptyMutation, EmptySubscription, 
-};
+mod models;
+use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription};
+use async_graphql_axum::GraphQL;
 use axum::{
-    extract::Extension,
     response::{Html, IntoResponse},
     routing::get,
-    Json, Router,
+    Router,
 };
+use models::query_root::QueryRoot;
+use models::star_wars::StarWars;
 
-pub type Todo = async_graphql::Schema<Query, EmptyMutation, EmptySubscription>;
-
-async fn graphql_handler(schema: Extension<Todo>, req: Json<async_graphql::Request>) -> Json<async_graphql::Response> {
-    schema.execute(req.0).await.into()
-}
-
-async fn graphql() -> impl IntoResponse {
-    Html(GraphiQLSource::build().finish())
+async fn graphiql() -> impl IntoResponse {
+    Html(GraphiQLSource::build().endpoint("/").finish())
 }
 
 #[tokio::main]
 async fn main() {
-    let schema = async_graphql::Schema::build(Query, EmptyMutation, EmptySubscription).finish();
-    let app = Router::new().route("/", get(graphql).post(graphql_handler));
+    let schema = async_graphql::Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+        .data(StarWars::new())
+        .finish();
+    let app = Router::new().route("/", get(graphiql).post_service(GraphQL::new(schema)));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
-}
-
-
-struct Query;
-#[async_graphql::Object]
-impl Query {
-    async fn add(&self, a: i32, b: i32) -> i32 {
-        a + b
-    }
 }
