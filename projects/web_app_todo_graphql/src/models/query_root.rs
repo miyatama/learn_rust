@@ -2,6 +2,7 @@ use crate::models::character::{query_characters, Character};
 use crate::models::droid::Droid;
 use crate::models::episode::Episode;
 use crate::models::human::Human;
+use crate::models::todo::Todo;
 use crate::models::star_wars::StarWars;
 pub struct QueryRoot;
 
@@ -63,5 +64,9 @@ impl QueryRoot {
     ) -> async_graphql::Result<async_graphql::connection::Connection<usize, Droid<'a>>> {
         let droids = ctx.data_unchecked::<StarWars>().droids().to_vec();
         query_characters(after, before, first, last, &droids, Droid).await
+    }
+
+    async fn todos<'a>(&self, ctx: &async_graphql::Context<'a>) -> Vec<Todo> {
+        ctx.data_unchecked::<StarWars>().todos()
     }
 }

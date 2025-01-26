@@ -1,5 +1,6 @@
 use crate::models::episode::Episode;
 use crate::models::star_wars_char::StarWarsChar;
+use crate::models::todo::Todo;
 use slab::Slab;
 use std::collections::HashMap;
 
@@ -8,6 +9,7 @@ pub struct StarWars {
     pub artoo: usize,
     pub chars: Slab<StarWarsChar>,
     pub chars_by_id: HashMap<&'static str, usize>,
+    pub todos: Vec<Todo>,
 }
 
 impl StarWars {
@@ -94,11 +96,27 @@ impl StarWars {
         chars[artoo].friends = vec![luke, han, leia];
 
         let chars_by_id = chars.iter().map(|(idx, ch)| (ch.id, idx)).collect();
+
+        let todos = vec![
+            Todo {
+                id: 1000,
+                text: "this todo is great".to_string(),
+            },
+            Todo {
+                id: 1001,
+                text: "this todo is not great".to_string(),
+            },
+            Todo {
+                id: 1002,
+                text: "this todo is not cheep".to_string(),
+            },
+        ];
         Self {
             luke,
             artoo,
             chars,
             chars_by_id,
+            todos,
         }
     }
 
@@ -140,5 +158,9 @@ impl StarWars {
             .copied()
             .filter_map(|id| self.chars.get(id))
             .collect()
+    }
+
+    pub fn todos(&self) -> Vec<Todo> {
+        self.todos.clone()
     }
 }
