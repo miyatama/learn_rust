@@ -4,11 +4,12 @@
 
 # memo
 
-schema取得
+schema取得([graphql_client_cli](https://github.com/graphql-rust/graphql-client/tree/main/graphql_client_cli))
 
 ```shell
 cargo install graphql_client_cli
-graphql-client introspect-schema http://localhost:3000/graphql
+graphql-client introspect-schema http://localhost:3000 --output ./schema.json
+graphql-client generate ./query.graphql --output-directory ./src --schema-path ./schema.json
 ```
 
 __schemaの情報取得(query)
