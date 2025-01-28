@@ -8,8 +8,8 @@ schema取得([graphql_client_cli](https://github.com/graphql-rust/graphql-client
 
 ```shell
 cargo install graphql_client_cli
-graphql-client introspect-schema http://localhost:3000 --output ./schema.json
-graphql-client generate ./query.graphql --output-directory ./src --schema-path ./schema.json
+graphql-client introspect-schema http://localhost:3000 --output ./src/schema.json
+graphql-client generate ./src/query.graphql --output-directory ./src --schema-path ./src/schema.json
 ```
 
 __schemaの情報取得(query)
@@ -91,5 +91,7 @@ cargo install graphql_client_cli
 + [GraphQLのクエリを基礎から整理してみた](https://qiita.com/shunp/items/d85fc47b33e1b3a88167)
 + [RustでGitHub GraphQL APIを使ってissue一覧を取得する](https://blog.ymgyt.io/entry/fetch-issues-using-github-graphql-api-in-rust/)
 + [GraphQL の Introspection について - schema.json って何だろう](https://lightbulbcat.hatenablog.com/entry/2018/02/17/174623)
++ github
+  + [graphql_client - example](https://github.com/graphql-rust/graphql-client/tree/main/examples)
 + crate.io
   + [graphql_client](https://crates.io/crates/graphql_client)
