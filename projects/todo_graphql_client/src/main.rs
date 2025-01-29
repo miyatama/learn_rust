@@ -1,7 +1,10 @@
+use reqwest::blocking::Client;
+
 #[derive(graphql_client::GraphQLQuery)]
 #[graphql(
     schema_path="./src/schema.json",
     query_path="./src/query.graphql"
+    normalization = "rust"
 )]
 pub struct TodoRepositories;
 
@@ -9,14 +12,21 @@ fn main() {
     println!("Hello, world!");
 }
 
-async fn perform_my_query(variables: union_query::Variables) -> Result<(), Box<dyn Error>> {
+async fn perform_my_query() -> Result<(), Box<dyn Error>> {
+    let variables = todo_repositories::Variables {
+        after: LAST_ENTRY
+            .lock()
+            .ok()
+            .and_then(|opt| opt.borrow().to_owned()),
+    };
 
-    // this is the important line
-    let request_body = TodoRepositories::build_query(variables);
+    let client = reqwest::blocking::Client::new();
+    let response_body = graphql_client::reqwest::post_graphql_blocking::<TodoRepositories, _>(
+        &client,
+        "http://localhost:3000/",
+        variables,
+    )?;
+    info!("{:?}", response_body);
 
-    let client = reqwest::Client::new();
-    let mut res = client.post("/graphql").json(&request_body).send().await?;
-    let response_body: Response<union_query::ResponseData> = res.json().await?;
-    println!("{:#?}", response_body);
     Ok(())
 }
