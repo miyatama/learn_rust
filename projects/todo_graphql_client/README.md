@@ -9,6 +9,11 @@ schema取得([graphql_client_cli](https://github.com/graphql-rust/graphql-client
 ```shell
 cargo install graphql_client_cli
 graphql-client introspect-schema http://localhost:3000 --output ./src/schema.json
+```
+
+リポジトリは自分はderiveで自動作成してもらう or 下記コマンドでコードを生成する
+
+```shell
 graphql-client generate ./src/query.graphql --output-directory ./src --schema-path ./src/schema.json
 ```
 
