@@ -96,6 +96,7 @@ cargo install graphql_client_cli
 + [GraphQLのクエリを基礎から整理してみた](https://qiita.com/shunp/items/d85fc47b33e1b3a88167)
 + [RustでGitHub GraphQL APIを使ってissue一覧を取得する](https://blog.ymgyt.io/entry/fetch-issues-using-github-graphql-api-in-rust/)
 + [GraphQL の Introspection について - schema.json って何だろう](https://lightbulbcat.hatenablog.com/entry/2018/02/17/174623)
++ [ゼロからGraphQLを学ぶ](https://zenn.dev/kengoku123/articles/graphql-from-scratch)
 + github
   + [graphql_client - example](https://github.com/graphql-rust/graphql-client/tree/main/examples)
 + crate.io

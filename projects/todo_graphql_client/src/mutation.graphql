@@ -1,0 +1,3 @@
+mutation TodoUpdateRepositories($text: String) {
+  addTodo(text: $text) 
+}
