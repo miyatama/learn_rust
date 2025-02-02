@@ -12,17 +12,17 @@ fn main() {
 
 #[tracing::instrument]
 fn func01() {
-    info!("func01");
+    info!("call func01");
     func_b_01();
 }
 
 // #[tracing::instrument(skip(self, hoge))]
 fn func02() {
-    info!("func02");
+    info!("call func02");
     func_b_01();
 }
 
 #[tracing::instrument]
 fn func_b_01() {
-    info!("func_b_01");
+    info!("call func_b_01");
 }
