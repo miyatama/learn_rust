@@ -8,3 +8,20 @@
 | guessing game | [see](https://doc.rust-jp.rs/book-ja/ch02-00-guessing-game-tutorial.html) |
 | file_read | [see](https://doc.rust-jp.rs/book-ja/ch12-02-reading-a-file.html) |
 
+
+# will
+
++ [ ] axumを使ったweb-app
++ [ ] tracing, traicing-subscriberを使ったログ出力
++ [ ] sqlx利用
++ [ ] thiserrorを使ったエラー処理
++ [ ] anyhowを使ったエラー処理
++ [ ] tui周りのライブラリ使ってみる
+  + [ ] crossterm
+  + [ ] termion
+  + [ ] termwiz
+  + [ ] ratutui
+  + [ ] cursive
+  + [ ] rustyline
+  + [ ] reedline
++ [ ] AWS SDK for Rust使ってみる
