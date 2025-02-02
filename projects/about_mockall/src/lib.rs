@@ -1,3 +1,4 @@
+mod associated_type;
 mod call_counts;
 mod checkpoints;
 mod generics;
@@ -25,6 +26,7 @@ use crate::logics::InMemoryClientRepository;
 use crate::logics::LimitInMemoryClientRepository;
 use std::rc::Rc;
 
+use crate::associated_type::call_associated_type;
 use crate::call_counts::call_call_counts;
 use crate::checkpoints::call_checkpoints;
 use crate::generics::call_generics;
@@ -71,4 +73,5 @@ pub fn run() {
     call_impl_future();
     call_mocking_structs();
     call_generics();
+    call_associated_type();
 }
