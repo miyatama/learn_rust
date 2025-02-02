@@ -48,9 +48,9 @@ fn run_has_trait() {
     let caller_trait = CallerTraitImpl::new(&logic_trait);
     let value = caller_trait.run();
     println!("caller result: {}", value);
-    let caller_trait = CallerTrait2Impl::new();
+    let _caller_trait = CallerTrait2Impl::new();
     // let value = caller_trait.get_logic().run(); 
-    let value = caller_trait.get_logic(); 
+    let value = 102u8; 
     println!("caller 2 result: {}", value);
     println!("");
 }
