@@ -1,12 +1,12 @@
 mod models;
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription};
+use async_graphql::{http::GraphiQLSource, EmptySubscription};
 use async_graphql_axum::GraphQL;
 use axum::{
     response::{Html, IntoResponse},
     routing::get,
     Router,
 };
-use models::roots::{QueryRoot, Storage};
+use models::roots::{QueryRoot, MutationRoot, Storage};
 
 async fn graphiql() -> impl IntoResponse {
     Html(GraphiQLSource::build().endpoint("/").finish())
@@ -14,7 +14,7 @@ async fn graphiql() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let schema = async_graphql::Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    let schema = async_graphql::Schema::build(QueryRoot, MutationRoot, EmptySubscription)
         .data(Storage::default())
         .finish();
     let app = Router::new().route("/", get(graphiql).post_service(GraphQL::new(schema)));
