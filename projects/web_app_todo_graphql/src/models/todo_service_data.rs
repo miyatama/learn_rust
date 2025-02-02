@@ -6,7 +6,7 @@ pub struct TodoServiceData {
 }
 
 impl TodoServiceData {
-    #[allow(clippy::new_without_default)]
+    #[allow(clippy::new_without_default, dead_code)]
     pub fn new() -> Self {
         Self { todos: vec![] }
     }

@@ -2,7 +2,6 @@ use crate::models::todo::Todo;
 use crate::models::todo_service_data::TodoServiceData;
 use futures_util::lock::Mutex;
 use std::sync::Arc;
-use slab::Slab;
 
 pub type Storage = Arc<Mutex<TodoServiceData>>;
 
@@ -25,8 +24,8 @@ impl MutationRoot {
         ctx: &async_graphql::Context<'_>,
         text: String,
     ) -> async_graphql::Result<u32> {
-        let mut todo_service_data = &mut ctx.data_unchecked::<Storage>().lock().await;
-        let mut todos = &mut todo_service_data.todos;
+        let todo_service_data = &mut ctx.data_unchecked::<Storage>().lock().await;
+        let todos = &mut todo_service_data.todos;
         let id = match todos.iter().max_by_key(|todo| todo.id) {
             Some(todo) => todo.id + 1,
             None => 1,

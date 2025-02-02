@@ -7,7 +7,6 @@ use axum::{
     Router,
 };
 use models::roots::{QueryRoot, Storage};
-use models::todo_service_data::TodoServiceData;
 
 async fn graphiql() -> impl IntoResponse {
     Html(GraphiQLSource::build().endpoint("/").finish())
