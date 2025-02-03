@@ -1,6 +1,6 @@
 use crate::models::todo::Todo;
 use crate::models::todo_service_data::TodoServiceData;
-use futures_util::lock::Mutex;
+use futures_util::{lock::Mutex, StreamExt};
 use std::sync::Arc;
 
 pub type Storage = Arc<Mutex<TodoServiceData>>;
@@ -34,6 +34,10 @@ impl MutationRoot {
             id: id,
             text: text.clone(),
         });
+        TodoBroker::publish(TodoChanged {
+            mutation_type: MutationType::Created,
+            id: id,
+        });
         Ok(id)
     }
 }
@@ -51,9 +55,9 @@ pub struct TodoChanged {
 }
 
 #[async_graphql::Object]
-impl TodoChanged  {
+impl TodoChanged {
     async fn mutation_type(&self) -> MutationType {
-        &self.mutation_type
+        self.mutation_type
     }
 
     async fn id(&self) -> u32 {
@@ -62,8 +66,9 @@ impl TodoChanged  {
 
     async fn todo(&self, ctx: &async_graphql::Context<'_>) -> async_graphql::Result<Option<Todo>> {
         let todo_service_data = &ctx.data_unchecked::<Storage>().lock().await;
-        let todo = todo_service_data.todos().iter().filter(|todo| todo.id == &self.id).next();
-        let todo = if let Some(todo) = todo{ 
+        let todos = todo_service_data.todos().clone();
+        let todo = todos.iter().filter(|todo| todo.id == self.id).next();
+        let todo = if let Some(todo) = todo {
             Some(todo.clone())
         } else {
             None
@@ -72,11 +77,15 @@ impl TodoChanged  {
     }
 }
 
+use crate::models::todo_broker::TodoBroker;
 pub struct SubscriptionRoot;
 
 #[async_graphql::Subscription]
 impl SubscriptionRoot {
-    async fn interval(&self, #[graphql(default = 1)] n: i32) -> impl futures_util::Stream<Item = i32> {
+    async fn interval(
+        &self,
+        #[graphql(default = 1)] n: i32,
+    ) -> impl futures_util::Stream<Item = i32> {
         let mut value = 0;
         async_stream::stream! {
             loop {
@@ -87,7 +96,10 @@ impl SubscriptionRoot {
         }
     }
 
-    async fn todos(&self, mutation_type: Option<MutationType>) -> impl futures_util::Stream<Item = TodoChanged> {
+    async fn todos(
+        &self,
+        mutation_type: Option<MutationType>,
+    ) -> impl futures_util::Stream<Item = TodoChanged> {
         TodoBroker::<TodoChanged>::subscribe().filter(move |event| {
             let res = if let Some(mutation_type) = mutation_type {
                 event.mutation_type == mutation_type
