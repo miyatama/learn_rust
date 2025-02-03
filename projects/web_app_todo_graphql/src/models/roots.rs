@@ -37,3 +37,64 @@ impl MutationRoot {
         Ok(id)
     }
 }
+
+#[derive(async_graphql::Enum, Eq, PartialEq, Copy, Clone)]
+enum MutationType {
+    Created,
+    Deleted,
+}
+
+#[derive(Clone)]
+pub struct TodoChanged {
+    mutation_type: MutationType,
+    id: u32,
+}
+
+#[async_graphql::Object]
+impl TodoChanged  {
+    async fn mutation_type(&self) -> MutationType {
+        &self.mutation_type
+    }
+
+    async fn id(&self) -> u32 {
+        *(&self.id)
+    }
+
+    async fn todo(&self, ctx: &async_graphql::Context<'_>) -> async_graphql::Result<Option<Todo>> {
+        let todo_service_data = &ctx.data_unchecked::<Storage>().lock().await;
+        let todo = todo_service_data.todos().iter().filter(|todo| todo.id == &self.id).next();
+        let todo = if let Some(todo) = todo{ 
+            Some(todo.clone())
+        } else {
+            None
+        };
+        Ok(todo)
+    }
+}
+
+pub struct SubscriptionRoot;
+
+#[async_graphql::Subscription]
+impl SubscriptionRoot {
+    async fn interval(&self, #[graphql(default = 1)] n: i32) -> impl futures_util::Stream<Item = i32> {
+        let mut value = 0;
+        async_stream::stream! {
+            loop {
+                futures_timer::Delay::new(std::time::Duration::from_secs(1)).await;
+                value += n;
+                yield value;
+            }
+        }
+    }
+
+    async fn todos(&self, mutation_type: Option<MutationType>) -> impl futures_util::Stream<Item = TodoChanged> {
+        TodoBroker::<TodoChanged>::subscribe().filter(move |event| {
+            let res = if let Some(mutation_type) = mutation_type {
+                event.mutation_type == mutation_type
+            } else {
+                true
+            };
+            async move { res }
+        })
+    }
+}
