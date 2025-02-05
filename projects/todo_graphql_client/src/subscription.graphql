@@ -1,6 +1,10 @@
 subscription TodoChanged {
   todos {
+    mutationType,
     id,
-    text
+    todo {
+      id,
+      text,
+    } 
   }
 }
