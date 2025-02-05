@@ -100,5 +100,6 @@ cargo install graphql_client_cli
 + [ゼロからGraphQLを学ぶ](https://zenn.dev/kengoku123/articles/graphql-from-scratch)
 + github
   + [graphql_client - example](https://github.com/graphql-rust/graphql-client/tree/main/examples)
+  + [graphql_ws_client - example](https://github.com/obmarg/graphql-ws-client/tree/main/examples/examples)
 + crate.io
   + [graphql_client](https://crates.io/crates/graphql_client)

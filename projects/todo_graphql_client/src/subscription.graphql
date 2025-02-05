@@ -1,0 +1,6 @@
+subscription TodoChanged {
+  todos {
+    id,
+    text
+  }
+}

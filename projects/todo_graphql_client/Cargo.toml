@@ -5,6 +5,9 @@ edition = "2021"
 
 [dependencies]
 graphql_client = {version = "0.14.0", features = ["reqwest-blocking"] }
+graphql-ws-client = "0.11.1"
 serde = {version = "1.0.214", features = ["derive"]}
 reqwest = "0.11.14"
 log = {version = "0.4.22", features = ["std", "serde"]}
+async-tungstenite = {version = "0.28.2", features = ["async-std-runtime"]}
+async-std = {version = "1.13.0", features = ["attributes"]}

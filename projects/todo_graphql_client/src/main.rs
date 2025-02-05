@@ -14,11 +14,19 @@ pub struct TodoRepositories;
 )]
 pub struct TodoUpdateRepositories;
 
+#[derive(graphql_client::GraphQLQuery)]
+#[graphql(
+    schema_path = "./src/schema.json",
+    query_path = "./src/subscription.graphql"
+)]
+struct TodoChanged;
+
 mod util;
 use self::util::app_logger::AppLogger;
 static LOGGER: AppLogger = AppLogger {};
 
-fn main() {
+#[async_std::main]
+async fn main() {
     log::set_logger(&LOGGER).unwrap();
     log::set_max_level(log::LevelFilter::Debug);
 
@@ -26,6 +34,29 @@ fn main() {
 
     let _ = perform_my_query();
 
+    let mut request = "ws://localhost:8000/graphql".into_client_request().unwrap();
+    use async_tungstenite::tungstenite::{client::IntoClientRequest, http::HeaderValue};
+    request.headers_mut().insert(
+        "Sec-WebSocket-Protocol",
+        HeaderValue::from_str("graphql-transport-ws").unwrap(),
+    );
+    let (connection, _) = async_tungstenite::async_std::connect_async(request)
+        .await
+        .unwrap();
+    use graphql_ws_client::graphql::StreamingOperation;
+    let mut stream = graphql_ws_client::Client::build(connection)
+        .subscribe(StreamingOperation::<TodoChanged>::new(
+            todo_changed::Variables,
+        ))
+        .await?;
+    while let Some(response) = stream.next().await {
+        log::info!("subscribe response: {:?}", response);
+    }
+
+    // 終了マチ
+    log::info!("any key to exit");
+    let mut s = String::new();
+    std::io::stdin().read_line(&mut s).ok();
     log::info!("finish graphql client");
 }
 
