@@ -93,6 +93,75 @@ cliは下記でインストール
 cargo install graphql_client_cli
 ```
 
+### error[E0277]: the trait bound `WebSocketStream<async_std::net::TcpStream>: Connection` is not satisfied
+
+[example](https://github.com/obmarg/graphql-ws-client/blob/main/examples/examples/graphql-client-single-subscription.rs)を参考に組み込んだら発生。
+
+```text
+error[E0277]: the trait bound `WebSocketStream<async_std::net::TcpStream>: Connection` is not satisfied
+  --> src\main.rs:49:55
+   |
+49 |     let mut stream = graphql_ws_client::Client::build(connection)
+   |                      -------------------------------- ^^^^^^^^^^ the trait `Connection` is not implemented for `WebSocketStream<async_std::net::TcpStream>`
+   |                      |
+   |                      required by a bound introduced by this call
+   |
+   = help: the trait `Connection` is implemented for `Conn`
+note: required by a bound in `graphql_ws_client::next::builder::<impl graphql_ws_client::Client>::build`
+  --> .cargo\registry\src\index.crates.io-6f17d22bba15001f\graphql-ws-client-0.11.1\src\next\builder.rs:56:15
+   |
+54 |     pub fn build<Conn>(connection: Conn) -> ClientBuilder
+   |            ----- required by a bound in this associated function
+55 |     where
+56 |         Conn: Connection + Send + 'static,
+   |               ^^^^^^^^^^ required by this bound in `graphql_ws_client::next::builder::<impl Client>::build`
+
+```
+
+[公式](https://docs.rs/async-tungstenite/0.28.2/async_tungstenite/)より
+
+```text
+async-std-runtime: Enables the async_std module, which provides integration with the async-std runtime.
+```
+
+```text
+the trait `Connection` is not implemented for `WebSocketStream<async_std::net::TcpStream>`
+```
+
+[graphql-ws-client::Client::build()](https://docs.rs/graphql-ws-client/latest/graphql_ws_client/struct.Client.html#method.build)より
+
+```text
+pub fn build<Conn>(connection: Conn) -> ClientBuilder
+where
+    Conn: Connection + Send + 'static,
+```
+
+なので、connectionは`Connection + Send + 'static`である必要がある。connectionは
+
+```rust
+use async_tungstenite::{
+    async_std::connect_async,
+};
+let (connection, response) = connect_async(request).await.unwrap();
+```
+
+[async_tungstenite::async_std::connect_async()](https://docs.rs/async-tungstenite/0.28.2/async_tungstenite/async_std/fn.connect_async.html)
+
+```rust
+pub async fn connect_async<R>(
+    request: R,
+) -> Result<(WebSocketStream<ConnectStream>, Response), Error>
+where
+    R: IntoClientRequest + Unpin,
+```
+
+組み込み的には、connection = `WebSocketStream<ConnectStream>`。
+なので、`WebSocketStream<ConnectStream>` != `Connection + Send + 'static` じゃないっぽい。
+
+[Connection](https://docs.rs/graphql-ws-client/latest/graphql_ws_client/trait.Connection.html)
+
+よくわからんが、graphql-ws-clientの"tungstenite"featureを有効にしたら治った。謎。
+
 # reference
 
 + [GraphQLのクエリを基礎から整理してみた](https://qiita.com/shunp/items/d85fc47b33e1b3a88167)
@@ -104,3 +173,5 @@ cargo install graphql_client_cli
   + [graphql_ws_client - example](https://github.com/obmarg/graphql-ws-client/tree/main/examples/examples)
 + crate.io
   + [graphql_client](https://crates.io/crates/graphql_client)
+  + [async-tungstenite](https://crates.io/crates/async-tungstenite)
+  + [async-std](https://crates.io/crates/async-std)

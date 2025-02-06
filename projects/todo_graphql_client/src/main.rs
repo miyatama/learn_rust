@@ -25,6 +25,10 @@ mod util;
 use self::util::app_logger::AppLogger;
 static LOGGER: AppLogger = AppLogger {};
 
+use futures::StreamExt;
+use graphql_ws_client::graphql::StreamingOperation;
+
+
 #[async_std::main]
 async fn main() {
     log::set_logger(&LOGGER).unwrap();
@@ -35,22 +39,47 @@ async fn main() {
     let _ = perform_my_query();
 
     let mut request = "ws://localhost:8000/graphql".into_client_request().unwrap();
-    use async_tungstenite::tungstenite::{client::IntoClientRequest, http::HeaderValue};
+    use async_tungstenite::{
+        async_std::connect_async,
+        tungstenite::{client::IntoClientRequest, http::HeaderValue},
+    };
     request.headers_mut().insert(
         "Sec-WebSocket-Protocol",
         HeaderValue::from_str("graphql-transport-ws").unwrap(),
     );
-    let (connection, _) = async_tungstenite::async_std::connect_async(request)
-        .await
-        .unwrap();
-    use graphql_ws_client::graphql::StreamingOperation;
-    let mut stream = graphql_ws_client::Client::build(connection)
+    let (connection, response) = connect_async(request).await.unwrap();
+    log::info!("connected");
+    log::info!("connect_async response: {:?}", response);
+
+    let (client, _) = graphql_ws_client::Client::build(connection).await.unwrap();
+    let mut stream = client
         .subscribe(StreamingOperation::<TodoChanged>::new(
             todo_changed::Variables,
         ))
-        .await?;
+        .await
+        .unwrap();
     while let Some(response) = stream.next().await {
-        log::info!("subscribe response: {:?}", response);
+        match response {
+            Ok(response) => match response.data {
+                Some(data) => {
+                    let mutation_type = match data.todos.mutation_type {
+                        todo_changed::MutationType::CREATED => "created".to_string(),
+                        todo_changed::MutationType::DELETED => "deleted".to_string(),
+                        todo_changed::MutationType::Other(value) => value,
+                    };
+                    log::info!("subscribe response mutation_type: {:?}", mutation_type);
+                    log::info!("subscribe response id: {:?}", data.todos.id);
+                    let todo = data.todos.todo.unwrap();
+                    log::info!(
+                        "subscribe response todo: (id: {:?}, text: {})",
+                        todo.id,
+                        todo.text
+                    );
+                }
+                _ => {}
+            },
+            _ => {}
+        }
     }
 
     // 終了マチ
