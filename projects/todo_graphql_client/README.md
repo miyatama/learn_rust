@@ -162,6 +162,15 @@ where
 
 よくわからんが、graphql-ws-clientの"tungstenite"featureを有効にしたら治った。謎。
 
+### 対象のコンピュータが見つからない
+
+```text
+thread 'main' panicked at src\main.rs:50:63:
+called `Result::unwrap()` on an `Err` value: Io(Os { code: 10061, kind: ConnectionRefused, message: "対象のコンピューターによって拒否されたため、接続できま せんでした。" })
+```
+
+サーバ側のwsを設定する必要があるか調査
+
 # reference
 
 + [GraphQLのクエリを基礎から整理してみた](https://qiita.com/shunp/items/d85fc47b33e1b3a88167)
