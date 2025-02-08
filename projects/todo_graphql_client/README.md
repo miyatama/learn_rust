@@ -169,7 +169,20 @@ thread 'main' panicked at src\main.rs:50:63:
 called `Result::unwrap()` on an `Err` value: Io(Os { code: 10061, kind: ConnectionRefused, message: "対象のコンピューターによって拒否されたため、接続できま せんでした。" })
 ```
 
-サーバ側のwsを設定する必要があるか調査
+サーバ側のwsを設定する必要があるか調査 -> 必要ある
+
+axumのルート作成時にsubscriptionの口を作る
+
+```rust
+let schema = async_graphql::Schema::build(QueryRoot, MutationRoot, SubscriptionRoot)
+    .data(Storage::default())
+    .finish();
+let app = Router::new()
+    .route("/", get(graphiql).post_service(GraphQL::new(schema.clone())))
+    .route_service("/ws", GraphQLSubscription::new(schema));
+let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+axum::serve(listener, app).await.unwrap();
+```
 
 # reference
 
