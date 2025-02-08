@@ -10,6 +10,7 @@ pub struct QueryRoot;
 #[async_graphql::Object]
 impl QueryRoot {
     async fn todos<'a>(&self, ctx: &async_graphql::Context<'a>) -> Vec<Todo> {
+        log::info!("QueryRoot::todos()");
         let todo_service_data = &ctx.data_unchecked::<Storage>().lock().await;
         todo_service_data.todos()
     }
@@ -24,6 +25,7 @@ impl MutationRoot {
         ctx: &async_graphql::Context<'_>,
         text: String,
     ) -> async_graphql::Result<u32> {
+        log::info!("MutationRoot::add_todo()");
         let todo_service_data = &mut ctx.data_unchecked::<Storage>().lock().await;
         let todos = &mut todo_service_data.todos;
         let id = match todos.iter().max_by_key(|todo| todo.id) {
@@ -65,6 +67,7 @@ impl TodoChanged {
     }
 
     async fn todo(&self, ctx: &async_graphql::Context<'_>) -> async_graphql::Result<Option<Todo>> {
+        log::info!("TodoChanged::todo()");
         let todo_service_data = &ctx.data_unchecked::<Storage>().lock().await;
         let todos = todo_service_data.todos().clone();
         let todo = todos.iter().filter(|todo| todo.id == self.id).next();
@@ -86,6 +89,7 @@ impl SubscriptionRoot {
         &self,
         #[graphql(default = 1)] n: i32,
     ) -> impl futures_util::Stream<Item = i32> {
+        log::info!("SubscriptionRoot::interval()");
         let mut value = 0;
         async_stream::stream! {
             loop {
@@ -100,6 +104,11 @@ impl SubscriptionRoot {
         &self,
         mutation_type: Option<MutationType>,
     ) -> impl futures_util::Stream<Item = TodoChanged> {
+        log::info!("SubscriptionRoot::todos()");
+        TodoBroker::<TodoChanged>::subscribe().filter(move |_| {
+            async move { true}
+        })
+        /*
         TodoBroker::<TodoChanged>::subscribe().filter(move |event| {
             let res = if let Some(mutation_type) = mutation_type {
                 event.mutation_type == mutation_type
@@ -108,5 +117,6 @@ impl SubscriptionRoot {
             };
             async move { res }
         })
+         */
     }
 }

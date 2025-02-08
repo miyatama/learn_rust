@@ -18,3 +18,4 @@ rusqlite = {version = "0.32.1", features=["bundled"]}
 serde = {version = "1.0.214", features = ["derive"]}
 slab = "0.4.9"
 tokio = {version = "1.43.0", features = ["full"]}
+log = {version = "0.4.22", features = ["std", "serde"]}
