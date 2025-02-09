@@ -1,0 +1,3 @@
+mutation TodoDeleteRepositories($id: Int) {
+  deleteTodo(id: $id)
+}

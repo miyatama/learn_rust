@@ -4,7 +4,7 @@ pub mod todo_changed {
     #![allow(dead_code)]
     use std::result::Result;
     pub const OPERATION_NAME: &str = "TodoChanged";
-    pub const QUERY : & str = "subscription TodoChanged {\r\n  todos {\r\n    mutationType,\r\n    id,\r\n    todo {\r\n      id,\r\n      text,\r\n    } \r\n  }\r\n}" ;
+    pub const QUERY : & str = "subscription TodoChanged ($mutationType: MutationType) {\r\n  todos(mutationType: $mutationType) {\r\n    mutationType,\r\n    id,\r\n    todo {\r\n      id,\r\n      text,\r\n    } \r\n  }\r\n}" ;
     use super::*;
     use serde::{Deserialize, Serialize};
     #[allow(dead_code)]
@@ -41,7 +41,11 @@ pub mod todo_changed {
         }
     }
     #[derive(Serialize)]
-    pub struct Variables;
+    pub struct Variables {
+        #[serde(rename = "mutationType")]
+        pub mutation_type: Option<MutationType>,
+    }
+    impl Variables {}
     #[derive(Deserialize)]
     pub struct ResponseData {
         pub todos: TodoChangedTodos,

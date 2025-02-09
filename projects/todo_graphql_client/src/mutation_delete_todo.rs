@@ -1,11 +1,11 @@
 #![allow(clippy::all, warnings)]
-pub struct TodoUpdateRepositories;
-pub mod todo_update_repositories {
+pub struct TodoDeleteRepositories;
+pub mod todo_delete_repositories {
     #![allow(dead_code)]
     use std::result::Result;
-    pub const OPERATION_NAME: &str = "TodoUpdateRepositories";
+    pub const OPERATION_NAME: &str = "TodoDeleteRepositories";
     pub const QUERY: &str =
-        "mutation TodoUpdateRepositories($text: String) {\r\n  addTodo(text: $text) \r\n}";
+        "mutation TodoDeleteRepositories($id: Int) {\r\n  deleteTodo(id: $id)\r\n}";
     use super::*;
     use serde::{Deserialize, Serialize};
     #[allow(dead_code)]
@@ -18,23 +18,23 @@ pub mod todo_update_repositories {
     type ID = String;
     #[derive(Serialize)]
     pub struct Variables {
-        pub text: Option<String>,
+        pub id: Option<Int>,
     }
     impl Variables {}
     #[derive(Deserialize)]
     pub struct ResponseData {
-        #[serde(rename = "addTodo")]
-        pub add_todo: Int,
+        #[serde(rename = "deleteTodo")]
+        pub delete_todo: Int,
     }
 }
-impl graphql_client::GraphQLQuery for TodoUpdateRepositories {
-    type Variables = todo_update_repositories::Variables;
-    type ResponseData = todo_update_repositories::ResponseData;
+impl graphql_client::GraphQLQuery for TodoDeleteRepositories {
+    type Variables = todo_delete_repositories::Variables;
+    type ResponseData = todo_delete_repositories::ResponseData;
     fn build_query(variables: Self::Variables) -> ::graphql_client::QueryBody<Self::Variables> {
         graphql_client::QueryBody {
             variables,
-            query: todo_update_repositories::QUERY,
-            operation_name: todo_update_repositories::OPERATION_NAME,
+            query: todo_delete_repositories::QUERY,
+            operation_name: todo_delete_repositories::OPERATION_NAME,
         }
     }
 }

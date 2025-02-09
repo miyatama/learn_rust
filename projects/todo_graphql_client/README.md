@@ -15,7 +15,8 @@ graphql-client introspect-schema http://localhost:3000 --output ./src/schema.jso
 
 ```shell
 graphql-client generate ./src/query.graphql --output-directory ./src --schema-path ./src/schema.json
-graphql-client generate ./src/mutation.graphql --output-directory ./src --schema-path ./src/schema.json
+graphql-client generate ./src/mutation_add_todo.graphql --output-directory ./src --schema-path ./src/schema.json
+graphql-client generate ./src/mutation_delete_todo.graphql --output-directory ./src --schema-path ./src/schema.json
 graphql-client generate ./src/subscription.graphql --output-directory ./src --schema-path ./src/schema.json
 ```
 

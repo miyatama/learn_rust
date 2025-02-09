@@ -12,6 +12,10 @@ enum SubCommands {
         #[clap(short = 't', long = "text", required = true, ignore_case = true)]
         text: String,
     },
+    Delete {
+        #[clap(short = 'i', long = "id", required = true, ignore_case = true)]
+        id: u32,
+    },
     Subscribe,
 }
 
@@ -26,10 +30,18 @@ pub struct TodoRepositories;
 #[derive(graphql_client::GraphQLQuery)]
 #[graphql(
     schema_path = "./src/schema.json",
-    query_path = "./src/mutation.graphql",
+    query_path = "./src/mutation_add_todo.graphql",
     normalization = "rust"
 )]
-pub struct TodoUpdateRepositories;
+pub struct TodoAddRepositories;
+
+#[derive(graphql_client::GraphQLQuery)]
+#[graphql(
+    schema_path = "./src/schema.json",
+    query_path = "./src/mutation_delete_todo.graphql",
+    normalization = "rust"
+)]
+pub struct TodoDeleteRepositories;
 
 #[derive(graphql_client::GraphQLQuery)]
 #[graphql(
@@ -60,6 +72,9 @@ async fn main() {
         }
         SubCommands::Add { text } => {
             add_todo(text);
+        }
+        SubCommands::Delete { id } => {
+            delete_todo(id);
         }
         SubCommands::Subscribe => {
             subscribe().await;
@@ -97,9 +112,9 @@ fn query() {
 
 fn add_todo(text: String) {
     let client = reqwest::blocking::Client::new();
-    let variables = todo_update_repositories::Variables { text: Some(text) };
+    let variables = todo_add_repositories::Variables { text: Some(text) };
 
-    let response_body = graphql_client::reqwest::post_graphql_blocking::<TodoUpdateRepositories, _>(
+    let response_body = graphql_client::reqwest::post_graphql_blocking::<TodoAddRepositories, _>(
         &client,
         "http://localhost:3000/",
         variables,
@@ -108,7 +123,7 @@ fn add_todo(text: String) {
         Ok(response) => match response.data {
             Some(data) => {
                 let data =
-                    data as <TodoUpdateRepositories as graphql_client::GraphQLQuery>::ResponseData;
+                    data as <TodoAddRepositories as graphql_client::GraphQLQuery>::ResponseData;
                 log::info!("add todo id: {}", data.add_todo);
             }
             None => {
@@ -121,31 +136,58 @@ fn add_todo(text: String) {
     }
 }
 
-async fn subscribe() {
-    /*
-    let mut request = "ws://localhost:3000/ws".into_client_request().unwrap();
-    use async_tungstenite::{
-        async_std::connect_async,
-        tungstenite::{client::IntoClientRequest, http::HeaderValue},
+fn delete_todo(id: u32) {
+    let client = reqwest::blocking::Client::new();
+    let variables = todo_delete_repositories::Variables {
+        id: Some(id as i64),
     };
+
+    let response_body = graphql_client::reqwest::post_graphql_blocking::<TodoDeleteRepositories, _>(
+        &client,
+        "http://localhost:3000/",
+        variables,
+    );
+    match response_body {
+        Ok(response) => match response.data {
+            Some(data) => {
+                let data =
+                    data as <TodoDeleteRepositories as graphql_client::GraphQLQuery>::ResponseData;
+                log::info!("delete todo id: {}", data.delete_todo);
+            }
+            None => {
+                log::info!("delete todo: data is none");
+            }
+        },
+        Err(err) => {
+            log::error!("{:?}", err);
+        }
+    }
+}
+
+async fn subscribe() {
+    use async_tungstenite::tungstenite::{client::IntoClientRequest, http::HeaderValue};
+
+    let mut request = "ws://localhost:3000/ws".into_client_request().unwrap();
     request.headers_mut().insert(
         "Sec-WebSocket-Protocol",
         HeaderValue::from_str("graphql-transport-ws").unwrap(),
     );
+
+    use async_tungstenite::async_std::connect_async;
     let (connection, response) = connect_async(request).await.unwrap();
     log::info!("connected");
     log::info!("connect_async response: {:?}", response);
 
-    let (client, _actor) = graphql_ws_client::Client::build(connection).await.unwrap();
-    log::info!("client: {:?}", client);
-    // log::info!("client build result: {:?}", actor);
-    let stream = client
+    println!("Connected");
+
+    let stream = graphql_ws_client::Client::build(connection)
         .subscribe(StreamingOperation::<TodoChanged>::new(
-            todo_changed::Variables,
+            todo_changed::Variables {
+                mutation_type: Some(todo_changed::MutationType::CREATED),
+            },
         ))
         .await;
-    log::info!("creating subscribe");
-    let mut stream = match stream {
+    let mut subscription = match stream {
         Ok(stream) => {
             log::info!("created subscribe");
             stream
@@ -157,60 +199,8 @@ async fn subscribe() {
     };
 
     log::info!("start subscribe");
-    while let Some(response) = stream.next().await {
-        match response {
-            Ok(response) => match response.data {
-                Some(data) => {
-                    let mutation_type = match data.todos.mutation_type {
-                        todo_changed::MutationType::CREATED => "created".to_string(),
-                        todo_changed::MutationType::DELETED => "deleted".to_string(),
-                        todo_changed::MutationType::Other(value) => value,
-                    };
-                    log::info!("subscribe response mutation_type: {:?}", mutation_type);
-                    log::info!("subscribe response id: {:?}", data.todos.id);
-                    let todo = data.todos.todo.unwrap();
-                    log::info!(
-                        "subscribe response todo: (id: {:?}, text: {})",
-                        todo.id,
-                        todo.text
-                    );
-                }
-                None => {
-                    log::info!("subscribe data is none");
-                }
-            },
-            Err(err) => {
-                log::error!("subscribe error: {:?}", err);
-            }
-        }
-    }
-    */
-
-    // ココから下はgraphql-ws-clientのexampleのまま
-    use async_tungstenite::tungstenite::{client::IntoClientRequest, http::HeaderValue};
-    use graphql_ws_client::Client;
-
-    let mut request = "ws://localhost:3000/ws".into_client_request().unwrap();
-    request.headers_mut().insert(
-        "Sec-WebSocket-Protocol",
-        HeaderValue::from_str("graphql-transport-ws").unwrap(),
-    );
-
-    let (connection, _) = async_tungstenite::async_std::connect_async(request)
-        .await
-        .unwrap();
-
-    println!("Connected");
-
-    let mut subscription = Client::build(connection)
-        .subscribe(StreamingOperation::<TodoChanged>::new(
-            todo_changed::Variables,
-        ))
-        .await
-        .unwrap();
-
-    log::info!("start subscribe");
     while let Some(response) = subscription.next().await {
+        log::info!("recieve response");
         match response {
             Ok(response) => match response.data {
                 Some(data) => {
@@ -221,12 +211,18 @@ async fn subscribe() {
                     };
                     log::info!("subscribe response mutation_type: {:?}", mutation_type);
                     log::info!("subscribe response id: {:?}", data.todos.id);
-                    let todo = data.todos.todo.unwrap();
-                    log::info!(
-                        "subscribe response todo: (id: {:?}, text: {})",
-                        todo.id,
-                        todo.text
-                    );
+                    match data.todos.todo {
+                        Some(todo) => {
+                            log::info!(
+                                "subscribe response todo: (id: {:?}, text: {})",
+                                todo.id,
+                                todo.text
+                            );
+                        }
+                        None => {
+                            log::info!("subscribe response doto: None");
+                        }
+                    };
                 }
                 None => {
                     log::info!("subscribe data is none");
@@ -237,4 +233,5 @@ async fn subscribe() {
             }
         }
     }
+    log::info!("end subscribe");
 }

@@ -1,5 +1,5 @@
-subscription TodoChanged {
-  todos {
+subscription TodoChanged ($mutationType: MutationType) {
+  todos(mutationType: $mutationType) {
     mutationType,
     id,
     todo {
