@@ -42,6 +42,23 @@ impl MutationRoot {
         });
         Ok(id)
     }
+
+    async fn delete_todo(
+        &self,
+        ctx: &async_graphql::Context<'_>,
+        id: u32,
+    ) -> async_graphql::Result<u32> {
+        log::info!("MutationRoot::delete_todo()");
+        let todo_service_data = &mut ctx.data_unchecked::<Storage>().lock().await;
+        let todos = &mut todo_service_data.todos;
+        let index = todos.iter().position(|todo| todo.id == id).unwrap();
+        todos.remove(index);
+        TodoBroker::publish(TodoChanged {
+            mutation_type: MutationType::Deleted,
+            id: id,
+        });
+        Ok(id)
+    }
 }
 
 #[derive(async_graphql::Enum, Eq, PartialEq, Copy, Clone)]
@@ -105,10 +122,6 @@ impl SubscriptionRoot {
         mutation_type: Option<MutationType>,
     ) -> impl futures_util::Stream<Item = TodoChanged> {
         log::info!("SubscriptionRoot::todos()");
-        TodoBroker::<TodoChanged>::subscribe().filter(move |_| {
-            async move { true}
-        })
-        /*
         TodoBroker::<TodoChanged>::subscribe().filter(move |event| {
             let res = if let Some(mutation_type) = mutation_type {
                 event.mutation_type == mutation_type
@@ -117,6 +130,5 @@ impl SubscriptionRoot {
             };
             async move { res }
         })
-         */
     }
 }

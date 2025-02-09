@@ -25,7 +25,10 @@ async fn main() {
         .data(Storage::default())
         .finish();
     let app = Router::new()
-        .route("/", get(graphiql).post_service(GraphQL::new(schema.clone())))
+        .route(
+            "/",
+            get(graphiql).post_service(GraphQL::new(schema.clone())),
+        )
         .route_service("/ws", GraphQLSubscription::new(schema));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
