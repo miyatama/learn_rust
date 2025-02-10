@@ -94,7 +94,7 @@ cliは下記でインストール
 cargo install graphql_client_cli
 ```
 
-### error[E0277]: the trait bound `WebSocketStream<async_std::net::TcpStream>: Connection` is not satisfied
+## error[E0277]: the trait bound `WebSocketStream<async_std::net::TcpStream>: Connection` is not satisfied
 
 [example](https://github.com/obmarg/graphql-ws-client/blob/main/examples/examples/graphql-client-single-subscription.rs)を参考に組み込んだら発生。
 
