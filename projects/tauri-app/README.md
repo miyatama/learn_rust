@@ -38,3 +38,23 @@ This template should help get you started developing with Tauri and Leptos.
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+
+
+# problem
+
+## Permission fs:allow-write-text-file not found
+
+[公式のpermission](https://v2.tauri.app/learn/security/using-plugin-permissions/)を学習中に発生
+
+```text
+ Permission fs:allow-write-text-file not found, expected one of core:default, core:app:default, core:app:allow-app-hide, core:app:allow-app-show, ...
+warning: build failed, waiting for other jobs to finish...
+```
+
+[FileSystemのpermission](https://v2.tauri.app/plugin/file-system/#default-permission)
+
+下記コマンド打ってなかった([公式](https://v2.tauri.app/learn/security/using-plugin-permissions/)に記載がない？)
+
+```shell
+cargo tauri add fs
+```
