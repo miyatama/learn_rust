@@ -58,3 +58,8 @@ warning: build failed, waiting for other jobs to finish...
 ```shell
 cargo tauri add fs
 ```
+
+# reference
+
++ [TauriとLeptosで作るデスクトップアプリ（1）プロジェクトを作成する](https://zenn.dev/daizutabi/articles/tauri-leptos-01)
++ [Leptosを使ってTauriアプリのフロントエンドもRustで書く](https://zenn.dev/laiso/articles/ab8db73d66623a)

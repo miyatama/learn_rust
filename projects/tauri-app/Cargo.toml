@@ -14,5 +14,15 @@ serde-wasm-bindgen = "0.6"
 console_error_panic_hook = "0.1.7"
 tauri-plugin-fs = "2.2.0"
 
+[profile.release]
+codegen-units = 1
+lto = true
+
 [workspace]
+resolver = "2"
 members = ["src-tauri"]
+
+[workspace.package]
+edition = "2021"
+
+[workspace.dependencies]
