@@ -31,6 +31,55 @@ For Android development, run:
   cargo tauri android dev
 ```
 
+# [公式 2.0 Guide](https://v2.tauri.app/ja/start/)の読み込み
+
+Tauriの利点
+
++ ビルドの安全な基盤
++ ネイティブWebViewを使った軽量アプリの構築
++ 複数言語の対応
+
+invokeを利用してJs, Swift, Kotlinと連携できる(要Tauri-plugin)
+
++ [TAO](https://github.com/tauri-apps/tao): ウィンドウ管理
++ [WRY](https://github.com/tauri-apps/wry): Viewレンダリング
+
+他にも[いろんなプラグイン](https://v2.tauri.app/plugin/)を提供している
+いい感じのテンプレートが[Awsome Tauri](https://github.com/tauri-apps/awesome-tauri#guides)にまとまってる。
+
+
+## [Create a Project](https://v2.tauri.app/ja/start/create-project/)
+
+`cargo create-tauri-app`コマンドでプロンプトからテンプレートを指定してプロジェクトを作成できる。
+
+テンプレート
+
++ vanilla 
++ Vue.js
++ Svelte
++ React
++ SolidJS
++ Angular
++ Preact
++ Yew
++ Leptos
++ Sycamore
+
+## Frontend Configuration
+
+### JavaScript
+
++ [Next.js](https://nextjs.org/): React Web Framework
++ [Nuxt](https://nuxt.com/): Vue framwwork
++ [Qwik](https://qwik.dev/): 大規模配信向けフレームワーク
++ [SvelteKit](https://svelte.dev/): Svelte向けFramework
++ Vite: 高速ビルドツール
+
+### Rust
+
++ [Leptos](https://leptos.dev/): RustベースのWebフレームワーク
++ [Trunk](https://trunkrs.dev/): WASM Webバンドラ
+
 # Tauri + Leptos
 
 This template should help get you started developing with Tauri and Leptos.
@@ -39,6 +88,15 @@ This template should help get you started developing with Tauri and Leptos.
 
 [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
 
+
+## コード解析
+
+| directory | description |
+| :----- | :----- |
+| public | |
+| src | |
+| src-tauri | |
+| index.html | |
 
 # problem
 
@@ -61,5 +119,7 @@ cargo tauri add fs
 
 # reference
 
++ [公式 2.0 Guide](https://v2.tauri.app/ja/start/)
++ [【JavaScript】ここがしんどかったよTauri開発【Rust】](https://qiita.com/kurokky/items/79017c7a867a6e8122f8)
 + [TauriとLeptosで作るデスクトップアプリ（1）プロジェクトを作成する](https://zenn.dev/daizutabi/articles/tauri-leptos-01)
 + [Leptosを使ってTauriアプリのフロントエンドもRustで書く](https://zenn.dev/laiso/articles/ab8db73d66623a)
