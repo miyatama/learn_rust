@@ -80,6 +80,62 @@ invokeを利用してJs, Swift, Kotlinと連携できる(要Tauri-plugin)
 + [Leptos](https://leptos.dev/): RustベースのWebフレームワーク
 + [Trunk](https://trunkrs.dev/): WASM Webバンドラ
 
+## Core Concept
+
+### [Tauri Archtecture](https://v2.tauri.app/concept/architecture/)
+
++ tray-type interface
+
+tauri runtime(tauri) -> tauri-runtime-wry(core) -> wry -> tao
+
+![img](./imgs/readme_01.png)
+
+Eco System
+
+| parts | description |
+| :---- | :----- |
+| tauri | tauri.config.jsonに従い、アプリを取りまとめる |
+| tauri-runtime | tauriとWebViewの間を繋ぐ |
+| tauri-macros | tauri-codegenを利用して各種マクロを提供する |
+| tauri-utils | ユーティリティ |
+| tarui-build | cargoコマンドに必要な機能を提供する |
+| tauri-codegen | アプリ資源の圧縮及びConfig(tauri.config.json)を提供する |
+| tauri-runtime-wry | wryに特化したコマンドを提供する |
+
+Tooling
+
+| parts | description |
+| :----- |  :------ |
+| API (JavaScript / TypeScript) | |
+| Bundler (Rust / Shell) | |
+| cli.rs (Rust) | |
+| cli.js (JavaScript) | |
+| create-tauri-app (JavaScript) | |
+
+Upstream Crates
+
+| parts | description |
+| :----- |  :------ |
+| TAO | |
+| WRY | |
+
+Additional Tooling
+
+
+| parts | description |
+| :----- |  :------ |
+| tauri-action  | |
+| tauri-vscode | |
+| vue-cli-plugin-tauri | |
+
+### Inter-Process Communication
+
+### Security
+
+### Process Model
+
+### App Size
+
 # Tauri + Leptos
 
 This template should help get you started developing with Tauri and Leptos.
