@@ -106,27 +106,27 @@ Tooling
 
 | parts | description |
 | :----- |  :------ |
-| API (JavaScript / TypeScript) | |
-| Bundler (Rust / Shell) | |
-| cli.rs (Rust) | |
-| cli.js (JavaScript) | |
-| create-tauri-app (JavaScript) | |
+| API (JavaScript / TypeScript) | WebViewホストへのパッシング |
+| Bundler (Rust / Shell) | 各プラットフォーム向けのアプリを構築する |
+| cli.rs (Rust) | アクティビティへのIFを提供する |
+| cli.js (JavaScript) | cli.rsのラップ。npmパッケージを構築する。 |
+| create-tauri-app (JavaScript) | 新規プロジェクト作成支援 |
 
 Upstream Crates
 
 | parts | description |
 | :----- |  :------ |
-| TAO | |
-| WRY | |
+| TAO | ウィンドウ構築 |
+| WRY | WebViewレンダリング |
 
 Additional Tooling
 
 
 | parts | description |
 | :----- |  :------ |
-| tauri-action  | |
-| tauri-vscode | |
-| vue-cli-plugin-tauri | |
+| tauri-action  | 各プラットフォーム向けバイナリを作るgithub-actions |
+| tauri-vscode | VSCode向けの機能 |
+| vue-cli-plugin-tauri | vue-cli向けの機能 |
 
 ### Inter-Process Communication
 
