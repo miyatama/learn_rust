@@ -189,10 +189,26 @@ This template should help get you started developing with Tauri and Leptos.
 
 | directory | description |
 | :----- | :----- |
-| public | |
-| src | |
+| public | 静的リソース置き場っぽい。SVGのみ配置されてる。(leptos.svg, tauri.svg) |
+| src | app.rs + main.rs。wasm-bindingっぽい。 |
 | src-tauri | |
-| index.html | |
+| Cargo.toml | workspace指定。メンバーはsrc-tauriのみ。|
+| index.html | シンプルなhtml。style.css, publicを参照。|
+| style.css | |
+| Trunk.toml | |
+
+src-tauri
+
+| directory | description |
+| :----- | :----- |
+| capabilities | 謎のdefault.json |
+| gen | schema配下に謎のjson群 |
+| icons | アプリのアイコン？ |
+| src | ??? |
+| build.rs | ??? |
+| Cargo.toml | tauri本体のアプリ設定 |
+| tauri.conf.json | tauriの設定 |
+
 
 # problem
 
