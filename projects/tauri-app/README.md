@@ -171,6 +171,8 @@ Brownfield Pattern
 
 Isolation Pattern
 
+推奨パターン(の割にtauri -> patternが指定されてない)
+
 ### Security
 
 
