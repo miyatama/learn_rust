@@ -128,13 +128,51 @@ Additional Tooling
 | tauri-vscode | VSCode向けの機能 |
 | vue-cli-plugin-tauri | vue-cli向けの機能 |
 
+### [Process Model](https://v2.tauri.app/concept/process-model/)
+
+IPCメッセージを一か所で制御できるようにされている。
+
+### [App Size](https://v2.tauri.app/concept/size/)
+
+Cargo.tomlにprofileを追加することでサイズを調整することができる。
+
 ### Inter-Process Communication
+
+プロセス間通信は主にWebView-Frontend <-> Core-Backendで利用される。EventとCommandがある
+
+Event
+
+```mermaid
+sequenceDiagram;
+participant a as WebView(Frontend)
+participant b as Core(Backend)
+
+a ->> b: event
+b ->> a: event
+```
+
+commnad
+
+```mermaid
+sequenceDiagram;
+participant a as WebView(Frontend)
+participant b as Core(Backend)
+participant c as InvokeHandler
+
+a ->> b: IPC Request
+b ->> c: Invoke Command
+c -->> b: Serialize return
+b -->> a: response
+```
+
+Brownfield Pattern
+
+デフォルトパターン(の割にtauri -> patternが指定されてないが？)
+
+Isolation Pattern
 
 ### Security
 
-### Process Model
-
-### App Size
 
 # Tauri + Leptos
 
@@ -179,3 +217,4 @@ cargo tauri add fs
 + [【JavaScript】ここがしんどかったよTauri開発【Rust】](https://qiita.com/kurokky/items/79017c7a867a6e8122f8)
 + [TauriとLeptosで作るデスクトップアプリ（1）プロジェクトを作成する](https://zenn.dev/daizutabi/articles/tauri-leptos-01)
 + [Leptosを使ってTauriアプリのフロントエンドもRustで書く](https://zenn.dev/laiso/articles/ab8db73d66623a)
++ [tauriドキュメント読む](https://zenn.dev/bpk_t/scraps/b103f0b8dcfa02)
