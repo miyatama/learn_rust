@@ -204,10 +204,14 @@ src-tauri
 | capabilities | 謎のdefault.json |
 | gen | schema配下に謎のjson群 |
 | icons | アプリのアイコン？ |
-| src | ??? |
+| src | frontendから呼び出される機能を定義する。デフォルトだとgreetingとかが定義されている。 |
 | build.rs | ??? |
 | Cargo.toml | tauri本体のアプリ設定 |
 | tauri.conf.json | tauriの設定 |
+
++ ./src/app.rs: 画面の構成等がここに記述される。invokeの呼び出しもココ 
+
+
 
 
 # problem
