@@ -1,0 +1,8 @@
+[package]
+name = "learn_image_crate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+image = "0.25.5"
+log = {version = "0.4.22", features = ["std", "serde"]}
