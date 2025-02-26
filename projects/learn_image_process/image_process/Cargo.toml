@@ -8,3 +8,4 @@ rayon = "1.10.0"
 imageproc = "0.25.0"
 image = "0.25.5"
 log = {version = "0.4.22", features = ["std", "serde"]}
+anyhow = "1.0.96"
