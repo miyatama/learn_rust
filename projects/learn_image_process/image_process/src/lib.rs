@@ -14,6 +14,7 @@ pub fn run() {
         .expect("failed to save blur image");
     debug!("end blur_apply");
 
+    /*
     debug!("start blur_apply_multi");
     let img = image::open("example.jpg").expect("failed to load image");
     let blur_img = blur_apply_multi(img);
@@ -21,6 +22,7 @@ pub fn run() {
         .save("blur_multi.png")
         .expect("failed to save blur image");
     debug!("end blur_apply_multi");
+     */
 
     let img = image::open("example.jpg").expect("failed to load image");
     let rotate_img = rotate_apply(img, 45i32);
