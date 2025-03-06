@@ -76,7 +76,45 @@ pub fn apply(
                     result_pixels.push(*pixel);
                 }
                 None => {
-                    result_pixels.push(Rgba([0u8, 0u8, 0u8, 0u8]));
+                    // 上下左右に値がある場合は平均値を設定
+                    let mut set_pixel = false;
+                    if x > 0 && x < new_width && y > 0 && y < new_height {
+                        let colors = vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+                            .iter()
+                            .map(|(x, y)| x + y * new_width)
+                            .map(|pos| hm.get(&(pos as usize)))
+                            .collect::<Vec<_>>();
+                        let enable_color_count = colors
+                            .iter()
+                            .filter(|color| color.is_some())
+                            .collect::<Vec<_>>()
+                            .len() as u32;
+                        if enable_color_count > 2 {
+                            let mut r = 0u32;
+                            let mut g = 0u32;
+                            let mut b = 0u32;
+                            colors
+                                .iter()
+                                .filter(|color| color.is_some())
+                                .map(|color| color.unwrap())
+                                .for_each(|rgb| {
+                                    r += rgb[0] as u32;
+                                    g += rgb[1] as u32;
+                                    b += rgb[2] as u32;
+                                });
+
+                            result_pixels.push(Rgba([
+                                (r / enable_color_count) as u8,
+                                (g / enable_color_count) as u8,
+                                (b / enable_color_count) as u8,
+                                255u8,
+                            ]));
+                            set_pixel = true;
+                        }
+                    }
+                    if !set_pixel {
+                        result_pixels.push(Rgba([0u8, 0u8, 0u8, 0u8]));
+                    }
                 }
             }
         }
