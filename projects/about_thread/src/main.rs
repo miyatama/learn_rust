@@ -6,6 +6,7 @@ fn main() {
     handle_join();
     with_variable();
     shared_memory_thread();
+    shared_memory_thread2();
     message_passing();
     message_passing_bidirectional();
 }
@@ -45,6 +46,37 @@ fn shared_memory_thread() {
             println!("shared memory thread: {}", x);
             let mut data = data_ref.lock().unwrap();
             data[x] += 1;
+        }));
+    }
+    for handle in handles {
+        let _ = handle.join();
+    }
+    println!("after: {:?}", data);
+}
+
+fn shared_memory_thread2() {
+    println!("shared_memory_thread2");
+    let mut handles = Vec::new();
+    let initial_data = vec![
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+        (1u8, 1u8),
+    ];
+    let data: Arc<Mutex<Vec<(u8, u8)>>> = Arc::new(Mutex::new(initial_data.clone()));
+
+    for x in 0..10 {
+        let data_ref = data.clone();
+        handles.push(thread::spawn(move || {
+            println!("shared memory thread: {}", x);
+            let mut data = data_ref.lock().unwrap();
+            data[x] = (data[x].0 + 1u8, data[x].1 + 2u8);
         }));
     }
     for handle in handles {
