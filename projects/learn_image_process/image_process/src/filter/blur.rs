@@ -14,6 +14,7 @@ pub fn apply(img: DynamicImage) -> DynamicImage {
     apply_filter(img, blur_filter)
 }
 
+#[allow(dead_code)]
 pub fn apply_multi(img: DynamicImage) -> DynamicImage {
     debug!("start blur::apply_multi");
     let blur_filter: [[f32; 3]; 3] = [

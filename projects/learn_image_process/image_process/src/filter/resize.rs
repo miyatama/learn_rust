@@ -19,6 +19,15 @@ pub fn apply(
         new_width,
         new_height
     );
+    let mut src_img_map: Vec<Vec<Rgba<u8>>> =
+        vec![vec![Rgba([0u8, 0u8, 0u8, 0u8]); height as usize]; width as usize];
+    for y in 0..height {
+        for x in 0..width {
+            let pixel = img.get_pixel(x, y).0;
+            src_img_map[x as usize][y as usize] =
+                Rgba([pixel[0] as u8, pixel[1] as u8, pixel[2] as u8, 255]);
+        }
+    }
     let mut result_pixels: Vec<Rgba<u8>> = Vec::with_capacity((new_width * new_height) as usize);
     let mut hm: HashMap<usize, Rgba<u8>> = HashMap::new();
     let calc_new_pos = |x: f64, y: f64| ((x * scale).trunc() as u32, (y * scale).trunc() as u32);
@@ -26,7 +35,7 @@ pub fn apply(
         for x in 0..width {
             let (new_x, new_y) = calc_new_pos(x as f64, y as f64);
             let pos = (new_x as f64 + new_y as f64 * new_width as f64) as usize;
-            let pixel = img.get_pixel(x, y).0;
+            let pixel = src_img_map[x as usize][y as usize];
             hm.insert(
                 pos,
                 Rgba([pixel[0] as u8, pixel[1] as u8, pixel[2] as u8, 255]),
@@ -49,85 +58,33 @@ pub fn apply(
         }
     }
     log::debug!("finish setting moved color");
-    let get_correction_color_pos = |x: u32,
-                                    y: u32,
-                                    direction: bool,
-                                    end: u32,
-                                    result_pixels: &Vec<Rgba<u8>>,
-                                    new_width: &u32| {
-        if (direction && end == x) || (!direction && end == y) {
-            return None;
-        }
-        let initial = if direction { x } else { y };
-        let initial = if initial > end {
-            initial - 1
-        } else {
-            initial + 1
-        };
-        for i in initial..end {
-            let pos = if direction {
-                i + y * new_width
-            } else {
-                x + i * new_width
-            };
-            let pos = pos as usize;
-            if result_pixels[pos][3] != 0 {
-                return Some(result_pixels[pos]);
-            }
-        }
-        None
-    };
 
     let edit_pixels: Arc<Mutex<Vec<Rgba<u8>>>> = Arc::new(Mutex::new(result_pixels.clone()));
+    let correction_base_pixels: Arc<Mutex<Vec<Vec<Rgba<u8>>>>> =
+        Arc::new(Mutex::new(src_img_map.clone()));
     let mut handles = vec![];
     for y in 0..new_height {
         for x in 0..new_width {
             let pos = (x + y * new_width) as usize;
             // 色が設定されていない場合は上下左右の色を使って補正する
-            let base_pixels = result_pixels.clone();
-            let color = base_pixels[pos];
+            let color = result_pixels[pos];
             if color[3] == 0 {
                 let edit_pixels = Arc::clone(&edit_pixels);
+                let src_img_map = Arc::clone(&correction_base_pixels);
                 handles.push(thread::spawn(move || {
-                    // log::debug!("setting correction color: {}", &pos);
-                    let correction_colors = vec![
-                        get_correction_color_pos(x, y, true, 0, &base_pixels, &new_width),
-                        get_correction_color_pos(x, y, true, new_width, &base_pixels, &new_width),
-                        get_correction_color_pos(x, y, false, 0, &base_pixels, &new_width),
-                        get_correction_color_pos(
-                            x,
-                            y,
-                            false,
-                            new_height,
-                            &base_pixels,
-                            &new_width,
-                        ),
-                    ];
-                    let color = correction_colors
-                        .iter()
-                        .filter(|color| color.is_some())
-                        .map(|color| color.unwrap())
-                        .fold((0f64, 0f64, 0f64, 0f64), |sum, color| {
-                            (
-                                sum.0 + color[0] as f64,
-                                sum.1 + color[1] as f64,
-                                sum.2 + color[2] as f64,
-                                sum.3 + 1.0,
-                            )
-                        });
-                    let (r, g, b, count) = color;
-                    let rgba = Rgba([
-                        (r / count) as u8,
-                        (g / count) as u8,
-                        (b / count) as u8,
-                        255u8,
-                    ]);
+                    // 元々の位置の情報を参照する
+                    let src_x = (x as f64 / scale).trunc() as usize;
+                    let src_y = (y as f64 / scale).trunc() as usize;
+                    let src_img_map = src_img_map.lock().unwrap();
+                    let pixel = &src_img_map[src_x][src_y];
+                    let rgba = Rgba([pixel[0], pixel[1], pixel[2], 255u8]);
                     let mut pixels = edit_pixels.lock().unwrap();
                     pixels[pos] = rgba;
                 }));
             }
         }
     }
+    log::debug!("set pixel handle count: {}", handles.len());
     for handle in handles {
         handle.join().unwrap();
     }
