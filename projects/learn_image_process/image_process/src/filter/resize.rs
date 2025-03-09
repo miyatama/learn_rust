@@ -66,18 +66,61 @@ pub fn apply(
     for y in 0..new_height {
         for x in 0..new_width {
             let pos = (x + y * new_width) as usize;
-            // 色が設定されていない場合は上下左右の色を使って補正する
             let color = result_pixels[pos];
             if color[3] == 0 {
                 let edit_pixels = Arc::clone(&edit_pixels);
-                let src_img_map = Arc::clone(&correction_base_pixels);
+                let base_pixels = Arc::clone(&correction_base_pixels);
                 handles.push(thread::spawn(move || {
                     // 元々の位置の情報を参照する
                     let src_x = (x as f64 / scale).trunc() as usize;
                     let src_y = (y as f64 / scale).trunc() as usize;
-                    let src_img_map = src_img_map.lock().unwrap();
-                    let pixel = &src_img_map[src_x][src_y];
-                    let rgba = Rgba([pixel[0], pixel[1], pixel[2], 255u8]);
+                    let width = width as usize;
+                    let height = height as usize;
+
+                    // 上下左右の中間色を設定する
+                    let mut target_pos = vec![];
+                    target_pos.push((src_x as usize, src_y as usize));
+                    if src_x > 0 {
+                        target_pos.push(((src_x - 1) as usize, src_y as usize));
+                    }
+                    if src_x < (width - 1) {
+                        target_pos.push(((src_x + 1) as usize, src_y as usize));
+                    }
+                    if src_y > 0 {
+                        target_pos.push((src_x, src_y - 1));
+                    }
+                    if src_y < (height - 1) {
+                        target_pos.push((src_x, src_y + 1));
+                    }
+
+                    let base_pixels = match base_pixels.lock() {
+                        Ok(pixels) => pixels,
+                        Err(e) => {
+                            log::error!("get base pixel error: {}", e);
+                            return;
+                        }
+                    };
+                    let target_colors = target_pos
+                        .into_iter()
+                        .map(|(x, y)| base_pixels[x][y])
+                        .collect::<Vec<_>>();
+                    let color =
+                        target_colors
+                            .iter()
+                            .fold((0f64, 0f64, 0f64, 0f64), |sum, color| {
+                                (
+                                    sum.0 + color[0] as f64,
+                                    sum.1 + color[1] as f64,
+                                    sum.2 + color[2] as f64,
+                                    sum.3 + 1.0f64,
+                                )
+                            });
+                    let (r, g, b) = (
+                        (color.0 / color.3) as u8,
+                        (color.1 / color.3) as u8,
+                        (color.2 / color.3) as u8,
+                    );
+                    let rgba = Rgba([r, g, b, 255u8]);
                     let mut pixels = edit_pixels.lock().unwrap();
                     pixels[pos] = rgba;
                 }));
@@ -88,7 +131,6 @@ pub fn apply(
     for handle in handles {
         handle.join().unwrap();
     }
-    // 色の補正
     let pixels = edit_pixels.lock().unwrap();
     let result_pixels = pixels
         .clone()
