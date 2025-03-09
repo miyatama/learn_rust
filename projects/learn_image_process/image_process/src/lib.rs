@@ -1,6 +1,7 @@
 mod filter;
 mod util;
 use self::filter::blur::{apply as blur_apply, apply_multi as blur_apply_multi};
+use self::filter::resize::apply as scale_apply;
 use self::filter::rotate::apply as rotate_apply;
 use log::debug;
 
@@ -36,5 +37,16 @@ pub fn run() {
         }
     }
     // TODO override
-    // TODO scale
+
+    let img = image::open("example.jpg").expect("failed to load image");
+    let scaled_img = scale_apply(img, 0.8f64);
+    match scaled_img.unwrap() {
+        Ok(img) => {
+            img.save("scaled_img.png")
+                .expect("failed to save scaled image");
+        }
+        _ => {
+            log::error!("scale process failed");
+        }
+    }
 }
