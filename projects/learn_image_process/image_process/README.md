@@ -8,9 +8,13 @@ Rustの画像処理学習用プロジェクト
 
 + image: 0.23.14
 
-### トラブルシューティング
+## will
 
-#### ImageBuffter作成時の型エラー
++ [ ] [imageproc](https://docs.rs/imageproc/0.25.0/imageproc/index.html)を使いこなす
+
+## トラブルシューティング
+
+### ImageBuffter作成時の型エラー
 
 ```rust
 let result_img = image::ImageBuffer::from_raw(width, height, result_pixels).unwrap();
@@ -28,7 +32,7 @@ from_rawの戻り値は`Option<ImageBuffer<P, Container>>`
 解決策: from_rawに`Vec<u8>`を指定する
 
 
-#### マルチスレッド化のエラー
+### マルチスレッド化のエラー
 
 ```rust
    |

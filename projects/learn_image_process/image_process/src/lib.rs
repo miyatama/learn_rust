@@ -1,8 +1,10 @@
 mod filter;
+mod use_image_proc;
 mod util;
 use self::filter::blur::apply as blur_apply;
 use self::filter::resize::apply as scale_apply;
 use self::filter::rotate::apply as rotate_apply;
+use self::use_image_proc::drawing::run as image_proc_drawing_run;
 use log::debug;
 
 pub fn run() {
@@ -49,4 +51,5 @@ pub fn run() {
             log::error!("scale process failed");
         }
     }
+    image_proc_drawing_run();
 }
