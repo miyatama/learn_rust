@@ -29,6 +29,8 @@ fn mut_func() {
 
     let font =
         ab_glyph::FontRef::try_from_slice(include_bytes!("..\\..\\fonts\\ShipporiMincho-OTF-Medium.otf")).unwrap();
+
+    // draw_cross
     imageproc::drawing::draw_text_mut(&mut image, white, 20, 20, scale, &font, "draw_cross_mut");
     imageproc::drawing::draw_cross_mut(&mut image, white, 20, 60);
     imageproc::drawing::draw_cross_mut(&mut image, red, 20, 70);
@@ -38,12 +40,12 @@ fn mut_func() {
     imageproc::drawing::draw_cross_mut(&mut image, white, 20, 1020);
     imageproc::drawing::draw_cross_mut(&mut image, white, 20, 0);
 
-    // Draw a line segment wholly within bounds
-    imageproc::drawing::draw_line_segment_mut(&mut image, (20f32, 12f32), (40f32, 60f32), white);
-    // Draw a line segment totally outside image bounds - does not panic but nothing is rendered
-    imageproc::drawing::draw_line_segment_mut(&mut image, (0f32, -30f32), (40f32, -20f32), white);
-    // Draw a line segment partially out of bounds - the part in bounds is rendered
-    imageproc::drawing::draw_line_segment_mut(&mut image, (20f32, 180f32), (20f32, 220f32), white);
+    // draw line
+    imageproc::drawing::draw_text_mut(&mut image, white, 400, 20, scale, &font, "draw_line_segment_mut");
+    imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, 60f32), (600f32, 60f32), white);
+    // はみ出してても描画自体は実施される
+    imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, -120f32), (600f32, 90f32), white);
+    imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, 120f32), (600f32, -120f32), white);
 
     // Draw a hollow rect within bounds
     imageproc::drawing::draw_hollow_rect_mut(
