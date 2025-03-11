@@ -27,8 +27,10 @@ fn mut_func() {
     // Draw some crosses within bounds
     let scale = ab_glyph::PxScale::from(24.0);
 
-    let font =
-        ab_glyph::FontRef::try_from_slice(include_bytes!("..\\..\\fonts\\ShipporiMincho-OTF-Medium.otf")).unwrap();
+    let font = ab_glyph::FontRef::try_from_slice(include_bytes!(
+        "..\\..\\fonts\\ShipporiMincho-OTF-Medium.otf"
+    ))
+    .unwrap();
 
     // draw_cross
     imageproc::drawing::draw_text_mut(&mut image, white, 20, 20, scale, &font, "draw_cross_mut");
@@ -41,28 +43,53 @@ fn mut_func() {
     imageproc::drawing::draw_cross_mut(&mut image, white, 20, 0);
 
     // draw line
-    imageproc::drawing::draw_text_mut(&mut image, white, 400, 20, scale, &font, "draw_line_segment_mut");
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        400,
+        20,
+        scale,
+        &font,
+        "draw_line_segment_mut",
+    );
     imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, 60f32), (600f32, 60f32), white);
     // はみ出してても描画自体は実施される
-    imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, -120f32), (600f32, 90f32), white);
-    imageproc::drawing::draw_line_segment_mut(&mut image, (400f32, 120f32), (600f32, -120f32), white);
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (400f32, -120f32),
+        (600f32, 90f32),
+        white,
+    );
+    imageproc::drawing::draw_line_segment_mut(
+        &mut image,
+        (400f32, 120f32),
+        (600f32, -120f32),
+        white,
+    );
 
-    // Draw a hollow rect within bounds
+    // draw hollow rect
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        20,
+        200,
+        scale,
+        &font,
+        "draw_hollowo_rect_mut",
+    );
     imageproc::drawing::draw_hollow_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(60, 10).of_size(20, 20),
+        imageproc::rect::Rect::at(20, 240).of_size(20, 20),
         white,
     );
-    // Outside bounds
     imageproc::drawing::draw_hollow_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(300, 10).of_size(20, 20),
-        white,
+        imageproc::rect::Rect::at(20, 270).of_size(20, 20),
+        red,
     );
-    // Partially outside bounds
     imageproc::drawing::draw_hollow_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(90, -10).of_size(30, 20),
+        imageproc::rect::Rect::at(-10, 300).of_size(100, 20),
         white,
     );
 
