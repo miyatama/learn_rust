@@ -1,6 +1,7 @@
 // use image_proc::binary_descriptors::brief::brief;
 // use image_proc::binary_descriptors::match_binary_descriptors;
 
+#[allow(dead_code)]
 pub fn run() {
     /*
     let image1_descriptors = brief();

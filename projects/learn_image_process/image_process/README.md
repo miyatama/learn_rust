@@ -8,6 +8,10 @@ Rustの画像処理学習用プロジェクト
 
 + image: 0.23.14
 
+フォント利用
+
++ [しっぽり明朝](https://fontdasu.com/shippori-mincho/)
+
 ## will
 
 + [ ] [imageproc](https://docs.rs/imageproc/0.25.0/imageproc/index.html)を使いこなす
