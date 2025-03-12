@@ -148,5 +148,46 @@ fn mut_func() {
     imageproc::drawing::draw_filled_circle_mut(&mut image, (540, 510), 20, white);
     imageproc::drawing::draw_filled_circle_mut(&mut image, (990, 560), 20, white);
 
+    // draw antialized line and polygon
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        20,
+        600,
+        scale,
+        &font,
+        "draw_antialized_x_mut",
+    );
+    imageproc::drawing::draw_antialiased_line_segment_mut(
+        &mut image,
+        (20, 630),
+        (200, 630),
+        white,
+        |a, b, alpha| {
+            image::Rgb([
+                (a[0] as f32 * alpha + b[0] as f32 * (1.0 - alpha)) as u8,
+                (a[1] as f32 * alpha + b[1] as f32 * (1.0 - alpha)) as u8,
+                (a[2] as f32 * alpha + b[2] as f32 * (1.0 - alpha)) as u8,
+            ])
+        },
+    );
+    imageproc::drawing::draw_antialiased_polygon_mut(
+        &mut image,
+        &vec![
+            imageproc::point::Point { x: 20, y: 650 },
+            imageproc::point::Point { x: 50, y: 700 },
+            imageproc::point::Point { x: 80, y: 650 },
+            imageproc::point::Point { x: 150, y: 700 },
+        ],
+        white,
+        |a, b, alpha| {
+            image::Rgb([
+                (a[0] as f32 * alpha + b[0] as f32 * (1.0 - alpha)) as u8,
+                (a[1] as f32 * alpha + b[1] as f32 * (1.0 - alpha)) as u8,
+                (a[2] as f32 * alpha + b[2] as f32 * (1.0 - alpha)) as u8,
+            ])
+        },
+    );
+
     image.save("drawing_mut_result.png").unwrap();
 }
