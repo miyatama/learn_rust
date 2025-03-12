@@ -93,31 +93,46 @@ fn mut_func() {
         white,
     );
 
+    // draw fill rect
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        500,
+        200,
+        scale,
+        &font,
+        "draw_fill_rect_mut",
+    );
     // Draw a filled rect within bounds
     imageproc::drawing::draw_filled_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(130, 10).of_size(20, 20),
+        imageproc::rect::Rect::at(500, 240).of_size(20, 20),
         white,
     );
-    // Outside bounds
     imageproc::drawing::draw_filled_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(300, 10).of_size(20, 20),
-        white,
+        imageproc::rect::Rect::at(500, 270).of_size(100, 20),
+        red,
     );
-    // Partially outside bounds
     imageproc::drawing::draw_filled_rect_mut(
         &mut image,
-        imageproc::rect::Rect::at(180, -10).of_size(30, 20),
+        imageproc::rect::Rect::at(500, 300).of_size(600, 20),
         white,
     );
 
-    // Draw a hollow circle within bounds
-    imageproc::drawing::draw_hollow_circle_mut(&mut image, (100, 100), 15, white);
-    // Outside bounds
-    imageproc::drawing::draw_hollow_circle_mut(&mut image, (400, 400), 20, white);
-    // Partially outside bounds
-    imageproc::drawing::draw_hollow_circle_mut(&mut image, (100, 190), 20, white);
+    // draw hollow circle
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        20,
+        400,
+        scale,
+        &font,
+        "draw_hollow_circle_mut",
+    );
+    imageproc::drawing::draw_hollow_circle_mut(&mut image, (27, 460), 15, white);
+    imageproc::drawing::draw_hollow_circle_mut(&mut image, (40, 510), 20, red);
+    imageproc::drawing::draw_hollow_circle_mut(&mut image, (-10, 560), 20, white);
 
     // Draw a filled circle within bounds
     imageproc::drawing::draw_filled_circle_mut(&mut image, (150, 100), 15, white);
