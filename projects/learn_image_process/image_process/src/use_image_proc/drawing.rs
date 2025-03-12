@@ -189,5 +189,26 @@ fn mut_func() {
         },
     );
 
+    // draw polygon
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        500,
+        600,
+        scale,
+        &font,
+        "draw_polygon_mut",
+    );
+    imageproc::drawing::draw_polygon_mut(
+        &mut image,
+        &vec![
+            imageproc::point::Point { x: 520, y: 650 },
+            imageproc::point::Point { x: 550, y: 700 },
+            imageproc::point::Point { x: 680, y: 650 },
+            imageproc::point::Point { x: 650, y: 700 },
+        ],
+        white,
+    );
+
     image.save("drawing_mut_result.png").unwrap();
 }
