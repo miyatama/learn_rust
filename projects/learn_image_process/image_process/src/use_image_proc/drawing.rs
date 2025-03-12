@@ -134,12 +134,19 @@ fn mut_func() {
     imageproc::drawing::draw_hollow_circle_mut(&mut image, (40, 510), 20, red);
     imageproc::drawing::draw_hollow_circle_mut(&mut image, (-10, 560), 20, white);
 
-    // Draw a filled circle within bounds
-    imageproc::drawing::draw_filled_circle_mut(&mut image, (150, 100), 15, white);
-    // Outside bounds
-    imageproc::drawing::draw_filled_circle_mut(&mut image, (450, 400), 20, white);
-    // Partially outside bounds
-    imageproc::drawing::draw_filled_circle_mut(&mut image, (150, 190), 20, white);
+    // draw fill circle
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        500,
+        400,
+        scale,
+        &font,
+        "draw_fill_circle_mut",
+    );
+    imageproc::drawing::draw_filled_circle_mut(&mut image, (527, 460), 15, white);
+    imageproc::drawing::draw_filled_circle_mut(&mut image, (540, 510), 20, white);
+    imageproc::drawing::draw_filled_circle_mut(&mut image, (990, 560), 20, white);
 
     image.save("drawing_mut_result.png").unwrap();
 }
