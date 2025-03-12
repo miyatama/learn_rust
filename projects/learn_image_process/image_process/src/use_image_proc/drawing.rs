@@ -210,5 +210,24 @@ fn mut_func() {
         white,
     );
 
+    // draw polygon
+    imageproc::drawing::draw_text_mut(
+        &mut image,
+        white,
+        20,
+        750,
+        scale,
+        &font,
+        "draw_cubic_bezier_curve_mut",
+    );
+    imageproc::drawing::draw_cubic_bezier_curve_mut(
+        &mut image,
+        (20.0, 800.0),
+        (200.0, 800.0),
+        (80.0, 780.0),
+        (150.0, 820.0),
+        red,
+    );
+
     image.save("drawing_mut_result.png").unwrap();
 }
