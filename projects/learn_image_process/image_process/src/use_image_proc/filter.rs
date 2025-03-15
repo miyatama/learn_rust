@@ -43,8 +43,13 @@ pub fn run() {
         .save("filter_gaussian_blur_f32.png")
         .expect("failed to save gaussian_blur_f32 image");
 
+    let filter_result = imageproc::filter::horizontal_filter(&image_buffer, &kernel);
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    filter_result
+        .into_rgb8()
+        .save("filter_horizontal_filter.png")
+        .expect("failed to save horizontal_filter image");
     /*
-    let img_result = imageproc::filter::horizontal_filter
 
     let img_result = imageproc::filter::laplacian_filter
 
