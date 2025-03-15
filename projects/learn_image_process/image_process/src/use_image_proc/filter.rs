@@ -1,11 +1,21 @@
+use image::{DynamicImage, GenericImageView, Pixel, Rgba};
+
 /**
  * filterの呼び出しサンプル
  * https://docs.rs/imageproc/0.25.0/imageproc/filter/index.html
  */
 pub fn run() {
     let img = image::open("lena.png").expect("failed to load image");
+    log::debug!("image type: {}", get_type_name(img.clone()));
+
+    let (width, height) = img.dimensions();
     let img_gray = img.to_luma8();
     let img_result = imageproc::filter::bilateral_filter(&img_gray, 10, 0.5, 0.2);
+    // ImageBuffer<image::color::Luma<u8>, alloc::vec::Vec<u8>>
+    log::debug!(
+        "bilateral_filter result type: {}",
+        get_type_name(img_result.clone())
+    );
     img_result
         .save("filter_bilateral_filter.png")
         .expect("failed to save bilateral_filter image");
@@ -49,10 +59,53 @@ pub fn run() {
         .into_rgb8()
         .save("filter_horizontal_filter.png")
         .expect("failed to save horizontal_filter image");
+
+    // pub fn laplacian_filter(image: &GrayImage) -> Image<Luma<i16>>
+    // pub type Image<P> = ImageBuffer<P, Vec<<P as Pixel>::Subpixel>>;
+    // pub struct ImageBuffer<P: Pixel, Container>
+    // ImageBuffer<Luma<i16>, Vec<i16>>
+    let laplacian_filter_result = imageproc::filter::laplacian_filter(&img_gray);
+    // ImageBuffer<image::color::Luma<i16>, alloc::vec::Vec<i16>>
+    log::debug!(
+        "laplacian_filter result type: {}",
+        get_type_name(laplacian_filter_result.clone())
+    );
+    let pixels = laplacian_filter_result
+        .pixels()
+        .into_iter()
+        .map(|pixel| pixel.0[0] as f32)
+        .collect::<Vec<f32>>();
+    let min_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
+    let max_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.max(m));
+    let limit = min_value.abs().max(max_value.abs());
+    let pixels = pixels
+        .iter()
+        .map(|pixel| {
+            let pixel = *pixel;
+            let sign = if pixel < 0f32 { -1f32 } else { 1f32 };
+            let pixel = pixel * sign;
+            128f32 * (pixel / limit) * sign
+        })
+        .collect::<Vec<f32>>();
+    let correction_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
+    let correction_value = if correction_value < 0.0f32 {
+        (correction_value * -1f32) as f32
+    } else {
+        0f32
+    };
+    let pixels = pixels
+        .iter()
+        .map(|value| {
+            let value = *value;
+            (value + correction_value) as u8
+        })
+        .collect::<Vec<u8>>();
+    image::GrayImage::from_raw(width, height, pixels)
+        .unwrap()
+        .save("filter_laplacian_filter.png")
+        .expect("failed to save laplacian_filter image");
+
     /*
-
-    let img_result = imageproc::filter::laplacian_filter
-
     let img_result = imageproc::filter::median_filter
 
     let img_result = imageproc::filter::separable_filter
