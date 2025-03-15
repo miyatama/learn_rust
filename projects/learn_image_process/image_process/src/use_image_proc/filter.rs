@@ -14,9 +14,36 @@ pub fn run() {
         .save("box_filter_result.png")
         .expect("failed to save box_filter image");
 
-    /*
-    let img_result = filter3x3(&img)
+    let kernel = [
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        4.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+    ];
+    let image_buffer = img.into_rgb32f();
+    // type: image::buffer_::ImageBuffer<image::color::Rgb<f32>, alloc::vec::Vec<f32>>
+    let filter_result =
+        imageproc::filter::filter3x3::<image::Rgb<f32>, f32, f32>(&image_buffer, &kernel);
+    log::debug!(
+        "filter result type: {}",
+        get_type_name(filter_result.clone())
+    );
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    log::debug!(
+        "parsed filter result type: {}",
+        get_type_name(filter_result.clone())
+    );
+    filter_result
+        .into_rgb8()
+        .save("filter3x3_result.png")
+        .expect("failed to save filter3x3 image");
 
+    /*
     let img_result = gaussian_blur_f32
 
     let img_result = horizontal_filter
@@ -36,4 +63,8 @@ pub fn run() {
     let img_result = vertical_filter
 
              */
+}
+
+fn get_type_name<T>(_: T) -> String {
+    format!("{}", std::any::type_name::<T>())
 }

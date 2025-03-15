@@ -77,6 +77,105 @@ use rayon::prelude::*;
 
 pixel配列から生成するように変更(予定)
 
+### imageproc::filter::filter3x3
+
+[定義](https://docs.rs/imageproc/0.25.0/imageproc/filter/fn.filter3x3.html)
+
+```rust
+pub fn filter3x3<P, K, S>(
+    image: &Image<P>,
+    kernel: &[K],
+) -> Image<ChannelMap<P, S>>
+where
+    P::Subpixel: Into<K>,
+    S: Clamp<K> + Primitive,
+    P: WithChannel<S>,
+    K: Num + Copy,
+```
+
+kernelの`Num + Copy` is 何？ -> とりあえず`&vec![100, 110, 130]`で指定してみる。
+
+```rust
+error[E0308]: mismatched types
+   --> src\use_image_proc\filter.rs:17:51
+    |
+17  |     let img_result = imageproc::filter::filter3x3(&img, &vec![100, 110, 130]);
+    |                      ---------------------------- ^^^^ expected `&ImageBuffer<_, Vec<_>>`, found `&DynamicImage`
+    |                      |
+    |                      arguments to this function are incorrect
+    |
+    = note: expected reference `&ImageBuffer<_, Vec<_>>`
+               found reference `&DynamicImage`
+```
+
+[ImageBuffer](https://docs.rs/image/latest/image/struct.ImageBuffer.html)が必要。imgは[image::open()](https://docs.rs/image/latest/image/fn.open.html)で作成してるのでDynamicImage。[into_rgba16()](https://docs.rs/image/latest/image/enum.DynamicImage.html#method.into_rgba16)を使う。
+
+下記の通り記述を変更
+
+```rust
+    let k = [
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        4.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+    ];
+    let image_buffer = img.into_rgb16();
+    let _img_result = imageproc::filter::filter3x3(&image_buffer, &k);
+```
+
+謎エラー発生
+
+```rust
+error[E0283]: type annotations needed
+   --> src\use_image_proc\filter.rs:29:23
+    |
+29  |     let _img_result = imageproc::filter::filter3x3(&image_buffer, &k);
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ cannot infer type of the type parameter `S` declared on the function `filter3x3`
+    |
+    = note: multiple `impl`s satisfying `_: Clamp<f32>` found in the `imageproc` crate:
+            - impl Clamp<f32> for f32;
+            - impl Clamp<f32> for u16;
+            - impl Clamp<f32> for u8;
+note: required by a bound in `imageproc::filter::filter3x3`
+   --> C:\Users\nmiya\.cargo\registry\src\index.crates.io-6f17d22bba15001f\imageproc-0.25.0\src\filter\mod.rs:349:8
+    |
+346 | pub fn filter3x3<P, K, S>(image: &Image<P>, kernel: &[K]) -> Image<ChannelMap<P, S>>
+    |        --------- required by a bound in this function
+...
+349 |     S: Clamp<K> + Primitive,
+    |        ^^^^^^^^ required by this bound in `filter3x3`
+help: consider specifying the generic arguments
+    |
+29  |     let _img_result = imageproc::filter::filter3x3::<Rgb<u16>, f32, S>(&image_buffer, &k);
+    |                                                   ++++++++++++++++++++
+```
+
+とりあえず`S: Clamp<K> + Primitive,` & `K = f32`なので、
+
++ [Clamp](https://docs.rs/imageproc/0.25.0/imageproc/definitions/trait.Clamp.html)
++ [Primitive](https://docs.rs/image/0.25.0/image/trait.Primitive.html)
+
+Primitive -> u8, u16, f32
+Clamp -> f32
+
+とりあえずf32で合わせればよさげ。
+
+```rust
+    let image_buffer = img.into_rgb32f();
+    // type: image::buffer_::ImageBuffer<image::color::Rgb<f32>, alloc::vec::Vec<f32>>
+    let filter_result =
+        imageproc::filter::filter3x3::<image::Rgb<f32>, f32, f32>(&image_buffer, &kernel);
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    filter_result
+        .into_rgb8()
+        .save("filter3x3_result.png")
+        .expect("failed to save filter3x3 image");
+```
 
 # reference
 
