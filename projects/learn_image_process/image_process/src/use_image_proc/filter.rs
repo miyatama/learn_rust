@@ -125,9 +125,27 @@ pub fn run() {
         .save("separable_filter.png")
         .expect("failed to save separable_filter image");
 
-    /*
-    let img_result = imageproc::filter::separable_filter_equal
+    let kernel = [
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        4.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        1.0f32 / 16.0f32,
+    ];
+    let image_buffer = img.clone().into_rgb32f();
+    let filter_result =
+        imageproc::filter::separable_filter_equal::<image::Rgb<f32>, f32>(&image_buffer, &kernel);
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    filter_result
+        .into_rgb8()
+        .save("filter_separable_filter_equal.png")
+        .expect("failed to save separable_filter_equal image");
 
+    /*
     let img_result = imageproc::filter::sharpen3x3
 
     let img_result = imageproc::filter::sharpen_gaussian
