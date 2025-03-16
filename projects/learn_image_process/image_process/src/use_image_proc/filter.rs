@@ -36,7 +36,7 @@ pub fn run() {
         2.0f32 / 16.0f32,
         1.0f32 / 16.0f32,
     ];
-    let image_buffer = img.into_rgb32f();
+    let image_buffer = img.clone().into_rgb32f();
     // type: image::buffer_::ImageBuffer<image::color::Rgb<f32>, alloc::vec::Vec<f32>>
     let filter_result =
         imageproc::filter::filter3x3::<image::Rgb<f32>, f32, f32>(&image_buffer, &kernel);
@@ -89,7 +89,7 @@ pub fn run() {
         .collect::<Vec<f32>>();
     let correction_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
     let correction_value = if correction_value < 0.0f32 {
-        (correction_value * -1f32) as f32
+        correction_value.abs()
     } else {
         0f32
     };
@@ -105,8 +105,13 @@ pub fn run() {
         .save("filter_laplacian_filter.png")
         .expect("failed to save laplacian_filter image");
 
+
+    let image_buffer = img.into_rgb8();
+    let filter_result = imageproc::filter::median_filter(&image_buffer, 3u32, 3u32);
+    filter_result
+        .save("filter_median_filter.png")
+        .expect("failed to save median_filter image");
     /*
-    let img_result = imageproc::filter::median_filter
 
     let img_result = imageproc::filter::separable_filter
 
