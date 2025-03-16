@@ -154,9 +154,22 @@ pub fn run() {
     filter_result
         .save("filter_sharpen_gaussian.png")
         .expect("failed to save sharpen_gaussian image");
-    /*
-    let img_result = imageproc::filter::vertical_filter
-    */
+
+    let kernel = [
+        1.0f32 / 16.0f32, 
+        2.0f32 / 16.0f32, 
+        10.0f32 / 16.0f32, 
+        2.0f32 / 16.0f32, 
+        1.0f32 / 1.0f32,
+        ];
+    let image_buffer = img.clone().into_rgb32f();
+    let filter_result =
+        imageproc::filter::vertical_filter::<image::Rgb<f32>, f32>(&image_buffer, &kernel);
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    filter_result
+        .into_rgb8()
+        .save("filter_vertical_filter.png")
+        .expect("failed to save vertical_filter image");
 }
 
 #[allow(dead_code)]
