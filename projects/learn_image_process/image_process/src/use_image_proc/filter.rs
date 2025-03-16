@@ -149,12 +149,14 @@ pub fn run() {
     filter_result
         .save("filter_sharpen3x3.png")
         .expect("failed to save sharpen3x3 image");
+
+    let filter_result = imageproc::filter::sharpen_gaussian(&img_gray, 5f32, 12f32);
+    filter_result
+        .save("filter_sharpen_gaussian.png")
+        .expect("failed to save sharpen_gaussian image");
     /*
-    let img_result = imageproc::filter::sharpen_gaussian
-
     let img_result = imageproc::filter::vertical_filter
-
-             */
+    */
 }
 
 #[allow(dead_code)]
