@@ -1,4 +1,4 @@
-use image::{GenericImageView};
+use image::GenericImageView;
 
 /**
  * filterの呼び出しサンプル
@@ -105,16 +105,27 @@ pub fn run() {
         .save("filter_laplacian_filter.png")
         .expect("failed to save laplacian_filter image");
 
-
-    let image_buffer = img.into_rgb8();
+    let image_buffer = img.clone().into_rgb8();
     let filter_result = imageproc::filter::median_filter(&image_buffer, 3u32, 3u32);
     filter_result
         .save("filter_median_filter.png")
         .expect("failed to save median_filter image");
+
+    let h_kernel = [1.0f32 / 4.0f32, 2.0f32 / 4.0f32, 1.0f32 / 4.0f32];
+    let v_kernel = [1.0f32 / 5.0f32, 3.0f32 / 5.0f32, 1.0f32 / 5.0f32];
+    let image_buffer = img.clone().into_rgb32f();
+    let filter_result = imageproc::filter::separable_filter::<image::Rgb<f32>, f32>(
+        &image_buffer,
+        &h_kernel,
+        &v_kernel,
+    );
+    let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
+    filter_result
+        .into_rgb8()
+        .save("separable_filter.png")
+        .expect("failed to save separable_filter image");
+
     /*
-
-    let img_result = imageproc::filter::separable_filter
-
     let img_result = imageproc::filter::separable_filter_equal
 
     let img_result = imageproc::filter::sharpen3x3
