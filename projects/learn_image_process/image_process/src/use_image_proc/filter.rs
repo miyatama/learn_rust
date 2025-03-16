@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImageView, Pixel, Rgba};
+use image::{GenericImageView};
 
 /**
  * filterの呼び出しサンプル
