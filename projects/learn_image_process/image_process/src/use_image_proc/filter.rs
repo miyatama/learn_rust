@@ -145,9 +145,11 @@ pub fn run() {
         .save("filter_separable_filter_equal.png")
         .expect("failed to save separable_filter_equal image");
 
+    let filter_result = imageproc::filter::sharpen3x3(&img_gray);
+    filter_result
+        .save("filter_sharpen3x3.png")
+        .expect("failed to save sharpen3x3 image");
     /*
-    let img_result = imageproc::filter::sharpen3x3
-
     let img_result = imageproc::filter::sharpen_gaussian
 
     let img_result = imageproc::filter::vertical_filter
