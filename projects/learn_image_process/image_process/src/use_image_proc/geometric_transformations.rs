@@ -1,3 +1,6 @@
+/*
+https://docs.rs/imageproc/0.25.0/imageproc/geometric_transformations/index.html
+ */
 use image::GenericImageView;
 
 pub fn run() {
@@ -18,16 +21,28 @@ pub fn run() {
         default,
     );
     let result = image::DynamicImage::ImageRgba32F(result);
-    result 
+    result
         .into_rgba8()
         .save("geometric_transformation_rotate.png")
         .expect("failed to save geometric_transformation_rotate image");
+
+    let result = imageproc::geometric_transformations::rotate_about_center(
+        &image_buffer,
+        theta,
+        interpolation,
+        default,
+    );
+    let result = image::DynamicImage::ImageRgba32F(result);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_rotate_about_center.png")
+        .expect("failed to save rotate_about_center image");
+
     /*
-    imageproc::geometric_transformation::rotate_about_center
-    imageproc::geometric_transformation::translate
-    imageproc::geometric_transformation::warp
-    imageproc::geometric_transformation::warp_into
-    imageproc::geometric_transformation::warp_into_with
-    imageproc::geometric_transformation::warp_with
+    imageproc::geometric_transformations::translate
+    imageproc::geometric_transformations::warp
+    imageproc::geometric_transformations::warp_into
+    imageproc::geometric_transformations::warp_into_with
+    imageproc::geometric_transformations::warp_with
      */
 }
