@@ -48,8 +48,24 @@ pub fn run() {
         .save("geometric_transformation_translate.png")
         .expect("failed to save translate image");
 
+    // https://docs.rs/imageproc/0.25.0/imageproc/geometric_transformations/struct.Projection.html
+    let projection =
+        imageproc::geometric_transformations::Projection::translate(center_x, center_y)
+            * imageproc::geometric_transformations::Projection::scale(0.5f32, 0.5f32)
+            * imageproc::geometric_transformations::Projection::rotate(45.0f32);
+    let default = image::Rgba([0f32, 0f32, 0f32, 0f32]);
+    let result = imageproc::geometric_transformations::warp(
+        &image_buffer,
+        &projection,
+        interpolation,
+        default,
+    );
+    let result = image::DynamicImage::ImageRgba32F(result);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_warp.png")
+        .expect("failed to save warp image");
     /*
-    imageproc::geometric_transformations::warp
     imageproc::geometric_transformations::warp_into
     imageproc::geometric_transformations::warp_into_with
     imageproc::geometric_transformations::warp_with
