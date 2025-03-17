@@ -16,6 +16,45 @@ Rustの画像処理学習用プロジェクト
 
 + [ ] [imageproc](https://docs.rs/imageproc/0.25.0/imageproc/index.html)を使いこなす
 
+# imageproc
+
+全モジュールのfunctionsを呼び出す
+
+| module | progress | description |
+| :----- | :----- | :----- |
+| binary_descriptors | in progress | |
+| contours | in progress | |
+| contrast | | |
+| corners | | |
+| definitions | | |
+| distance_transform | | |
+| drawing | completed | |
+| edges | | |
+| filter | completed | |
+| geometric_transformations | in progress | |
+| geometry | | |
+| gradients | | |
+| haar | | |
+| hog | | |
+| hough | | |
+| integral_image | | |
+| local_binary_patterns | | |
+| map | | |
+| math | | |
+| morphology | | |
+| noise | | |
+| pixelops | | |
+| point | | |
+| property_testing | | |
+| rect | | |
+| region_labelling | | |
+| seam_carving | | |
+| stats | | |
+| suppress | | |
+| template_matching | | |
+| union_find | | |
+| utils | | |
+
 ## トラブルシューティング
 
 ### ImageBuffter作成時の型エラー
