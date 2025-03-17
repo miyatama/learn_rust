@@ -38,8 +38,17 @@ pub fn run() {
         .save("geometric_transformation_rotate_about_center.png")
         .expect("failed to save rotate_about_center image");
 
+    let result = imageproc::geometric_transformations::translate(
+        &image_buffer,
+        (center_x as i32, center_y as i32),
+    );
+    let result = image::DynamicImage::ImageRgba32F(result);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_translate.png")
+        .expect("failed to save translate image");
+
     /*
-    imageproc::geometric_transformations::translate
     imageproc::geometric_transformations::warp
     imageproc::geometric_transformations::warp_into
     imageproc::geometric_transformations::warp_into_with
