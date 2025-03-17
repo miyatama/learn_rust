@@ -156,12 +156,12 @@ pub fn run() {
         .expect("failed to save sharpen_gaussian image");
 
     let kernel = [
-        1.0f32 / 16.0f32, 
-        2.0f32 / 16.0f32, 
-        10.0f32 / 16.0f32, 
-        2.0f32 / 16.0f32, 
+        1.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
+        10.0f32 / 16.0f32,
+        2.0f32 / 16.0f32,
         1.0f32 / 1.0f32,
-        ];
+    ];
     let image_buffer = img.clone().into_rgb32f();
     let filter_result =
         imageproc::filter::vertical_filter::<image::Rgb<f32>, f32>(&image_buffer, &kernel);
