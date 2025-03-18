@@ -31,7 +31,7 @@ Rustの画像処理学習用プロジェクト
 | drawing | completed | |
 | edges | | |
 | filter | completed | |
-| geometric_transformations | in progress | |
+| geometric_transformations | completed | |
 | geometry | | |
 | gradients | | |
 | haar | | |
