@@ -87,6 +87,16 @@ pub fn run() {
         .expect("failed to save warp_into image");
     /*
     imageproc::geometric_transformations::warp_into_with
-    imageproc::geometric_transformations::warp_with
      */
+    let result = imageproc::geometric_transformations::warp_with(
+        &image_buffer,
+        |x, y| (x, y + (x / 30.0).sin() * 100.0),
+        interpolation,
+        default,
+    );
+    let result = image::DynamicImage::ImageRgba32F(result);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_warp_with.png")
+        .expect("failed to save warp_with image");
 }
