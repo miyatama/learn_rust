@@ -4,7 +4,11 @@ https://docs.rs/imageproc/0.25.0/imageproc/geometric_transformations/index.html
 use image::GenericImageView;
 
 pub fn run() {
+    // https://docs.rs/image/latest/image/fn.open.html
+    // ImageResult<DynamicImage>
     let img = image::open("lena.png").expect("failed to load image");
+    // https://docs.rs/image/latest/image/enum.DynamicImage.html#method.into_rgba32f
+    // Rgba32FImage
     let image_buffer = img.clone().into_rgba32f();
     let (width, height) = img.dimensions();
     let center_x = width as f32 * 0.5f32;
@@ -65,8 +69,23 @@ pub fn run() {
         .into_rgba8()
         .save("geometric_transformation_warp.png")
         .expect("failed to save warp image");
+
+    let edge_length = width.max(height) * 2;
+    // https://docs.rs/image/latest/image/type.Rgba32FImage.html#method.new
+    let mut out_image = image::Rgba32FImage::new(edge_length, edge_length);
+    imageproc::geometric_transformations::warp_into(
+        &image_buffer,
+        &projection,
+        interpolation,
+        default,
+        &mut out_image,
+    );
+    let result = image::DynamicImage::ImageRgba32F(out_image);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_warp_into.png")
+        .expect("failed to save warp_into image");
     /*
-    imageproc::geometric_transformations::warp_into
     imageproc::geometric_transformations::warp_into_with
     imageproc::geometric_transformations::warp_with
      */
