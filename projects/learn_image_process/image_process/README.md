@@ -21,10 +21,10 @@ Rustの画像処理学習用プロジェクト
 全モジュールのfunctionsを呼び出す
 
 | module | progress | description |
-| :----- | :----- | :----- |
-| binary_descriptors | in progress | |
-| contours | in progress | |
-| contrast | | |
+| :----- | :-----: | :----- |
+| binary_descriptors | stagnant | 使い方に勉強が必要 |
+| contours | stagnant | 輪郭抽出で謎エラー |
+| contrast | in progress | |
 | corners | | |
 | definitions | | |
 | distance_transform | | |
