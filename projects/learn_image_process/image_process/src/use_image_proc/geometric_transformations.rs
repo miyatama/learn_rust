@@ -85,9 +85,21 @@ pub fn run() {
         .into_rgba8()
         .save("geometric_transformation_warp_into.png")
         .expect("failed to save warp_into image");
-    /*
-    imageproc::geometric_transformations::warp_into_with
-     */
+
+    let mut out_image = image::Rgba32FImage::new(edge_length, edge_length);
+    imageproc::geometric_transformations::warp_into_with(
+        &image_buffer,
+        |x, y| (x - 200.0, y + (x / 30.0).sin() * 100.0 - 200.0),
+        interpolation,
+        default,
+        &mut out_image,
+    );
+    let result = image::DynamicImage::ImageRgba32F(out_image);
+    result
+        .into_rgba8()
+        .save("geometric_transformation_warp_into_with.png")
+        .expect("failed to save warp_into_with image");
+
     let result = imageproc::geometric_transformations::warp_with(
         &image_buffer,
         |x, y| (x, y + (x / 30.0).sin() * 100.0),
