@@ -26,8 +26,8 @@ Rustの画像処理学習用プロジェクト
 | contours | stagnant | 輪郭抽出で謎エラー |
 | contrast | completed | |
 | corners | completed | |
-| definitions | | |
-| distance_transform | | |
+| definitions | none | functions定義なし |
+| distance_transform | in progress | |
 | drawing | completed | |
 | edges | | |
 | filter | completed | |
