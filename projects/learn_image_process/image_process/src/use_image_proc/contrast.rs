@@ -24,17 +24,34 @@ fn adaptive_threshold() {
         .expect("failed to save adaptive_threshold image");
 }
 fn equalize_histogram() {
-    // imageproc::contrast::equalize_histogram();
+    log::debug!("contrast equalize_histogram");
+    // ImageResult<DynamicImage>
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+    let result = imageproc::contrast::equalize_histogram(&img_gray);
+    result
+        .save("./results/contrast_equalize_histogram.png")
+        .expect("failed to save equalize_histogram image");
 }
+
 fn equalize_histogram_mut() {
-    // imageproc::contrast::equalize_histogram_mut();
+    log::debug!("contrast equalize_histogram_mut");
+    // ImageResult<DynamicImage>
+    let img = image::open("lena.png").expect("failed to load image");
+    let mut img_gray = img.to_luma8();
+    imageproc::contrast::equalize_histogram_mut(&mut img_gray);
+    img_gray
+        .save("./results/contrast_equalize_histogram_mut.png")
+        .expect("failed to save equalize_histogram_mut image");
 }
+
 fn match_histogram() {
     // imageproc::contrast::match_histogram();
 }
 fn match_histogram_mut() {
     // imageproc::contrast::match_histogram_mut();
 }
+
 fn otsu_level() {
     // imageproc::contrast::otsu_level();
 }
