@@ -123,12 +123,65 @@ fn convex_hull() {
         (end.x as f32, end.y as f32),
         green,
     );
-    img.save("./results/geometry_convex_hull.png")
-        .unwrap();
+    img.save("./results/geometry_convex_hull.png").unwrap();
 }
 
 fn min_area_rect() {
     log::debug!("geometry min_area_rect");
+    let curve = star_points()
+        .iter()
+        .map(|point| imageproc::point::Point {
+            x: point.x as u32,
+            y: point.y as u32,
+        })
+        .collect::<Vec<_>>();
+    let result = imageproc::geometry::min_area_rect(&curve);
+    let (width, height) = (100, 100);
+    let mut img = image::RgbaImage::new(width, height);
+    let red = image::Rgba([255u8, 0u8, 0u8, 255u8]);
+    let green = image::Rgba([0u8, 255u8, 0u8, 255u8]);
+    let mut current_point: Option<imageproc::point::Point<u32>> = None;
+    curve.iter().for_each(|point| {
+        if let Some(prev) = current_point {
+            imageproc::drawing::draw_line_segment_mut(
+                &mut img,
+                (prev.x as f32, prev.y as f32),
+                (point.x as f32, point.y as f32),
+                red,
+            );
+        }
+        current_point = Some(point.clone());
+    });
+    let start = curve[0].clone();
+    let end = curve.iter().last().clone().unwrap();
+    imageproc::drawing::draw_line_segment_mut(
+        &mut img,
+        (start.x as f32, start.y as f32),
+        (end.x as f32, end.y as f32),
+        red,
+    );
+
+    let mut current_point: Option<imageproc::point::Point<u32>> = None;
+    result.iter().for_each(|point| {
+        if let Some(prev) = current_point {
+            imageproc::drawing::draw_line_segment_mut(
+                &mut img,
+                (prev.x as f32, prev.y as f32),
+                (point.x as f32, point.y as f32),
+                green,
+            );
+        }
+        current_point = Some(point.clone());
+    });
+    let start = result[0].clone();
+    let end = result.iter().last().clone().unwrap();
+    imageproc::drawing::draw_line_segment_mut(
+        &mut img,
+        (start.x as f32, start.y as f32),
+        (end.x as f32, end.y as f32),
+        green,
+    );
+    img.save("./results/geometry_min_area_rect.png").unwrap();
 }
 
 fn oriented_contour_area() {
