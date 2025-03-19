@@ -24,7 +24,7 @@ Rustの画像処理学習用プロジェクト
 | :----- | :-----: | :----- |
 | binary_descriptors | stagnant | 使い方に勉強が必要 |
 | contours | stagnant | 輪郭抽出で謎エラー |
-| contrast | in progress | |
+| contrast | completed | |
 | corners | | |
 | definitions | | |
 | distance_transform | | |
