@@ -59,7 +59,6 @@ fn match_histogram() {
 }
 
 fn match_histogram_mut() {
-    // imageproc::contrast::match_histogram_mut();
     log::debug!("contrast match_histogram_mut");
     // ImageResult<DynamicImage>
     let img = image::open("lena.png").expect("failed to load image");
@@ -73,7 +72,11 @@ fn match_histogram_mut() {
 }
 
 fn otsu_level() {
-    // imageproc::contrast::otsu_level();
+    log::debug!("contrast otsu_level");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+    let result = imageproc::contrast::otsu_level(&img_gray);
+    log::info!("Otsu threshold level: {}", result);
 }
 fn stretch_contrast() {
     // imageproc::contrast::stretch_contrast();
