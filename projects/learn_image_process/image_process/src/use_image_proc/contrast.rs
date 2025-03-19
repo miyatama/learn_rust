@@ -78,12 +78,29 @@ fn otsu_level() {
     let result = imageproc::contrast::otsu_level(&img_gray);
     log::info!("Otsu threshold level: {}", result);
 }
+
 fn stretch_contrast() {
-    // imageproc::contrast::stretch_contrast();
+    log::debug!("contrast stretch_contrast");
+    // ImageResult<DynamicImage>
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+    let result = imageproc::contrast::stretch_contrast(&img_gray, 20u8, 100u8, 0u8, 255u8);
+    result
+        .save("./results/contrast_stretch_contrast.png")
+        .expect("failed to save stretch_contrast image");
 }
+
 fn stretch_contrast_mut() {
-    // imageproc::contrast::stretch_contrast_mut();
+    log::debug!("contrast stretch_contrast_mut");
+    // ImageResult<DynamicImage>
+    let img = image::open("lena.png").expect("failed to load image");
+    let mut img_gray = img.to_luma8();
+    imageproc::contrast::stretch_contrast_mut(&mut img_gray, 20u8, 100u8, 0u8, 255u8);
+    img_gray
+        .save("./results/contrast_stretch_contrast_mut.png")
+        .expect("failed to save stretch_contrast_mut image");
 }
+
 fn threshold() {
     // imageproc::contrast::threshold();
 }
