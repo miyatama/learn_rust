@@ -102,8 +102,30 @@ fn stretch_contrast_mut() {
 }
 
 fn threshold() {
-    // imageproc::contrast::threshold();
+    log::debug!("contrast threshold");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+    let result = imageproc::contrast::threshold(
+        &img_gray,
+        100u8,
+        imageproc::contrast::ThresholdType::Binary,
+    );
+    result
+        .save("./results/contrast_threshold.png")
+        .expect("failed to save threshold image");
 }
+
 fn threshold_mut() {
     // imageproc::contrast::threshold_mut();
+    log::debug!("contrast threshold_mut");
+    let img = image::open("lena.png").expect("failed to load image");
+    let mut img_gray = img.to_luma8();
+    imageproc::contrast::threshold_mut(
+        &mut img_gray,
+        100u8,
+        imageproc::contrast::ThresholdType::Binary,
+    );
+    img_gray
+        .save("./results/contrast_threshold_mut.png")
+        .expect("failed to save threshold_mut image");
 }
