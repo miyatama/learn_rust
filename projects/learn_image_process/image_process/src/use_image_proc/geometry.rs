@@ -10,24 +10,7 @@ pub fn run() {
 fn approximate_polygon_dp() {
     log::debug!("geometry approximate_polygon_dp");
     // https://docs.rs/imageproc/0.25.0/imageproc/point/struct.Point.html
-    let curve = vec![
-        (46, 16),
-        (39, 29),
-        (23, 30),
-        (33, 45),
-        (25, 67),
-        (47, 54),
-        (67, 64),
-        (58, 44),
-        (70, 32),
-        (51, 32),
-    ]
-    .iter()
-    .map(|point| imageproc::point::Point {
-        x: point.0 as f32,
-        y: point.1 as f32,
-    })
-    .collect::<Vec<_>>();
+    let curve = star_points();
     let epsilon = 13f64;
     let closed = true;
     let result = imageproc::geometry::approximate_polygon_dp(&curve, epsilon, closed);
@@ -73,6 +56,9 @@ fn approximate_polygon_dp() {
 
 fn arc_length() {
     log::debug!("geometry arc_length");
+    let curve = star_points();
+    let result = imageproc::geometry::arc_length(&curve, true);
+    log::info!("arc_length result: {}", result);
 }
 
 fn contour_area() {
@@ -89,4 +75,25 @@ fn min_area_rect() {
 
 fn oriented_contour_area() {
     log::debug!("geometry oriented_contour_area");
+}
+
+fn star_points() -> Vec<imageproc::point::Point<f32>> {
+    vec![
+        (46, 16),
+        (39, 29),
+        (23, 30),
+        (33, 45),
+        (25, 67),
+        (47, 54),
+        (67, 64),
+        (58, 44),
+        (70, 32),
+        (51, 32),
+    ]
+    .iter()
+    .map(|point| imageproc::point::Point {
+        x: point.0 as f32,
+        y: point.1 as f32,
+    })
+    .collect::<Vec<_>>()
 }
