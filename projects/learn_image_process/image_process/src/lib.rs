@@ -9,6 +9,7 @@ use self::use_image_proc::contrast::run as image_proc_contrast_run;
 use self::use_image_proc::corners::run as image_proc_corners_run;
 use self::use_image_proc::distance_transform::run as imageproc_distance_transform_run;
 use self::use_image_proc::drawing::run as image_proc_drawing_run;
+use self::use_image_proc::edges::run as image_proc_edges_run;
 use self::use_image_proc::filter::run as image_proc_filter_run;
 use self::use_image_proc::geometric_transformations::run as image_proc_geometric_transformations_run;
 use log::debug;
@@ -64,4 +65,5 @@ pub fn run() {
     image_proc_contrast_run();
     image_proc_corners_run();
     imageproc_distance_transform_run();
+    image_proc_edges_run();
 }

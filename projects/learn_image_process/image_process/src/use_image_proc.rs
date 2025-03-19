@@ -4,5 +4,6 @@ pub mod contrast;
 pub mod corners;
 pub mod distance_transform;
 pub mod drawing;
+pub mod edges;
 pub mod filter;
 pub mod geometric_transformations;
