@@ -20,7 +20,7 @@ fn adaptive_threshold() {
     // https://docs.rs/image/0.25.0/image/type.GrayImage.html
     let result = imageproc::contrast::adaptive_threshold(&img_gray, block_radius);
     result
-        .save("contrast_adaptive_threshold.png")
+        .save("./results/contrast_adaptive_threshold.png")
         .expect("failed to save adaptive_threshold image");
 }
 fn equalize_histogram() {

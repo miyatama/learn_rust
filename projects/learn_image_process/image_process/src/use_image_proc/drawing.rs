@@ -10,7 +10,7 @@ pub fn run() {
     let red = image::Rgba([255u8, 0u8, 0u8, 255u8]);
     let img = imageproc::drawing::draw_line_segment(&img, (10.0, 10.0), (100.0, 10.0), red);
 
-    img.save("drawing_result.png")
+    img.save("./results/drawing_result.png")
         .expect("failed to save drawing image");
 
     mut_func();
@@ -229,5 +229,5 @@ fn mut_func() {
         red,
     );
 
-    image.save("drawing_mut_result.png").unwrap();
+    image.save("./results/drawing_mut_result.png").unwrap();
 }

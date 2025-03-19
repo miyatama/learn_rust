@@ -27,7 +27,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(result);
     result
         .into_rgba8()
-        .save("geometric_transformation_rotate.png")
+        .save("./results/geometric_transformation_rotate.png")
         .expect("failed to save geometric_transformation_rotate image");
 
     let result = imageproc::geometric_transformations::rotate_about_center(
@@ -39,7 +39,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(result);
     result
         .into_rgba8()
-        .save("geometric_transformation_rotate_about_center.png")
+        .save("./results/geometric_transformation_rotate_about_center.png")
         .expect("failed to save rotate_about_center image");
 
     let result = imageproc::geometric_transformations::translate(
@@ -49,7 +49,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(result);
     result
         .into_rgba8()
-        .save("geometric_transformation_translate.png")
+        .save("./results/geometric_transformation_translate.png")
         .expect("failed to save translate image");
 
     // https://docs.rs/imageproc/0.25.0/imageproc/geometric_transformations/struct.Projection.html
@@ -67,7 +67,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(result);
     result
         .into_rgba8()
-        .save("geometric_transformation_warp.png")
+        .save("./results/geometric_transformation_warp.png")
         .expect("failed to save warp image");
 
     let edge_length = width.max(height) * 2;
@@ -83,7 +83,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(out_image);
     result
         .into_rgba8()
-        .save("geometric_transformation_warp_into.png")
+        .save("./results/geometric_transformation_warp_into.png")
         .expect("failed to save warp_into image");
 
     let mut out_image = image::Rgba32FImage::new(edge_length, edge_length);
@@ -97,7 +97,7 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(out_image);
     result
         .into_rgba8()
-        .save("geometric_transformation_warp_into_with.png")
+        .save("./results/geometric_transformation_warp_into_with.png")
         .expect("failed to save warp_into_with image");
 
     let result = imageproc::geometric_transformations::warp_with(
@@ -109,6 +109,6 @@ pub fn run() {
     let result = image::DynamicImage::ImageRgba32F(result);
     result
         .into_rgba8()
-        .save("geometric_transformation_warp_with.png")
+        .save("./results/geometric_transformation_warp_with.png")
         .expect("failed to save warp_with image");
 }

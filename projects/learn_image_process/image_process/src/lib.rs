@@ -17,7 +17,7 @@ pub fn run() {
     let img = image::open("example.jpg").expect("failed to load image");
     let blur_img = blur_apply(img);
     blur_img
-        .save("blur.png")
+        .save("./results/self_blur.png")
         .expect("failed to save blur image");
     debug!("end blur_apply");
 
@@ -35,7 +35,7 @@ pub fn run() {
     let rotate_img = rotate_apply(img, 45i32);
     match rotate_img.unwrap() {
         Ok(img) => {
-            img.save("rotate_img.png")
+            img.save("./results/self_rotate_img.png")
                 .expect("failed to save rotate image");
         }
         _ => {
@@ -48,7 +48,7 @@ pub fn run() {
     let scaled_img = scale_apply(img, 1.5f64);
     match scaled_img.unwrap() {
         Ok(img) => {
-            img.save("scaled_img.png")
+            img.save("./results/self_scaled_img.png")
                 .expect("failed to save scaled image");
         }
         _ => {

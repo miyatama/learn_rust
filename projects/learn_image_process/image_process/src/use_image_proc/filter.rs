@@ -17,12 +17,12 @@ pub fn run() {
         get_type_name(img_result.clone())
     );
     img_result
-        .save("filter_bilateral_filter.png")
+        .save("./results/filter_bilateral_filter.png")
         .expect("failed to save bilateral_filter image");
 
     let img_result = imageproc::filter::box_filter(&img_gray, 10, 10);
     img_result
-        .save("filter_box_filter.png")
+        .save("./results/filter_box_filter.png")
         .expect("failed to save box_filter image");
 
     let kernel = [
@@ -43,21 +43,21 @@ pub fn run() {
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("filter_filter3x3.png")
+        .save("./results/filter_filter3x3.png")
         .expect("failed to save filter3x3 image");
 
     let filter_result = imageproc::filter::gaussian_blur_f32(&image_buffer, 10.5f32);
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("filter_gaussian_blur_f32.png")
+        .save("./results/filter_gaussian_blur_f32.png")
         .expect("failed to save gaussian_blur_f32 image");
 
     let filter_result = imageproc::filter::horizontal_filter(&image_buffer, &kernel);
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("filter_horizontal_filter.png")
+        .save("./results/filter_horizontal_filter.png")
         .expect("failed to save horizontal_filter image");
 
     // pub fn laplacian_filter(image: &GrayImage) -> Image<Luma<i16>>
@@ -102,13 +102,13 @@ pub fn run() {
         .collect::<Vec<u8>>();
     image::GrayImage::from_raw(width, height, pixels)
         .unwrap()
-        .save("filter_laplacian_filter.png")
+        .save("./results/filter_laplacian_filter.png")
         .expect("failed to save laplacian_filter image");
 
     let image_buffer = img.clone().into_rgb8();
     let filter_result = imageproc::filter::median_filter(&image_buffer, 3u32, 3u32);
     filter_result
-        .save("filter_median_filter.png")
+        .save("./results/filter_median_filter.png")
         .expect("failed to save median_filter image");
 
     let h_kernel = [1.0f32 / 4.0f32, 2.0f32 / 4.0f32, 1.0f32 / 4.0f32];
@@ -122,7 +122,7 @@ pub fn run() {
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("separable_filter.png")
+        .save("./results/filter_separable_filter.png")
         .expect("failed to save separable_filter image");
 
     let kernel = [
@@ -142,17 +142,17 @@ pub fn run() {
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("filter_separable_filter_equal.png")
+        .save("./results/filter_separable_filter_equal.png")
         .expect("failed to save separable_filter_equal image");
 
     let filter_result = imageproc::filter::sharpen3x3(&img_gray);
     filter_result
-        .save("filter_sharpen3x3.png")
+        .save("./results/filter_sharpen3x3.png")
         .expect("failed to save sharpen3x3 image");
 
     let filter_result = imageproc::filter::sharpen_gaussian(&img_gray, 5f32, 12f32);
     filter_result
-        .save("filter_sharpen_gaussian.png")
+        .save("./results/filter_sharpen_gaussian.png")
         .expect("failed to save sharpen_gaussian image");
 
     let kernel = [
@@ -168,7 +168,7 @@ pub fn run() {
     let filter_result = image::DynamicImage::ImageRgb32F(filter_result);
     filter_result
         .into_rgb8()
-        .save("filter_vertical_filter.png")
+        .save("./results/filter_vertical_filter.png")
         .expect("failed to save vertical_filter image");
 }
 
