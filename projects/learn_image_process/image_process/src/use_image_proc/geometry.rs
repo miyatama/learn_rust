@@ -63,6 +63,9 @@ fn arc_length() {
 
 fn contour_area() {
     log::debug!("geometry contour_area");
+    let curve = star_points();
+    let result = imageproc::geometry::contour_area(&curve);
+    log::info!("contour_area result: {}", result);
 }
 
 fn convex_hull() {
