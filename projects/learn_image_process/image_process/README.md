@@ -29,7 +29,7 @@ Rustの画像処理学習用プロジェクト
 | definitions | none | functions定義なし |
 | distance_transform | completed | |
 | drawing | completed | |
-| edges | in progress | |
+| edges | completed | functionsはcannyのみ |
 | filter | completed | |
 | geometric_transformations | completed | |
 | geometry | | |
