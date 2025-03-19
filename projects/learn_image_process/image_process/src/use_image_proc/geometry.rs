@@ -186,6 +186,9 @@ fn min_area_rect() {
 
 fn oriented_contour_area() {
     log::debug!("geometry oriented_contour_area");
+    let curve = star_points();
+    let result = imageproc::geometry::oriented_contour_area(&curve);
+    log::info!("oriented_contour_area result: {}", result);
 }
 
 fn star_points() -> Vec<imageproc::point::Point<f32>> {
