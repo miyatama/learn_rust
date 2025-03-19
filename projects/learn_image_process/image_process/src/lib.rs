@@ -13,6 +13,7 @@ use self::use_image_proc::edges::run as image_proc_edges_run;
 use self::use_image_proc::filter::run as image_proc_filter_run;
 use self::use_image_proc::geometric_transformations::run as image_proc_geometric_transformations_run;
 use self::use_image_proc::geometry::run as image_proc_geometry_run;
+use self::use_image_proc::gradients::run as image_proc_gradients_run;
 
 use log::debug;
 
@@ -69,4 +70,5 @@ pub fn run() {
     imageproc_distance_transform_run();
     image_proc_edges_run();
     image_proc_geometry_run();
+    image_proc_gradients_run();
 }

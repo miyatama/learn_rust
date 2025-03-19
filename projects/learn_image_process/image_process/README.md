@@ -32,8 +32,8 @@ Rustの画像処理学習用プロジェクト
 | edges | completed | functionsはcannyのみ |
 | filter | completed | |
 | geometric_transformations | completed | |
-| geometry | in-progress | |
-| gradients | | |
+| geometry | completed | |
+| gradients | in progress | |
 | haar | | |
 | hog | | |
 | hough | | |
