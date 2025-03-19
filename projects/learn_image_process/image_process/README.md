@@ -27,7 +27,7 @@ Rustの画像処理学習用プロジェクト
 | contrast | completed | |
 | corners | completed | |
 | definitions | none | functions定義なし |
-| distance_transform | in progress | |
+| distance_transform | completed | |
 | drawing | completed | |
 | edges | | |
 | filter | completed | |
