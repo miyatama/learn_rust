@@ -7,3 +7,4 @@ pub mod drawing;
 pub mod edges;
 pub mod filter;
 pub mod geometric_transformations;
+pub mod geometry;

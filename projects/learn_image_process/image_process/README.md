@@ -32,7 +32,7 @@ Rustの画像処理学習用プロジェクト
 | edges | completed | functionsはcannyのみ |
 | filter | completed | |
 | geometric_transformations | completed | |
-| geometry | | |
+| geometry | in-progress | |
 | gradients | | |
 | haar | | |
 | hog | | |
