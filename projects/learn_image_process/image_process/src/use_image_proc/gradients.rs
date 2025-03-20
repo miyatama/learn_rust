@@ -16,7 +16,7 @@ fn horizontal_prewitt() {
     let img_gray = img.to_luma8();
 
     let result = imageproc::gradients::horizontal_prewitt(&img_gray);
-    let result = parse_lumai16_to_lumau8(&result);
+    let result = parse_to_lumau8(&result);
     result
         .save("./results/gradients_horizontal_prewitt.png")
         .unwrap();
@@ -28,7 +28,7 @@ fn horizontal_scharr() {
     let img_gray = img.to_luma8();
 
     let result = imageproc::gradients::horizontal_scharr(&img_gray);
-    let result = parse_lumai16_to_lumau8(&result);
+    let result = parse_to_lumau8(&result);
     result
         .save("./results/gradients_horizontal_scharr.png")
         .unwrap();
@@ -40,7 +40,7 @@ fn horizontal_sobel() {
     let img_gray = img.to_luma8();
 
     let result = imageproc::gradients::horizontal_sobel(&img_gray);
-    let result = parse_lumai16_to_lumau8(&result);
+    let result = parse_to_lumau8(&result);
     result
         .save("./results/gradients_horizontal_sobel.png")
         .unwrap();
@@ -48,6 +48,14 @@ fn horizontal_sobel() {
 
 fn prewitt_gradients() {
     log::debug!("gradients prewitt_gradients");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::prewitt_gradients(&img_gray);
+    let result = parse_to_lumau8(&result);
+    result
+        .save("./results/gradients_prewitt_gradients.png")
+        .unwrap();
 }
 
 fn sobel_gradient_map() {
@@ -70,14 +78,15 @@ fn vertical_sobel() {
     log::debug!("gradients vertical_sobel");
 }
 
-fn parse_lumai16_to_lumau8(
-    img: &imageproc::definitions::Image<image::Luma<i16>>,
+fn parse_to_lumau8<P: num_traits::Num + image::Primitive + Into<f32>>(
+    img: &imageproc::definitions::Image<image::Luma<P>>,
 ) -> imageproc::definitions::Image<image::Luma<u8>> {
+    let parse_to_f32 = |value: P| -> f32 { value.into() };
     let (width, height) = img.dimensions();
     let pixels = img
         .pixels()
         .into_iter()
-        .map(|pixel| pixel.0[0] as f32)
+        .map(|pixel| parse_to_f32(pixel.0[0]))
         .collect::<Vec<f32>>();
     let min_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
     let max_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.max(m));
