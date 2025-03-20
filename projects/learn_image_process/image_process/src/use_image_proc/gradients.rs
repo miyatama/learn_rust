@@ -36,6 +36,14 @@ fn horizontal_scharr() {
 
 fn horizontal_sobel() {
     log::debug!("gradients horizontal_sobel");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::horizontal_sobel(&img_gray);
+    let result = parse_lumai16_to_lumau8(&result);
+    result
+        .save("./results/gradients_horizontal_sobel.png")
+        .unwrap();
 }
 
 fn prewitt_gradients() {
