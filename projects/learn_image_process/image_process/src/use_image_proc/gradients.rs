@@ -96,6 +96,14 @@ fn sobel_gradient_map() {
 
 fn sobel_gradients() {
     log::debug!("gradients sobel_gradients");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::sobel_gradients(&img_gray);
+    let result = parse_to_lumau8(&result);
+    result
+        .save("./results/gradients_sobel_gradients.png")
+        .unwrap();
 }
 
 fn vertical_prewitt() {
