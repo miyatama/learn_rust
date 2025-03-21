@@ -1,6 +1,6 @@
 use std::u8;
 
-use image::{GenericImageView};
+use image::GenericImageView;
 
 pub fn run() {
     horizontal_prewitt();
@@ -108,14 +108,38 @@ fn sobel_gradients() {
 
 fn vertical_prewitt() {
     log::debug!("gradients vertical_prewitt");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::vertical_prewitt(&img_gray);
+    let result = parse_to_lumau8(&result);
+    result
+        .save("./results/gradients_vertical_prewitt.png")
+        .unwrap();
 }
 
 fn vertical_scharr() {
     log::debug!("gradients vertical_scharr");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::vertical_scharr(&img_gray);
+    let result = parse_to_lumau8(&result);
+    result
+        .save("./results/gradients_vertical_scharr.png")
+        .unwrap();
 }
 
 fn vertical_sobel() {
     log::debug!("gradients vertical_sobel");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.to_luma8();
+
+    let result = imageproc::gradients::vertical_sobel(&img_gray);
+    let result = parse_to_lumau8(&result);
+    result
+        .save("./results/gradients_vertical_sobel.png")
+        .unwrap();
 }
 
 fn parse_to_lumau8<P: num_traits::Num + image::Primitive + Into<f32>>(
