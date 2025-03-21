@@ -1,3 +1,7 @@
+use std::u8;
+
+use image::{GenericImageView};
+
 pub fn run() {
     horizontal_prewitt();
     horizontal_scharr();
@@ -60,6 +64,34 @@ fn prewitt_gradients() {
 
 fn sobel_gradient_map() {
     log::debug!("gradients sobel_gradient_map");
+    let img = image::open("lena.png").expect("failed to load image");
+    let (width, height) = img.dimensions();
+    let img = img.to_rgb8();
+    let result = imageproc::gradients::sobel_gradient_map(&img, |rgb| rgb);
+    let max_value = result
+        .clone()
+        .pixels()
+        .into_iter()
+        .map(|pixel| pixel.0)
+        .flatten()
+        .max()
+        .unwrap() as f32;
+    let rgbs = result
+        .clone()
+        .pixels()
+        .into_iter()
+        .map(|pixel| {
+            let r = (pixel.0[0] as f32 / max_value * u8::MAX as f32) as u8;
+            let g = (pixel.0[1] as f32 / max_value * u8::MAX as f32) as u8;
+            let b = (pixel.0[2] as f32 / max_value * u8::MAX as f32) as u8;
+            [r, g, b]
+        })
+        .flatten()
+        .collect::<Vec<u8>>();
+    image::RgbImage::from_raw(width, height, rgbs)
+        .unwrap()
+        .save("./results/gradients_sobel_gradient_map.png")
+        .unwrap();
 }
 
 fn sobel_gradients() {
