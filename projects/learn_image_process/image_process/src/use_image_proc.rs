@@ -9,3 +9,4 @@ pub mod filter;
 pub mod geometric_transformations;
 pub mod geometry;
 pub mod gradients;
+pub mod haar;

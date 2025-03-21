@@ -14,7 +14,7 @@ use self::use_image_proc::filter::run as image_proc_filter_run;
 use self::use_image_proc::geometric_transformations::run as image_proc_geometric_transformations_run;
 use self::use_image_proc::geometry::run as image_proc_geometry_run;
 use self::use_image_proc::gradients::run as image_proc_gradients_run;
-
+use self::use_image_proc::haar::run as image_proc_haar_run;
 use log::debug;
 
 pub fn run() {
@@ -71,4 +71,5 @@ pub fn run() {
     image_proc_edges_run();
     image_proc_geometry_run();
     image_proc_gradients_run();
+    image_proc_haar_run();
 }
