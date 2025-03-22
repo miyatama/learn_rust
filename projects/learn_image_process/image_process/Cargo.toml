@@ -11,3 +11,4 @@ image = "0.25.5"
 log = {version = "0.4.22", features = ["std", "serde"]}
 anyhow = "1.0.96"
 num-traits = "0.2.19"
+num-sign = "0.1.2"
