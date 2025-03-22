@@ -44,6 +44,7 @@ pub fn run() {
     features[0..10].iter().for_each(|feature| {
         imageproc::haar::draw_haar_feature_mut(&mut gray_image, *feature);
     });
-    gray_image.save("./results/haar_draw_haar_feature_mut.png")
+    gray_image
+        .save("./results/haar_draw_haar_feature_mut.png")
         .unwrap();
 }

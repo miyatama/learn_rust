@@ -34,8 +34,8 @@ Rustの画像処理学習用プロジェクト
 | geometric_transformations | completed | |
 | geometry | completed | |
 | gradients | completed | |
-| haar | in-progress | |
-| hog | | |
+| haar | completed | |
+| hog | in-progress | |
 | hough | | |
 | integral_image | | |
 | local_binary_patterns | | |
