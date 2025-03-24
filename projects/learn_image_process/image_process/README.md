@@ -38,7 +38,7 @@ Rustの画像処理学習用プロジェクト
 | hog | completed | 諸々謎 |
 | hough | completed | |
 | integral_image | completed | 諸々謎 |
-| local_binary_patterns | in progress | |
+| local_binary_patterns | completed | |
 | map | | |
 | math | | |
 | morphology | | |
