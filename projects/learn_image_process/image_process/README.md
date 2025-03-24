@@ -36,8 +36,8 @@ Rustの画像処理学習用プロジェクト
 | gradients | completed | |
 | haar | completed | |
 | hog | completed | 諸々謎 |
-| hough | in-progress | |
-| integral_image | | |
+| hough | completed | |
+| integral_image | in-progress | |
 | local_binary_patterns | | |
 | map | | |
 | math | | |

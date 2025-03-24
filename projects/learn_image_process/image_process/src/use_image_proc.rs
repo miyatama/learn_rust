@@ -12,3 +12,4 @@ pub mod gradients;
 pub mod haar;
 pub mod hog;
 pub mod hough;
+pub mod integral_image;
