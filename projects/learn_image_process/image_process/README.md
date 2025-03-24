@@ -39,8 +39,8 @@ Rustの画像処理学習用プロジェクト
 | hough | completed | |
 | integral_image | completed | 諸々謎 |
 | local_binary_patterns | completed | |
-| map | in progress | |
-| math | | |
+| map | completed | |
+| math | in progress | |
 | morphology | | |
 | noise | | |
 | pixelops | | |
