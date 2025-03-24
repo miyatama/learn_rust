@@ -36,6 +36,12 @@ fn integral_image() {
 
 fn integral_squared_image() {
     log::debug!("integral_image integral_squared_image");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.clone().to_luma8();
+    let result = imageproc::integral_image::integral_squared_image::<_, u32>(&img_gray);
+    parse_to_lumau8(&result)
+        .save("./results/integral_image_integral_squared_image.png")
+        .unwrap();
 }
 
 fn row_running_sum() {
