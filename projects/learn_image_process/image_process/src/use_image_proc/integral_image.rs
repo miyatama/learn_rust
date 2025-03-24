@@ -55,15 +55,41 @@ fn row_running_sum() {
     let row = height - padding;
 
     imageproc::integral_image::row_running_sum(&img_gray, row, &mut buffer, padding);
-    log::info!("column_running_sum result: {:?}", buffer);
+    log::info!("row_running_sum result: {:?}", buffer);
 }
 
 fn sum_image_pixels() {
     log::debug!("integral_image sum_image_pixels");
+    let img = image::open("lena.png").expect("failed to load image");
+    let image_buffer = img.to_rgb8();
+    let (width, height) = image_buffer.dimensions();
+    let result = imageproc::integral_image::sum_image_pixels(
+        &image_buffer,
+        0u32,
+        0u32,
+        width - 2,
+        height - 2,
+    );
+    log::info!("sum_image_pixels result: {:?}", result);
 }
 
 fn variance() {
     log::debug!("integral_image variance");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.clone().to_luma8();
+    let (width, height) = img_gray.dimensions();
+    let integral_image = imageproc::integral_image::integral_image::<_, u32>(&img_gray);
+    let integral_squared_image =
+        imageproc::integral_image::integral_squared_image::<_, u32>(&img_gray);
+    let result = imageproc::integral_image::variance(
+        &integral_image,
+        &integral_squared_image,
+        0u32,
+        0u32,
+        width - 2,
+        height - 2,
+    );
+    log::info!("variance result: {:?}", result);
 }
 
 fn parse_to_lumau8<P: num_traits::Num + image::Primitive + Into<f64>>(
