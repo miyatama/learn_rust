@@ -18,6 +18,7 @@ use self::use_image_proc::haar::run as image_proc_haar_run;
 use self::use_image_proc::hog::run as image_proc_hog_run;
 use self::use_image_proc::hough::run as image_proc_hough_run;
 use self::use_image_proc::integral_image::run as image_proc_integral_image_run;
+use self::use_image_proc::local_binary_patterns::run as image_proc_local_binary_patterns_run;
 
 use log::debug;
 
@@ -79,4 +80,5 @@ pub fn run() {
     image_proc_hog_run();
     image_proc_hough_run();
     image_proc_integral_image_run();
+    image_proc_local_binary_patterns_run();
 }
