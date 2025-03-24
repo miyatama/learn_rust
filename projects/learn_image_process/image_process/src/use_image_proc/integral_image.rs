@@ -46,6 +46,16 @@ fn integral_squared_image() {
 
 fn row_running_sum() {
     log::debug!("integral_image row_running_sum");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.clone().to_luma8();
+    let (width, height) = img_gray.dimensions();
+    let padding = 1 as u32;
+    // let mut buffer = [0; height + 2]; <- non const value
+    let mut buffer = vec![0; width as usize + 2usize];
+    let row = height - padding;
+
+    imageproc::integral_image::row_running_sum(&img_gray, row, &mut buffer, padding);
+    log::info!("column_running_sum result: {:?}", buffer);
 }
 
 fn sum_image_pixels() {
