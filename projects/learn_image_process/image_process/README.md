@@ -40,8 +40,8 @@ Rustの画像処理学習用プロジェクト
 | integral_image | completed | 諸々謎 |
 | local_binary_patterns | completed | |
 | map | completed | |
-| math | in progress | |
-| morphology | | |
+| math | completed | |
+| morphology | in progress | |
 | noise | | |
 | pixelops | | |
 | point | | |

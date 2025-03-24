@@ -16,3 +16,4 @@ pub mod integral_image;
 pub mod local_binary_patterns;
 pub mod map;
 pub mod math;
+pub mod morphology;

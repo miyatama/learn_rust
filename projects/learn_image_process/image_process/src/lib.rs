@@ -21,6 +21,7 @@ use self::use_image_proc::integral_image::run as image_proc_integral_image_run;
 use self::use_image_proc::local_binary_patterns::run as image_proc_local_binary_patterns_run;
 use self::use_image_proc::map::run as image_proc_map_run;
 use self::use_image_proc::math::run as image_proc_math_run;
+use self::use_image_proc::morphology::run as image_proc_morphology_run;
 
 use log::debug;
 
@@ -85,4 +86,5 @@ pub fn run() {
     image_proc_local_binary_patterns_run();
     image_proc_map_run();
     image_proc_math_run();
+    image_proc_morphology_run();
 }
