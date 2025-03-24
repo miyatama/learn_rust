@@ -26,6 +26,12 @@ fn column_running_sum() {
 
 fn integral_image() {
     log::debug!("integral_image integral_image");
+    let img = image::open("lena.png").expect("failed to load image");
+    let img_gray = img.clone().to_luma8();
+    let result = imageproc::integral_image::integral_image::<_, u32>(&img_gray);
+    parse_to_lumau8(&result)
+        .save("./results/integral_image_integral_image.png")
+        .unwrap();
 }
 
 fn integral_squared_image() {
@@ -42,4 +48,42 @@ fn sum_image_pixels() {
 
 fn variance() {
     log::debug!("integral_image variance");
+}
+
+fn parse_to_lumau8<P: num_traits::Num + image::Primitive + Into<f64>>(
+    img: &imageproc::definitions::Image<image::Luma<P>>,
+) -> imageproc::definitions::Image<image::Luma<u8>> {
+    let parse_to_f64 = |value: P| -> f64 { value.into() };
+    let (width, height) = img.dimensions();
+    let pixels = img
+        .pixels()
+        .into_iter()
+        .map(|pixel| parse_to_f64(pixel.0[0]))
+        .collect::<Vec<f64>>();
+    let min_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
+    let max_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.max(m));
+    let limit = min_value.abs().max(max_value.abs());
+    let pixels = pixels
+        .iter()
+        .map(|pixel| {
+            let pixel = *pixel;
+            let sign = if pixel < 0f64 { -1f64 } else { 1f64 };
+            let pixel = pixel * sign;
+            128f64 * (pixel / limit) * sign
+        })
+        .collect::<Vec<f64>>();
+    let correction_value = pixels.iter().fold(0.0 / 0.0, |m, v| v.min(m));
+    let correction_value = if correction_value < 0.0f64 {
+        correction_value.abs()
+    } else {
+        0f64
+    };
+    let pixels = pixels
+        .iter()
+        .map(|value| {
+            let value = *value;
+            (value + correction_value) as u8
+        })
+        .collect::<Vec<u8>>();
+    image::GrayImage::from_raw(width, height, pixels).unwrap()
 }
