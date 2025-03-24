@@ -75,5 +75,5 @@ pub fn run() {
     image_proc_gradients_run();
     image_proc_haar_run();
     image_proc_hog_run();
-image_proc_hough_run();
+    image_proc_hough_run();
 }
