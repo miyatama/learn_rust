@@ -55,9 +55,9 @@ Rustの画像処理学習用プロジェクト
 | union_find | | |
 | utils | | |
 
-## トラブルシューティング
+# トラブルシューティング
 
-### ImageBuffter作成時の型エラー
+## ImageBuffter作成時の型エラー
 
 ```rust
 let result_img = image::ImageBuffer::from_raw(width, height, result_pixels).unwrap();
@@ -75,7 +75,7 @@ from_rawの戻り値は`Option<ImageBuffer<P, Container>>`
 解決策: from_rawに`Vec<u8>`を指定する
 
 
-### マルチスレッド化のエラー
+## マルチスレッド化のエラー
 
 ```rust
    |
@@ -116,7 +116,7 @@ use rayon::prelude::*;
 
 pixel配列から生成するように変更(予定)
 
-### imageproc::filter::filter3x3
+## imageproc::filter::filter3x3
 
 [定義](https://docs.rs/imageproc/0.25.0/imageproc/filter/fn.filter3x3.html)
 
