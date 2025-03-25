@@ -17,3 +17,4 @@ pub mod local_binary_patterns;
 pub mod map;
 pub mod math;
 pub mod morphology;
+pub mod noise;
