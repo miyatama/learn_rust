@@ -41,7 +41,7 @@ Rustの画像処理学習用プロジェクト
 | local_binary_patterns | completed | |
 | map | completed | |
 | math | completed | |
-| morphology | in progress | |
+| morphology | completed  | |
 | noise | | |
 | pixelops | | |
 | point | | |
