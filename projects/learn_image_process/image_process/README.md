@@ -50,7 +50,7 @@ Rustの画像処理学習用プロジェクト
 | region_labelling | completed | |
 | seam_carving | completed | |
 | stats | completed | |
-| suppress | | |
+| suppress | completed | |
 | template_matching | | |
 | union_find | | |
 | utils | | |

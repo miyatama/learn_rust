@@ -27,6 +27,7 @@ use self::use_image_proc::pixelops::run as image_proc_pixelops_run;
 use self::use_image_proc::region_labelling::run as image_proc_region_labelling_run;
 use self::use_image_proc::seam_carving::run as image_proc_region_seam_carving_run;
 use self::use_image_proc::stats::run as image_proc_stats_run;
+use self::use_image_proc::suppress::run as image_proc_suppress_run;
 
 use log::debug;
 
@@ -97,4 +98,5 @@ pub fn run() {
     image_proc_region_labelling_run();
     image_proc_region_seam_carving_run();
     image_proc_stats_run();
+    image_proc_suppress_run();
 }
