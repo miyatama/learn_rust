@@ -18,3 +18,4 @@ pub mod map;
 pub mod math;
 pub mod morphology;
 pub mod noise;
+pub mod pixelops;
