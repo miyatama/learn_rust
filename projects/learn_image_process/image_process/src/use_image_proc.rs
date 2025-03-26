@@ -21,3 +21,4 @@ pub mod noise;
 pub mod pixelops;
 pub mod region_labelling;
 pub mod seam_carving;
+pub mod stats;
