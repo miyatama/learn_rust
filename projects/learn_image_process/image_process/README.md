@@ -42,7 +42,7 @@ Rustの画像処理学習用プロジェクト
 | map | completed | |
 | math | completed | |
 | morphology | completed  | |
-| noise | in progress | |
+| noise | completed | |
 | pixelops | | |
 | point | | |
 | property_testing | | |
