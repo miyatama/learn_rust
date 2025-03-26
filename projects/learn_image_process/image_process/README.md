@@ -44,10 +44,10 @@ Rustの画像処理学習用プロジェクト
 | morphology | completed  | |
 | noise | completed | |
 | pixelops | completed | |
-| point | | |
-| property_testing | | |
-| rect | | |
-| region_labelling | | |
+| point | none | functions定義なし |
+| property_testing | none | functions定義なし |
+| rect | none | functions定義なし |
+| region_labelling | in progress | |
 | seam_carving | | |
 | stats | | |
 | suppress | | |

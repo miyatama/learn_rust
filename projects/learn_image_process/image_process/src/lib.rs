@@ -24,6 +24,7 @@ use self::use_image_proc::math::run as image_proc_math_run;
 use self::use_image_proc::morphology::run as image_proc_morphology_run;
 use self::use_image_proc::noise::run as image_proc_noise_run;
 use self::use_image_proc::pixelops::run as image_proc_pixelops_run;
+use self::use_image_proc::region_labelling::run as image_proc_region_labelling_run;
 
 use log::debug;
 
@@ -91,4 +92,5 @@ pub fn run() {
     image_proc_morphology_run();
     image_proc_noise_run();
     image_proc_pixelops_run();
+    image_proc_region_labelling_run();
 }
