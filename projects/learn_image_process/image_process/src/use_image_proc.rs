@@ -20,3 +20,4 @@ pub mod morphology;
 pub mod noise;
 pub mod pixelops;
 pub mod region_labelling;
+pub mod seam_carving;

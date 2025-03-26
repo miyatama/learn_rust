@@ -47,8 +47,8 @@ Rustの画像処理学習用プロジェクト
 | point | none | functions定義なし |
 | property_testing | none | functions定義なし |
 | rect | none | functions定義なし |
-| region_labelling | in progress | |
-| seam_carving | | |
+| region_labelling | completed | |
+| seam_carving | in progress | |
 | stats | | |
 | suppress | | |
 | template_matching | | |
