@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+#[allow(dead_code)]
 pub fn apply(
     img: DynamicImage,
     scale: f64,

@@ -2,8 +2,8 @@ mod filter;
 mod use_image_proc;
 mod util;
 use self::filter::blur::apply as blur_apply;
-use self::filter::resize::apply as scale_apply;
-use self::filter::rotate::apply as rotate_apply;
+// use self::filter::resize::apply as scale_apply;
+// use self::filter::rotate::apply as rotate_apply;
 use self::use_image_proc::contours::run as image_proc_contours_run;
 use self::use_image_proc::contrast::run as image_proc_contrast_run;
 use self::use_image_proc::corners::run as image_proc_corners_run;
@@ -47,7 +47,6 @@ pub fn run() {
         .save("blur_multi.png")
         .expect("failed to save blur image");
     debug!("end blur_apply_multi");
-     */
 
     let img = image::open("example.jpg").expect("failed to load image");
     let rotate_img = rotate_apply(img, 45i32);
@@ -60,7 +59,6 @@ pub fn run() {
             log::error!("rotate process failed");
         }
     }
-    // TODO override
 
     let img = image::open("example.jpg").expect("failed to load image");
     let scaled_img = scale_apply(img, 1.5f64);
@@ -73,6 +71,8 @@ pub fn run() {
             log::error!("scale process failed");
         }
     }
+    */
+
     image_proc_drawing_run();
     image_proc_filter_run();
     image_proc_contours_run();

@@ -2,6 +2,7 @@ use crate::util::custom_error::CustomError;
 use image::{DynamicImage, GenericImageView, Rgba};
 use std::collections::HashMap;
 
+#[allow(dead_code)]
 pub fn apply(
     img: DynamicImage,
     degree: i32,
