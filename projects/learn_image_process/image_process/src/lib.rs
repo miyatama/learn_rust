@@ -29,7 +29,7 @@ use self::use_image_proc::seam_carving::run as image_proc_region_seam_carving_ru
 use self::use_image_proc::stats::run as image_proc_stats_run;
 use self::use_image_proc::suppress::run as image_proc_suppress_run;
 use self::use_image_proc::template_matching::run as image_proc_template_matching_run;
-
+use self::use_image_proc::utils::run as image_proc_utils_run;
 use log::debug;
 
 pub fn run() {
@@ -101,4 +101,5 @@ pub fn run() {
     image_proc_stats_run();
     image_proc_suppress_run();
     image_proc_template_matching_run();
+    image_proc_utils_run();
 }

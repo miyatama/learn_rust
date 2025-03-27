@@ -4,7 +4,7 @@ pub fn run() {
     match_template();
     match_template_parallel();
     match_template_with_mask();
-match_template_with_mask_parallel();
+    match_template_with_mask_parallel();
 }
 
 fn find_extremes() {
