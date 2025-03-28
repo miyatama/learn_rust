@@ -15,9 +15,9 @@ Rustの画像処理学習用プロジェクト
 ## will
 
 + [ ] [imageproc](https://docs.rs/imageproc/0.25.0/imageproc/index.html)を使いこなす
-  + binary_descriptors 使い方が謎
-  + contours のエラー対応
-  + template_matching の結果が謎
+  + [ ] binary_descriptors 使い方が謎
+  + [x] contours のエラー対応
+  + [ ] template_matching の結果が謎
 
 # imageproc
 
@@ -219,6 +219,27 @@ Clamp -> f32
         .expect("failed to save filter3x3 image");
 ```
 
+## imageprocの挙動確認
+
+`cargo test`たたいたらエラー
+
+```text
+$ cargo test
+   Compiling imageproc v0.26.0 (C:\work\001_rust\imageproc)
+error[E0554]: `#![feature]` may not be used on the stable release channel
+ --> src\lib.rs:3:19
+  |
+3 | #![cfg_attr(test, feature(test))]
+  |                   ^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0554`.
+error: could not compile `imageproc` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+
+```
+
++ [error[E0554]: #![feature] may not be used on the stable release channel Couldn't install racer using cargo](https://stackoverflow.com/questions/53136717/errore0554-feature-may-not-be-used-on-the-stable-release-channel-couldnt)
+
 # reference
 
 + [Rustによる画像処理の基礎と応用](https://www.amazon.co.jp/Rust%E3%81%AB%E3%82%88%E3%82%8B%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86%E3%81%AE%E5%9F%BA%E7%A4%8E%E3%81%A8%E5%BF%9C%E7%94%A8-%E3%82%AB%E3%83%96%E3%83%88-ebook/dp/B0CQVNX6FD)
@@ -230,3 +251,5 @@ Clamp -> f32
 + blog.ojisan.io
   + [Rust でモザイク加工を実装し、それを WebAssembly として Web アプリから利用する](https://blog.ojisan.io/rust-mosaic-web-app/)
 + [yavuzceliker / sample-images](https://github.com/yavuzceliker/sample-images)
+
+
