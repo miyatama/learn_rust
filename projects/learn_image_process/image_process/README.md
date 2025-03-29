@@ -26,7 +26,7 @@ Rustの画像処理学習用プロジェクト
 | module | progress | description |
 | :----- | :-----: | :----- |
 | binary_descriptors | stagnant | 使い方に勉強が必要 |
-| contours | stagnant | 輪郭抽出で謎エラー |
+| contours | completed |  |
 | contrast | completed | |
 | corners | completed | |
 | definitions | none | functions定義なし |
@@ -57,6 +57,24 @@ Rustの画像処理学習用プロジェクト
 | template_matching | complete | |
 | union_find | none | functions定義なし |
 | utils | completed | |
+
+## imageproc::contours::find_contours()のエラー
+
+https://docs.rs/imageproc/0.25.0/imageproc/contours/fn.find_contours.html
+
+```text
+thread 'main' panicked at C:\Users\nmiya\.cargo\registry\src\index.crates.io-6f17d22bba15001f\imageproc-0.25.0\src\contours.rs:151:59:
+called `Option::unwrap()` on a `None` value
+```
+
+[num::cast](https://docs.rs/num/latest/num/cast/index.html)でNoneが返っている
+
+imageprocのコードで確認した結果、下記コードの`u8`指定が問題と発覚。`u32`なら通る。
+
+```rust
+let result = imageproc::contours::find_contours::<u8>(&img_gray);
+```
+
 
 # トラブルシューティング
 
@@ -235,10 +253,18 @@ error[E0554]: `#![feature]` may not be used on the stable release channel
 For more information about this error, try `rustc --explain E0554`.
 error: could not compile `imageproc` (lib test) due to 1 previous error
 warning: build failed, waiting for other jobs to finish...
+```
 
+nightlyに切り替えて実行してみる
+
+```shell
+rustup install nightly
+rustup run nightly rustc --version
+rustup default nightly
 ```
 
 + [error[E0554]: #![feature] may not be used on the stable release channel Couldn't install racer using cargo](https://stackoverflow.com/questions/53136717/errore0554-feature-may-not-be-used-on-the-stable-release-channel-couldnt)
++ [rustupでrustをセットアップ](https://hnakamur.github.io/blog/2018/01/29/setup-rust-with-rustup/)
 
 # reference
 

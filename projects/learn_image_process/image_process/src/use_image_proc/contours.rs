@@ -14,19 +14,56 @@ pub fn run() {
     img_gray
         .save("./results/contours_find_contours_threshold.png")
         .unwrap();
-    log::info!("call find_contours");
-    let result = imageproc::contours::find_contours::<u8>(&img_gray);
-    log::info!("called find_contours");
-    let _red = image::Rgba([255u8, 0u8, 0u8, 255u8]);
-    result.iter().for_each(|contour| {
-        log::debug!("{:?}", &contour);
+    log::info!("contours find_contours");
+    let contours = imageproc::contours::find_contours::<u32>(&img_gray);
+    log::info!("contours length: {}", contours.len());
+    let red = image::Rgb([255u8, 0u8, 0u8]);
+    let mut img_result = img.clone().to_rgb8();
+    contours.iter().for_each(|contour| {
+        let mut prev: Option<imageproc::point::Point<u32>> = None;
+        contour.points.iter().for_each(|point| {
+            if let Some(prev_point) = prev {
+                let start = (prev_point.x as f32, prev_point.y as f32);
+                let end = (point.x as f32, point.y as f32);
+                log::debug!("  path: {:?} to {:?}", start, end);
+                imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
+            }
+            prev = Some(point.clone());
+        });
+        if let Some(prev_point) = prev {
+            let start = (prev_point.x as f32, prev_point.y as f32);
+            let end = (contour.points[0].x as f32, contour.points[0].y as f32);
+            log::debug!("  path: {:?} to {:?}", start, end);
+            imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
+        }
     });
-    img.save("./results/contours_find_contours.png").unwrap();
+    img_result
+        .save("./results/contours_find_contours.png")
+        .unwrap();
 
-    let result = imageproc::contours::find_contours_with_threshold::<u8>(&img_gray, threshold);
-    result.iter().for_each(|contour| {
-        log::debug!("{:?}", &contour);
+    log::info!("contours find_contours_with_threshold");
+    let contours = imageproc::contours::find_contours_with_threshold::<u32>(&img_gray, threshold);
+    log::info!("contours length: {}", contours.len());
+    let mut img_result = img.clone().to_rgb8();
+    contours.iter().for_each(|contour| {
+        let mut prev: Option<imageproc::point::Point<u32>> = None;
+        contour.points.iter().for_each(|point| {
+            if let Some(prev_point) = prev {
+                let start = (prev_point.x as f32, prev_point.y as f32);
+                let end = (point.x as f32, point.y as f32);
+                log::debug!("  path: {:?} to {:?}", start, end);
+                imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
+            }
+            prev = Some(point.clone());
+        });
+        if let Some(prev_point) = prev {
+            let start = (prev_point.x as f32, prev_point.y as f32);
+            let end = (contour.points[0].x as f32, contour.points[0].y as f32);
+            log::debug!("  path: {:?} to {:?}", start, end);
+            imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
+        }
     });
-    img.save("./results/contours_find_contours_with_threshold.png")
+    img_result
+        .save("./results/contours_find_contours_with_threshold.png")
         .unwrap();
 }
