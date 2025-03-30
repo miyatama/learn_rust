@@ -15,7 +15,7 @@ Rustの画像処理学習用プロジェクト
 ## will
 
 + [ ] [imageproc](https://docs.rs/imageproc/0.25.0/imageproc/index.html)を使いこなす
-  + [ ] binary_descriptors 使い方が謎
+  + [x] binary_descriptors 使い方が謎
   + [x] contours のエラー対応
   + [ ] template_matching の結果が謎
 
@@ -25,7 +25,7 @@ Rustの画像処理学習用プロジェクト
 
 | module | progress | description |
 | :----- | :-----: | :----- |
-| binary_descriptors | stagnant | 使い方に勉強が必要 |
+| binary_descriptors | in prigress | 使い方に勉強が必要 |
 | contours | completed |  |
 | contrast | completed | |
 | corners | completed | |

@@ -25,7 +25,6 @@ pub fn run() {
             if let Some(prev_point) = prev {
                 let start = (prev_point.x as f32, prev_point.y as f32);
                 let end = (point.x as f32, point.y as f32);
-                log::debug!("  path: {:?} to {:?}", start, end);
                 imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
             }
             prev = Some(point.clone());
@@ -33,7 +32,6 @@ pub fn run() {
         if let Some(prev_point) = prev {
             let start = (prev_point.x as f32, prev_point.y as f32);
             let end = (contour.points[0].x as f32, contour.points[0].y as f32);
-            log::debug!("  path: {:?} to {:?}", start, end);
             imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
         }
     });
@@ -51,7 +49,6 @@ pub fn run() {
             if let Some(prev_point) = prev {
                 let start = (prev_point.x as f32, prev_point.y as f32);
                 let end = (point.x as f32, point.y as f32);
-                log::debug!("  path: {:?} to {:?}", start, end);
                 imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
             }
             prev = Some(point.clone());
@@ -59,7 +56,6 @@ pub fn run() {
         if let Some(prev_point) = prev {
             let start = (prev_point.x as f32, prev_point.y as f32);
             let end = (contour.points[0].x as f32, contour.points[0].y as f32);
-            log::debug!("  path: {:?} to {:?}", start, end);
             imageproc::drawing::draw_line_segment_mut(&mut img_result, start, end, red);
         }
     });

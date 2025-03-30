@@ -4,6 +4,8 @@ mod util;
 use self::filter::blur::apply as blur_apply;
 // use self::filter::resize::apply as scale_apply;
 // use self::filter::rotate::apply as rotate_apply;
+
+use self::use_image_proc::binary_descriptors::run as image_proc_binary_descriptors_run;
 use self::use_image_proc::contours::run as image_proc_contours_run;
 use self::use_image_proc::contrast::run as image_proc_contrast_run;
 use self::use_image_proc::corners::run as image_proc_corners_run;
@@ -75,7 +77,7 @@ pub fn run() {
         }
     }
     */
-
+    image_proc_binary_descriptors_run();
     image_proc_drawing_run();
     image_proc_filter_run();
     image_proc_contours_run();
