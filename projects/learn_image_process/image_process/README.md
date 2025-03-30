@@ -54,7 +54,7 @@ Rustの画像処理学習用プロジェクト
 | seam_carving | completed | |
 | stats | completed | |
 | suppress | completed | |
-| template_matching | complete | |
+| template_matching | complete | 本家exampleを見ても使い処が謎 |
 | union_find | none | functions定義なし |
 | utils | completed | |
 
