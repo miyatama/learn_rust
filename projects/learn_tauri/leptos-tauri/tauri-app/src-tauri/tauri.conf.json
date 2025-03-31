@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "leptos-tauri",
+  "productName": "tauri-app",
   "version": "0.1.0",
-  "identifier": "com.leptos-tauri.app",
+  "identifier": "com.tauri-app.app",
   "build": {
     "beforeDevCommand": "trunk serve",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "leptos-tauri",
+        "title": "tauri-app",
         "width": 800,
         "height": 600
       }
