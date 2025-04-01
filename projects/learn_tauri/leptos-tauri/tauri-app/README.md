@@ -21,6 +21,33 @@ cargo tauri dev
 + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) 
 + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
 
+# rust + leptosの構成把握
+
+ディレクトリ構成とか参照とか
+
+```mermaid
+flowchart LR
+  style1["style.css"]
+  public["public"]
+  index["index.html"]
+  index --> public
+  index --> style1
+  taruiconfig["tauri.conf.json"]
+  icons["icons"]
+  dist["dist"]
+  taruiconfig --> icons
+  taruiconfig --> dist
+  trunctoml["Trunk.toml"]
+  trunctoml --> index
+  srctauri["src-tauri"]
+  trunctoml --> srctauri
+  taurimain["src-tauri/main.rs"]
+  taurilib["src-tauri/main.rs"]
+  taurimain --> taurilib
+
+```
+
+
 # will
 
 + [ ] 何かしらを入力するプログラム
