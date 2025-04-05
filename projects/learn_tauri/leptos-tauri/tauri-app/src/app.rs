@@ -19,6 +19,7 @@ struct NewGreetArgs<'a> {
     name: &'a str,
 }
 
+// componentマクロを指定すると関数名のタグが使えるようになる(main.rsで使ってるAppタグがこれ)
 #[component]
 pub fn App() -> impl IntoView {
     let (name, set_name) = signal(String::new());
