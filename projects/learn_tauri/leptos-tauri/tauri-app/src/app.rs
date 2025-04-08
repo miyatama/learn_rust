@@ -33,7 +33,7 @@ pub fn App() -> impl IntoView {
         set_name.set(v);
     };
 
-    let update_new_name = move |ev | {
+    let update_new_name = move |ev| {
         let v = event_target_value(&ev);
         set_new_name.set(v);
     };
@@ -103,4 +103,28 @@ pub fn App() -> impl IntoView {
             <p>{ move || new_greet_msg.get() }</p>
         </main>
     }
+}
+
+pub fn greeting() -> impl IntoView {
+    let (name, set_name) = signal(String::new());
+    let (greet_msg, set_greet_msg) = signal(String::new());
+    let update_name = move |ev| {
+        let v = event_target_value(&ev);
+        set_name.set(v);
+    };
+    let greet = move |ev: SubmitEvent| {
+        ev.prevent_default();
+        spawn_local(async move {
+            let name = name.get_untracked();
+            if name.is_empty() {
+                return;
+            }
+
+            let args = serde_wasm_bindgen::to_value(&GreetArgs { name: &name }).unwrap();
+            // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+            let new_msg = invoke("greet", args).await.as_string().unwrap();
+            set_greet_msg.set(new_msg);
+        });
+    };
+    leptos::html::form().child((leptos::html::input(), leptos::html::button()))
 }
