@@ -126,5 +126,7 @@ pub fn greeting() -> impl IntoView {
             set_greet_msg.set(new_msg);
         });
     };
-    leptos::html::form().child((leptos::html::input(), leptos::html::button()))
+    leptos::html::form()
+        .on(leptos::ev::submit, move |ev| update_name(ev))
+        .child((leptos::html::input(), leptos::html::button()))
 }
