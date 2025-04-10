@@ -105,6 +105,9 @@ pub fn App() -> impl IntoView {
     }
 }
 
+/**
+ *  ex) leptos::mount::mount_to_body(|| greeting())
+ */
 pub fn greeting() -> impl IntoView {
     let (name, set_name) = signal(String::new());
     let (greet_msg, set_greet_msg) = signal(String::new());
