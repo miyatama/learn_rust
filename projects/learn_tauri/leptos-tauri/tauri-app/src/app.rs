@@ -1,5 +1,9 @@
 use leptos::task::spawn_local;
-use leptos::{ev::SubmitEvent, prelude::*};
+use leptos::{
+    ev::SubmitEvent, 
+    error::ErrorBoundary,
+    prelude::*,
+};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -100,6 +104,8 @@ pub fn App() -> impl IntoView {
         set_counters.update(|counters| counters.clear());
     };
 
+    let (error_boundary_value, set_error_boundary_value) = signal("".parse::<i32>());
+
     view! {
         <main class="container">
             <h1>"Welcome to Tauri + Leptos"</h1>
@@ -134,6 +140,36 @@ pub fn App() -> impl IntoView {
             </form>
             <p>{ move || new_greet_msg.get() }</p>
 
+            <h1>Error Handling</h1>
+            <label>type integer
+              <input 
+                type="number"
+                value=move || error_boundary_value.get().unwrap_or_default()
+                on:input:target=move |ev| set_error_boundary_value.set(ev.target().value().parse::<i32>())
+              />
+              <ErrorBoundary fallback=|errors| {
+                let errors = errors.clone();
+                view! {
+                    <div class="error">
+                      <p>not an integer error</p>
+                      <ul>
+                        {
+                            move || {
+                                errors
+                                .read()
+                                .iter()
+                                .map(|(_, e)| view!{<li>{e.to_string()}</li>})
+                                .collect::<Vec<_>>()
+                            }
+                        }
+                      </ul>
+                    </div>
+                }
+              }>
+                <p>you entered <strong>{error_boundary_value}</strong></p>
+              </ErrorBoundary>
+            </label>
+
             <button on:click=add_counter>"Add Counter"</button>
             <button on:click=add_many_counters>{format!("Add {MANY_COUNTERS} Counters")}</button>
             <button on:click=clear_counters>"Clear Counters"</button>
@@ -141,22 +177,22 @@ pub fn App() -> impl IntoView {
             "Total: "
             <span data-testid="total">
             {
-            move || {
-                counters.get().iter().map(|(_, count) | count.get()).sum::<i32>().to_string()
+                move || {
+                    counters.get().iter().map(|(_, count) | count.get()).sum::<i32>().to_string()
+                }
             }
-        }
             </span> " from "
             <span data-testid="counters">{move || counters.get().len().to_string()}</span>
             " counters."
             </p>
             <ul>
-            <For
-              each=move || counters.get()
-              key=|counter| counter.0
-              children=move |(id, value)| {
-                view!{ <Counter id value/>}
-              }
-            />
+              <For
+                each=move || counters.get()
+                key=|counter| counter.0
+                children=move |(id, value)| {
+                  view!{ <Counter id value/>}
+                }
+              />
             </ul>
         </main>
     }
