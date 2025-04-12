@@ -15,6 +15,9 @@ struct CounterUpdater {
     set_counters: WriteSignal<CounterHolder>,
 }
 
+#[derive(Copy, Clone)]
+struct SmallcapsContext(WriteSignal<bool>);
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
@@ -104,6 +107,7 @@ pub fn App() -> impl IntoView {
         set_counters.update(|counters| counters.clear());
     };
 
+    // Error Boundary
     let (error_boundary_value, set_error_boundary_value) = signal("".parse::<i32>());
 
     view! {
@@ -139,7 +143,8 @@ pub fn App() -> impl IntoView {
                 <button type="submit">"New Greet"</button>
             </form>
             <p>{ move || new_greet_msg.get() }</p>
-
+            <h1>Parent Child</h1>
+            <ParentChild/>
             <h1>Error Handling</h1>
             <label>type integer
               <input 
@@ -248,4 +253,65 @@ pub fn greeting() -> impl IntoView {
     leptos::html::form()
         .on(leptos::ev::submit, move |ev| update_name(ev))
         .child((leptos::html::input(), leptos::html::button()))
+}
+
+
+#[component]
+fn ParentChild() -> impl IntoView {
+    // Parent Child
+    let (red, set_red) = signal(false);
+    let (right, set_right) = signal(false);
+    let (italics, set_italics) = signal(false);
+    let (smallcaps, set_smallcaps) = signal(false);
+    provide_context(SmallcapsContext(set_smallcaps));
+
+    view! {
+        <main>
+          <p
+            class:red=red
+            class:right=right
+            class:italics=italics
+            class:smallcaps=smallcaps
+          >lorem ipsum sit dolor amet.</p>
+          <ButtonA setter=set_red/>
+          <ButtonB on_click=move |_| set_right.update(|value| *value=!*value)/>
+          <ButtonC on:click=move |_| set_italics.update(|value| *value=!*value)/>
+          <ButtonD/>
+        </main>
+    }
+}
+
+#[component]
+fn ButtonA(
+    setter: WriteSignal<bool>,
+) -> impl IntoView {
+    view!{
+        <button on:click=move |_| setter.update(|value| *value = !*value)>"Toggle Red"</button>
+    }
+}
+
+#[component]
+fn ButtonB(
+    on_click: impl FnMut(web_sys::MouseEvent) + 'static,
+) -> impl IntoView {
+    view!{
+        <button on:click=on_click>"Toggle Right"</button>
+    }
+}
+
+#[component]
+fn ButtonC() -> impl IntoView {
+    view!{
+        <button>"Toggle Italics"</button>
+    }
+}
+
+#[component]
+fn ButtonD() -> impl IntoView {
+    let setter = use_context::<SmallcapsContext>().unwrap().0;
+    view! {
+        <button on:click=move |_| {
+            setter.update(|value| *value = !*value)
+        }>"Toggle Small Caps"</button>
+    }
 }
