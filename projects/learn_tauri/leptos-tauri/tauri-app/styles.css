@@ -125,3 +125,14 @@ button {
 .smallcaps {
 	font-variant: small-caps;
 }
+
+img {
+	max-width: 250px;
+	height: auto;
+}
+
+.error {
+	border: 1px solid red;
+	color: red;
+	background-color: lightpink;
+}

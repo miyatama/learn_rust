@@ -1,10 +1,7 @@
 use leptos::task::spawn_local;
-use leptos::{
-    ev::SubmitEvent, 
-    error::ErrorBoundary,
-    prelude::*,
-};
+use leptos::{error::ErrorBoundary, ev::SubmitEvent, prelude::*};
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 use wasm_bindgen::prelude::*;
 
 const MANY_COUNTERS: usize = 5;
@@ -143,11 +140,12 @@ pub fn App() -> impl IntoView {
                 <button type="submit">"New Greet"</button>
             </form>
             <p>{ move || new_greet_msg.get() }</p>
+            <FetchExample/>
             <h1>Parent Child</h1>
             <ParentChild/>
             <h1>Error Handling</h1>
             <label>type integer
-              <input 
+              <input
                 type="number"
                 value=move || error_boundary_value.get().unwrap_or_default()
                 on:input:target=move |ev| set_error_boundary_value.set(ev.target().value().parse::<i32>())
@@ -255,7 +253,6 @@ pub fn greeting() -> impl IntoView {
         .child((leptos::html::input(), leptos::html::button()))
 }
 
-
 #[component]
 fn ParentChild() -> impl IntoView {
     // Parent Child
@@ -282,26 +279,22 @@ fn ParentChild() -> impl IntoView {
 }
 
 #[component]
-fn ButtonA(
-    setter: WriteSignal<bool>,
-) -> impl IntoView {
-    view!{
+fn ButtonA(setter: WriteSignal<bool>) -> impl IntoView {
+    view! {
         <button on:click=move |_| setter.update(|value| *value = !*value)>"Toggle Red"</button>
     }
 }
 
 #[component]
-fn ButtonB(
-    on_click: impl FnMut(web_sys::MouseEvent) + 'static,
-) -> impl IntoView {
-    view!{
+fn ButtonB(on_click: impl FnMut(web_sys::MouseEvent) + 'static) -> impl IntoView {
+    view! {
         <button on:click=on_click>"Toggle Right"</button>
     }
 }
 
 #[component]
 fn ButtonC() -> impl IntoView {
-    view!{
+    view! {
         <button>"Toggle Italics"</button>
     }
 }
@@ -313,5 +306,102 @@ fn ButtonD() -> impl IntoView {
         <button on:click=move |_| {
             setter.update(|value| *value = !*value)
         }>"Toggle Small Caps"</button>
+    }
+}
+
+/**
+ * fetch example
+ */
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Cat {
+    url: String,
+}
+
+#[derive(Error, Clone, Debug)]
+pub enum CatError {
+    #[error("please request more than zero cats.")]
+    NonZeroCats,
+}
+
+type CatCount = usize;
+
+async fn fetch_cats(count: CatCount) -> Result<Vec<String>, Error> {
+    if count > 0 {
+        gloo_timers::future::TimeoutFuture::new(1000).await;
+        let res = reqwasm::http::Request::get(&format!(
+            "https://api.thecatapi.com/v1/images/search?limit={count}",
+        ))
+        .send()
+        .await?
+        .json::<Vec<Cat>>()
+        .await?
+        .into_iter()
+        .take(count)
+        .map(|cat| cat.url)
+        .collect::<Vec<_>>();
+        Ok(res)
+    } else {
+        Err(CatError::NonZeroCats)?
+    }
+}
+
+#[component]
+fn FetchExample() -> impl IntoView {
+    let (cat_count, set_cat_count) = signal::<CatCount>(1);
+    let cats = LocalResource::new(move || fetch_cats(cat_count.get()));
+    let fallback = move |errors: ArcRwSignal<Errors>| {
+        let error_list = move || {
+            errors.with(|errors| {
+                errors
+                    .iter()
+                    .map(|(_, e)| view! {<li>{e.to_string()}</li>})
+                    .collect::<Vec<_>>()
+            })
+        };
+        view! {
+            <div class="error">
+              <h2>"Error"</h2>
+              <ul>
+                {error_list}
+              </ul>
+            </div>
+        }
+    };
+    view! {
+        <h1>"Fetch Example"</h1>
+        <div>
+          <label>
+            "how many cats would you like?"
+            <input
+              type="number"
+              prop:value=move || cat_count.get().to_string()
+              on:input:target=move |ev| {
+                let val = ev.target().value().parse::<CatCount>().unwrap_or(0);
+                set_cat_count.set(val);
+              }
+            />
+          </label>
+          <Transition fallback=|| view!{<div>"loading..."</div>}>
+            <ErrorBoundary fallback>
+              <ul>
+                {move || Suspend::new(async move {
+                    cats.await
+                    .map(|cats|{
+                        cats
+                        .iter()
+                        .map(|cat|{
+                            view!{
+                                <li>
+                                  <img src=cat.clone() />
+                                </li>
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                    })
+                })}
+              </ul>
+            </ErrorBoundary>
+          </Transition>
+        </div>
     }
 }
