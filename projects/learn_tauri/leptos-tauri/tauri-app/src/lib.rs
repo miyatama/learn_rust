@@ -128,6 +128,11 @@ pub fn App() -> impl IntoView {
     // Error Boundary
     let (error_boundary_value, set_error_boundary_value) = signal("".parse::<i32>());
 
+    // Router: トップの要素
+    // A: 遷移リンクのaタグ
+    // Routes: Routeの置き場
+    // Route: パスを指定して表示するView
+    // ProtectedRoute: 特定条件下で表示するRoute
     view! {
         <Router set_is_routing>
           <div class="routing-progress">
@@ -452,6 +457,7 @@ fn FetchExample() -> impl IntoView {
 #[component(transparent)]
 pub fn ContactRoutes() -> impl leptos_router::MatchNestedRoutes + Clone {
     tracing::info!("rendering <ContactRoutes>");
+    // ParentRoute: 複数のRouteを保持するView
     view! {
         <ParentRoute path=path!("") view=ContactList>
           <Route path=path!("/") view=|| "Select a contact." />
