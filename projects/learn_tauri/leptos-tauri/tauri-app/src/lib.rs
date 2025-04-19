@@ -143,6 +143,7 @@ pub fn App() -> impl IntoView {
             <A href="/about">"About"</A>
             <A href="/settings">"Settings"</A>
             <A href="/indirect-home">"Home"</A>
+            <A href="/slot">"Slot"</A>
             <button on:click=move |_| {set_logged_in.update(|n| *n = !*n)}>{move || if logged_in.get() {"Log Out"} else {"Log In"}}</button>
           </nav>
           <main class="container">
@@ -155,6 +156,7 @@ pub fn App() -> impl IntoView {
                   view=Settings
                 />
                 <Route path=path!("redirect-home") view=|| view!{ <Redirect path="/"/>}/>
+                <Route path=path!("slot") view=SlotExample/>
                 <ContactRoutes/>
               </Routes>
               <h1>"Welcome to Tauri + Leptos"</h1>
@@ -246,6 +248,64 @@ pub fn App() -> impl IntoView {
               </ul>
           </main>
         </Router>
+    }
+}
+
+/**
+ * slotのサンプル学習
+ */
+#[slot]
+struct Then {
+    children: leptos::children::ChildrenFn,
+}
+
+#[slot]
+struct ElseIf {
+    cond: Signal<bool>,
+    children: leptos::children::ChildrenFn,
+}
+
+#[slot]
+struct Fallback {
+    children: leptos::children::ChildrenFn,
+}
+
+#[component]
+fn SlotIf(
+    cond: Signal<bool>,
+    then: Then,
+    #[prop(default=vec![])] else_if: Vec<ElseIf>,
+    #[prop(optional)] fallback: Option<Fallback>,
+) -> impl IntoView {
+    move || {
+        if cond.get() {
+            (then.children)().into_any()
+        } else if let Some(else_if) = else_if.iter().find(|i| i.cond.get()) {
+            (else_if.children)().into_any()
+        } else if let Some(fallback) = &fallback {
+            (fallback.children)().into_any()
+        } else {
+            ().into_any()
+        }
+    }
+}
+
+#[component]
+fn SlotExample() -> impl IntoView {
+    let (count, set_count) = signal(0);
+    let is_even = Signal::derive(move || count.get() % 2 == 0);
+    let is_div5= Signal::derive(move || count.get() % 5 == 0);
+    let is_div7= Signal::derive(move || count.get() % 7 == 0);
+
+    view! { 
+        <button on:click=move |_| set_count.update(|value| *value += 1)>"+1"</button>
+        " "{count}" is "
+        <SlotIf cond=is_even>
+            <Then slot>"even"</Then>
+            <ElseIf slot cond=is_div5>"dividable by 5"</ElseIf>
+            <ElseIf slot cond=is_div7>"dividable by 7"</ElseIf>
+            <Fallback slot>"odd"</Fallback>
+        </SlotIf>
     }
 }
 
