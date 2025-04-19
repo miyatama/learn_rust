@@ -144,6 +144,7 @@ pub fn App() -> impl IntoView {
             <A href="/settings">"Settings"</A>
             <A href="/indirect-home">"Home"</A>
             <A href="/slot">"Slot"</A>
+            <A href="/spread">"Spread"</A>
             <button on:click=move |_| {set_logged_in.update(|n| *n = !*n)}>{move || if logged_in.get() {"Log Out"} else {"Log In"}}</button>
           </nav>
           <main class="container">
@@ -157,6 +158,7 @@ pub fn App() -> impl IntoView {
                 />
                 <Route path=path!("redirect-home") view=|| view!{ <Redirect path="/"/>}/>
                 <Route path=path!("slot") view=SlotExample/>
+                <Route path=path!("spread") view=SpreadExample/>
                 <ContactRoutes/>
               </Routes>
               <h1>"Welcome to Tauri + Leptos"</h1>
@@ -306,6 +308,77 @@ fn SlotExample() -> impl IntoView {
             <ElseIf slot cond=is_div7>"dividable by 7"</ElseIf>
             <Fallback slot>"odd"</Fallback>
         </SlotIf>
+    }
+}
+
+/**
+ * Spread example
+ */
+#[component]
+fn SpreadExample() -> impl IntoView {
+    fn alert(msg: impl AsRef<str>) {
+        let _= window().alert_with_message(msg.as_ref());
+    }
+    // <{..} ___/>は属性作成の糖衣構文
+    let attrs_only = view! {<{..} class="foo"/>};
+    let event_handlers_only = view! {<{..} on:click=move |_| {
+        alert("event handlers only click");
+    }/>};
+    let combined = view! {<{..} class="bar" on:click=move |_| alert("combined click") />};
+    let partial_attrs = view!{
+        <{..} id="snood" class="baz" data-foo="bar"/>
+    };
+    let partial_event_handlers = view!{
+        <{..} on:click=move |_| alert("partial event handlers click") />
+    };
+    let spread_onto_component = view! {
+        <{..} aria-label="a component with attribute spreading"/>
+    };
+
+    view!{
+        <p>
+            "You can spread any valid attribute, including a tuple of attributes, with the {..attr} syntax"
+        </p>
+        <div {..attrs_only.clone()}>"<div {..attrs_only} />"</div>
+        <div {..event_handlers_only.clone()}>"<div {..event_handlers_only} />"</div>
+        <div {..combined.clone()}>"<div {..combined} />"</div>
+        <div {..partial_attrs.clone()} {..partial_event_handlers.clone()}>
+            "<div {..partial_attrs} {..partial_event_handlers} />"
+        </div>
+        <hr/>
+        <p>
+            "The .. is not required to spread; you can pass any valid attribute in a block by itself."
+        </p>
+        <div {attrs_only}>"<div {attrs_only} />"</div>
+        <div {event_handlers_only}>"<div {event_handlers_only} />"</div>
+        <div {combined}>"<div {combined} />"</div>
+        <div {partial_attrs} {partial_event_handlers}>
+            "<div {partial_attrs} {partial_event_handlers} />"
+        </div>
+        <hr/>
+        <ComponentThatTakeSpread
+          class:foo=true
+          style:font-weight="bold"
+          prop:cool=42
+          on:click=move |_| alert("clicked ComponentThatTakeSpread")
+          some_prop=13
+          attr:id="foo"
+          {..}
+          title="ooh, a title!"
+          {..spread_onto_component}
+        />
+
+    }
+}
+
+#[component]
+fn ComponentThatTakeSpread(some_prop: i32) -> impl IntoView {
+    leptos::logging::log!("some_prop = {some_prop}");
+    view! {
+        <button>"<ComponentThatTakeSpread/>"</button>
+        <p>
+        "attributes applied to a component apply to all top-level element returned by a component."
+        </p>
     }
 }
 
