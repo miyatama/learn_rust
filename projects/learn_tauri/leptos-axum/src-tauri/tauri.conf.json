@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "leptos-axum-app",
+  "productName": "leptos-axum",
   "version": "0.1.0",
-  "identifier": "com.leptos-axum-app.app",
+  "identifier": "com.leptos-axum.app",
   "build": {
     "beforeDevCommand": "trunk serve",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "leptos-axum-app",
+        "title": "leptos-axum",
         "width": 800,
         "height": 600
       }
