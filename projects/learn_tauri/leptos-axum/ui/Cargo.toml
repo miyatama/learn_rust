@@ -1,26 +1,33 @@
 [package]
-name = "ui"
+name = "leptos-axum"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "leptos-axum-bin"
+path = "./src/main.rs"
+
 [dependencies]
-leptos = { workspace = true, features = ["csr"] }
-leptos_axum = { workspace = true, optional = true }
-wasm-bindgen = {workspace = true}
-wasm-bindgen-futures = {workspace = true}
-js-sys = {workspace = true}
-serde = { workspace = true, features = ["derive"] }
-serde-wasm-bindgen = {workspace = true}
-log = {workspace = true}
-console_log = {workspace = true}
-console_error_panic_hook = {workspace = true}
-thiserror = {workspace = true}
-http = {workspace = true}
-axum = {workspace = true, optional = true }
-tower = { workspace = true, optional = true }
-tower-http = { workspace = true, features = ["fs"], optional = true }
-tokio = { workspace = true, features = ["full"], optional = true }
-sqlx = { workspace = true, features = [
+leptos = { version = "0.7", features = ["csr"] }
+leptos_axum = { version = "0.7.8", optional = true }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+log = "0.4.22"
+console_log = "1.0"
+console_error_panic_hook = "0.1.7"
+thiserror = "1.0"
+http = "1.1"
+axum = { version = "0.8.1", optional = true }
+tower = { version = "0.4.13", optional = true }
+tower-http = { version = "0.5.2", features = ["fs"], optional = true }
+tokio = { version = "1.39", features = ["full"], optional = true }
+sqlx = { version = "0.8.0", features = [
   "runtime-tokio-rustls",
   "sqlite",
 ], optional = true }

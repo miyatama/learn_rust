@@ -11,3 +11,4 @@ This template should help get you started developing with Tauri and Leptos.
 # reference
 
 + [todo_app_sqlite_axum](https://github.com/leptos-rs/leptos/tree/main/examples/todo_app_sqlite_axum)
++ [tauri-from-scratch](https://github.com/leptos-rs/leptos/tree/main/projects/tauri-from-scratch)

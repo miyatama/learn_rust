@@ -10,7 +10,7 @@ use axum::{
     Router,
 };
 use leptos::prelude::*;
-use leptos_axum_ui::*;
+use leptos_axum::*;
 //Define a handler to test extractor with state
 #[cfg(feature = "ssr")]
 async fn custom_handler(
