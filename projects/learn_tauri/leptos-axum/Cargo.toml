@@ -26,17 +26,6 @@ sqlx = { version = "0.8.0", features = [
   "sqlite",
 ], optional = true }
 
-[features]
-hydrate = ["leptos/hydrate"]
-ssr = [
-  "dep:axum",
-  "dep:tower",
-  "dep:tower-http",
-  "dep:tokio",
-  "dep:sqlx",
-  "leptos/ssr",
-  "dep:leptos_axum",
-]
 
 [workspace]
-members = ["src-tauri"]
+members = ["src-tauri", "ui"]
