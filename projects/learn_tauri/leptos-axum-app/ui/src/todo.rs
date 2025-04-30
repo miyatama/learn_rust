@@ -43,10 +43,12 @@ pub mod ssr {
     }
 }
 
-#[server]
+#[leptos::server]
 pub async fn get_todos() -> Result<Vec<Todo>, ServerFnError> {
     use self::ssr::*;
     use http::request::Parts;
+
+    tracing::info!("call get_todos()");
 
     // this is just an example of how to access server context injected in the handlers
     let req_parts = use_context::<Parts>();
@@ -73,10 +75,12 @@ pub async fn get_todos() -> Result<Vec<Todo>, ServerFnError> {
     Ok(todos)
 }
 
-#[server]
+#[leptos::server]
 pub async fn add_todo(title: String) -> Result<(), ServerFnError> {
     use self::ssr::*;
     let mut conn = db().await?;
+
+    tracing::info!("call add_todo()");
 
     // fake API delay
     std::thread::sleep(std::time::Duration::from_millis(250));
@@ -92,10 +96,12 @@ pub async fn add_todo(title: String) -> Result<(), ServerFnError> {
 }
 
 // https://docs.rs/leptos/latest/leptos/attr.server.html
-#[server]
+#[leptos::server]
 pub async fn delete_todo(id: u16) -> Result<(), ServerFnError> {
     use self::ssr::*;
     let mut conn = db().await?;
+
+    tracing::info!("call delete_todo()");
 
     Ok(sqlx::query("DELETE FROM todos WHERE id = $1")
         .bind(id)
@@ -106,6 +112,7 @@ pub async fn delete_todo(id: u16) -> Result<(), ServerFnError> {
 
 #[component]
 pub fn TodoApp() -> impl IntoView {
+    tracing::info!("render <TodoApp>");
     view! {
         <header>
             <h1>"My Tasks"</h1>
@@ -118,6 +125,7 @@ pub fn TodoApp() -> impl IntoView {
 
 #[component]
 pub fn Todos() -> impl IntoView {
+    tracing::info!("render <Todos>");
     let add_todo = ServerMultiAction::<AddTodo>::new();
     let submissions = add_todo.submissions();
     // https://docs.rs/leptos/latest/leptos/prelude/struct.ServerAction.html
@@ -146,7 +154,7 @@ pub fn Todos() -> impl IntoView {
                 if todos.is_empty() {
                     Either::Left(view! { <p>"No tasks were found."</p> })
                 } else {
-                    println!("todos: {:?}", &todos);
+                    tracing::debug!("todos: {:?}", &todos);
                     Either::Right(
                         todos
                             .iter()
@@ -168,7 +176,6 @@ pub fn Todos() -> impl IntoView {
             })
         })
     };
-
     // use crate::error_template::ErrorTemplate;
 
     view! {
@@ -180,6 +187,9 @@ pub fn Todos() -> impl IntoView {
             <Transition fallback=move || view! { <p>"Loading..."</p> }>
                 <ErrorBoundary fallback=|errors| view! { <ErrorTemplate2 errors/> }>
                     <ul>
+                        {
+                        tracing::debug!("start rendering");
+                        }
                         {existing_todos}
                         {move || {
                             submissions
