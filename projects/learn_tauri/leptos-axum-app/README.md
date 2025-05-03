@@ -2,6 +2,8 @@
 
 This template should help get you started developing with Tauri and Leptos.
 
+結論: 謎のエラーが取れない。
+
 ## Recommended IDE Setup
 
 + [VS Code](https://code.visualstudio.com/) 
