@@ -1,0 +1,26 @@
+[package]
+name = "quiz-app-ui"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "quiz_app_bin"
+path = "./src/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+leptos = { version = "0.7", features = ["csr", "tracing"] }
+leptos_router = "0.7.8"
+leptos_router_macro = "0.7.8"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+console_error_panic_hook = "0.1.7"
+tracing-subscriber = "0.3.18"
+tracing-subscriber-wasm = "0.1.0"
+tracing = "0.1.40"

@@ -1,0 +1,9 @@
+[build]
+target = "./frontend/index.html"
+
+[watch]
+ignore = ["./backend"]
+
+[serve]
+port = 1420
+open = false
