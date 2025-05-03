@@ -1,13 +1,9 @@
 use leptos::task::spawn_local;
 use leptos::{ev::SubmitEvent, prelude::*};
+use leptos_router::components::{Route, Router, Routes};
+use leptos_router_macro::path;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
-use leptos_router::{
-    components::{
-        Route, Routes, Router,
-    },
-};
-use leptos_router_macro::path;
 
 #[wasm_bindgen]
 extern "C" {
@@ -36,15 +32,20 @@ pub fn App() -> impl IntoView {
 #[component]
 pub fn Top() -> impl IntoView {
     tracing::debug!("render Top");
+    let navigate = leptos_router::hooks::use_navigate();
+    let on_click_start = |_| {
+        let navigate = navigate.clone();
+        navigate("/quiz_main?step=0", Default::default());
+    };
+    let on_click_settings = |_| {
+        let navigate = navigate.clone();
+        navigate("/setting", Default::default());
+    };
     view! {
       <img src="public/banner.png"/>
       <div class="padding5"/>
-      <div class="center menu-btn-radius-gradient-wrap">
-        <a href="" class="menu-btn menu-btn-radius-gradient">"START！"</a>
-      </div>
+      <button class="menu-btn menu-btn-radius-gradient" on:click=on_click_start>"START!"</button>
       <div class="padding3"/>
-      <div class="center menu-btn-radius-gradient-wrap">
-        <a href="" class="menu-btn menu-btn-radius-gradient">"SETTINGS!"</a>
-      </div>
+      <button class="menu-btn menu-btn-radius-gradient" on:click=on_click_settings>"SETTINGS!"</button>
     }
 }
