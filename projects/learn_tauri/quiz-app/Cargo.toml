@@ -1,7 +1,10 @@
 [workspace]
 resolver = "2"
-members = ["frontend", "backend"]
+members = ["frontend", "backend", "shared"]
 
 [profile.release]
 codegen-units = 1
 lto = true
+
+[dependencies]
+thiserror = "2.0.12"

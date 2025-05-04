@@ -5,10 +5,20 @@
   box-sizing: inherit;
 }
 
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
 html {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   font-size: 62.5%;
+}
+
+body {
+  background-repeat: repeat;
+  background-image: url("public/background.png");
 }
 
 .logo.leptos:hover {
@@ -28,12 +38,6 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-}
-
-body {
-  padding: 2rem;
-  background-repeat: repeat;
-  background-image: url("public/background.png");
 }
 
 .container {

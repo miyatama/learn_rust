@@ -23,6 +23,10 @@ pub fn App() -> impl IntoView {
           <main class="container">
             <Routes transition=true fallback=|| "this page could not be found">
               <Route path=path!("/") view=Top />
+              <Route path=path!("/quiz_setup") view=QuizSetup/>
+              <Route path=path!("/quiz_main") view=QuizMain/>
+              <Route path=path!("/quiz_result") view=QuizResult/>
+              <Route path=path!("/settings") view=Settings/>
             </Routes>
           </main>
         </Router>
@@ -33,19 +37,49 @@ pub fn App() -> impl IntoView {
 pub fn Top() -> impl IntoView {
     tracing::debug!("render Top");
     let navigate = leptos_router::hooks::use_navigate();
-    let on_click_start = |_| {
-        let navigate = navigate.clone();
-        navigate("/quiz_main?step=0", Default::default());
-    };
-    let on_click_settings = |_| {
-        let navigate = navigate.clone();
-        navigate("/setting", Default::default());
-    };
     view! {
       <img src="public/banner.png"/>
       <div class="padding5"/>
-      <button class="menu-btn menu-btn-radius-gradient" on:click=on_click_start>"START!"</button>
+      <button class="menu-btn menu-btn-radius-gradient" on:click={
+        let navigate = navigate.clone();
+        move |_| navigate("/quiz_setup", Default::default())
+      }>"START!"</button>
       <div class="padding3"/>
-      <button class="menu-btn menu-btn-radius-gradient" on:click=on_click_settings>"SETTINGS!"</button>
+      <button class="menu-btn menu-btn-radius-gradient" on:click={
+        let navigate = navigate.clone();
+        move |_| navigate("/settings", Default::default())
+      }>"SETTINGS!"</button>
+    }
+}
+
+#[component]
+fn QuizSetup() -> impl IntoView {
+    tracing::debug!("render QuizSetup");
+    view! {
+      <p>"QuizSetup"</p>
+    }
+}
+
+#[component]
+fn QuizMain() -> impl IntoView {
+    tracing::debug!("render QuizMain");
+    view! {
+      <p>"QuizMain"</p>
+    }
+}
+
+#[component]
+fn QuizResult() -> impl IntoView {
+    tracing::debug!("render QuizResult");
+    view! {
+      <p>"QQuizResult"</p>
+    }
+}
+
+#[component]
+fn Settings() -> impl IntoView {
+    tracing::debug!("render Settings");
+    view! {
+      <p>"Settings"</p>
     }
 }

@@ -2,7 +2,7 @@
 target = "./frontend/index.html"
 
 [watch]
-ignore = ["./backend"]
+ignore = ["./backend", "./shared"]
 
 [serve]
 port = 1420
