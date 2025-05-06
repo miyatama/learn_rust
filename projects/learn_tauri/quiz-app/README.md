@@ -20,6 +20,7 @@ This template should help get you started developing with Tauri and Leptos.
 + other
   + [Command を使ってみよう](https://zenn.dev/kumassy/books/6e518fe09a86b2/viewer/81f1df)
   + [TauriとLeptosで作るデスクトップアプリ（4）イベントを送受信する](https://zenn.dev/daizutabi/articles/tauri-leptos-04)
+  + [tauriでテトリスっぽいものを作ってみる](https://catalina1344.hatenablog.jp/entry/2023/04/12/105021)
 
 # memo
 
