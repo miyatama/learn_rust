@@ -6,5 +6,10 @@ members = ["frontend", "backend", "shared"]
 codegen-units = 1
 lto = true
 
-[dependencies]
+[workspace.dependencies]
 thiserror = "2.0.12"
+anyhow = "1.0.98"
+serde = "1"
+serde_json = "1"
+tracing-subscriber = "0.3.18"
+tracing = "0.1.40"
