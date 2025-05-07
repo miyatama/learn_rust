@@ -80,19 +80,16 @@ fn Settings() -> impl IntoView {
     tracing::debug!("render Settings");
     let navigate = leptos_router::hooks::use_navigate();
     let (get_settings, update_settings) = signal(None::<shared::settings::Settings>);
-    // let (get_error, update_error) = signal(None::<String>);
-    let (get_error, update_error) = signal(Some("きままにとべ".to_string()));
+    let (get_error, update_error) = signal(None::<String>);
     spawn_local({
         async move {
             tracing::debug!("invoke get_settings");
             match invoke("get_settings", JsValue::from_str("{}")).await {
                 Ok(js_value) => {
-                    update_error.set(Some(format!("js value is {:?}", &js_value.clone(),)));
                     let parsed: Result<shared::settings::Settings, serde_wasm_bindgen::Error> =
                         serde_wasm_bindgen::from_value(js_value.clone());
                     match parsed {
                         Ok(settings) => {
-                            tracing::debug!("get_settings result: {:?}", settings);
                             update_settings.set(Some(settings.clone()));
                         }
                         Err(error) => {
@@ -105,12 +102,10 @@ fn Settings() -> impl IntoView {
                     }
                 }
                 Err(js_value) => {
-                    update_error.set(Some(format!("js value is {:?}", &js_value.clone(),)));
                     let parsed: Result<shared::error::QuizAppError, serde_wasm_bindgen::Error> =
                         serde_wasm_bindgen::from_value(js_value.clone());
                     match parsed {
                         Ok(error) => {
-                            tracing::debug!("get_settings result: {:?}", error);
                             update_error
                                 .set(Some(format!("settings error: {}", error.to_string())));
                         }
@@ -127,17 +122,6 @@ fn Settings() -> impl IntoView {
         }
     });
 
-    /*
-      <Suspense fallback=move || view!{<p>"loading data..."</p>}>
-      {
-        move || {
-            get_settings.get().map(|settings| view!{<p>{format!("ランダム設定: {:?}", settings.is_random)}</p>})
-        }
-      }
-      </Suspense>
-
-     */
-
     view! {
       <p>"Settings"</p>
       {
@@ -145,6 +129,13 @@ fn Settings() -> impl IntoView {
           get_error.get().map(|error| view!{<p>{error}</p>})
         }
       }
+      <Suspense fallback=move || view!{<p>"loading data..."</p>}>
+      {
+        move || {
+          get_settings.get().map(|settings| view!{<p>{format!("ランダム設定: {:?}", settings.is_random)}</p>})
+        }
+      }
+      </Suspense>
 
       <button class="menu-btn menu-btn-radius-gradient" on:click={
         let navigate = navigate.clone();
