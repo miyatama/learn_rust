@@ -6,8 +6,8 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
-    async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"], catch)]
+    async fn invoke(cmd: &str, args: JsValue) -> Result<JsValue, JsValue>;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -85,34 +85,40 @@ fn Settings() -> impl IntoView {
     spawn_local({
         async move {
             tracing::debug!("invoke get_settings");
-            update_error.set(Some("どこまでもゆけ".to_string()));
-            // get_settingsがエラーを返したときの対応が謎。
-            let result = invoke("get_settings", JsValue::from_str("{}")).await;
-            tracing::debug!("invoke result: {:?}", &result);
-            update_error.set(Some("100年先も".to_string()));
-            update_error.set(Some(format!("js value is {:?}", &result.clone())));
-            let parsed: Result<shared::settings::Settings, serde_wasm_bindgen::Error> =
-                serde_wasm_bindgen::from_value(result.clone());
-            match parsed {
-                Ok(settings) => {
-                    tracing::debug!("get_settings result: {:?}", settings);
-                    update_settings.set(Some(settings.clone()));
-                }
-                Err(_) => {
-                    let parsed: Result<shared::error::QuizAppError, serde_wasm_bindgen::Error> =
-                        serde_wasm_bindgen::from_value(result.clone());
+            match invoke("get_settings", JsValue::from_str("{}")).await {
+                Ok(js_value) => {
+                    update_error.set(Some(format!("js value is {:?}", &js_value.clone(),)));
+                    let parsed: Result<shared::settings::Settings, serde_wasm_bindgen::Error> =
+                        serde_wasm_bindgen::from_value(js_value.clone());
                     match parsed {
-                        Ok(error) => {
-                            tracing::debug!("get_settings parse error: {:?}", error.to_string());
-                            update_error
-                                .set(Some(format!("quiz app error: {:?}. ", error.to_string())));
+                        Ok(settings) => {
+                            tracing::debug!("get_settings result: {:?}", settings);
+                            update_settings.set(Some(settings.clone()));
                         }
                         Err(error) => {
-                            tracing::debug!("get_settings parse error: {:?}", error.to_string());
                             update_error.set(Some(format!(
-                                "parse error: {:?}. js value is {:?}",
+                                "settings parse error: {:?}. js value is {:?}",
                                 error.to_string(),
-                                &result
+                                &js_value.clone(),
+                            )));
+                        }
+                    }
+                }
+                Err(js_value) => {
+                    update_error.set(Some(format!("js value is {:?}", &js_value.clone(),)));
+                    let parsed: Result<shared::error::QuizAppError, serde_wasm_bindgen::Error> =
+                        serde_wasm_bindgen::from_value(js_value.clone());
+                    match parsed {
+                        Ok(error) => {
+                            tracing::debug!("get_settings result: {:?}", error);
+                            update_error
+                                .set(Some(format!("settings error: {}", error.to_string())));
+                        }
+                        Err(error) => {
+                            update_error.set(Some(format!(
+                                "can not parse error: {:?}. js value is {:?}",
+                                error.to_string(),
+                                &js_value.clone(),
                             )));
                         }
                     }
@@ -121,13 +127,7 @@ fn Settings() -> impl IntoView {
         }
     });
 
-    view! {
-      <p>"Settings"</p>
-      {
-        move || {
-          get_error.get().map(|error| view!{<p>{error}</p>})
-        }
-      }
+    /*
       <Suspense fallback=move || view!{<p>"loading data..."</p>}>
       {
         move || {
@@ -135,6 +135,16 @@ fn Settings() -> impl IntoView {
         }
       }
       </Suspense>
+
+     */
+
+    view! {
+      <p>"Settings"</p>
+      {
+        move || {
+          get_error.get().map(|error| view!{<p>{error}</p>})
+        }
+      }
 
       <button class="menu-btn menu-btn-radius-gradient" on:click={
         let navigate = navigate.clone();
