@@ -12,11 +12,14 @@ This template should help get you started developing with Tauri and Leptos.
   + [tauri](https://docs.rs/tauri/latest/tauri/)
   + [tauri-plugin-store](https://docs.rs/tauri-plugin-store/latest/tauri_plugin_store/)
   + [tracing-subscriber-wasm](https://docs.rs/tracing-subscriber-wasm/latest/tracing_subscriber_wasm/)
+  + [tauri-plugin-sql](https://docs.rs/tauri-plugin-sql/2.2.0/tauri_plugin_sql/)
 + tauri plugin
   + [window state](https://v2.tauri.app/ja/plugin/window-state/)
+  + [SQL](https://v2.tauri.app/ja/plugin/sql/)
 + crates.io
   + [thiserror](https://crates.io/crates/thiserror)
   + [tracing_wasm](https://docs.rs/tracing-wasm/latest/tracing_wasm/)
+  + [tauri-pluigin-sql](https://crates.io/crates/tauri-plugin-sql)
 + other
   + [Command を使ってみよう](https://zenn.dev/kumassy/books/6e518fe09a86b2/viewer/81f1df)
   + [TauriとLeptosで作るデスクトップアプリ（4）イベントを送受信する](https://zenn.dev/daizutabi/articles/tauri-leptos-04)

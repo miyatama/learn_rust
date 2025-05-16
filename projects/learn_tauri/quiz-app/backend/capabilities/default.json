@@ -21,6 +21,8 @@
     "store:allow-entries",
     "store:allow-length",
     "store:allow-reload",
-    "store:allow-save"
+    "store:allow-save",
+    "sql:default",
+    "sql:allow-execute"
   ]
 }

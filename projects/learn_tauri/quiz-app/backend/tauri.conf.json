@@ -32,5 +32,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "sql": {
+      "default": {
+        "type": "sqlite",
+        "path": "./quiz.db"
+      }
+    }
   }
 }

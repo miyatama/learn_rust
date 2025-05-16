@@ -54,8 +54,51 @@ pub fn Top() -> impl IntoView {
 #[component]
 fn QuizSetup() -> impl IntoView {
     tracing::debug!("render QuizSetup");
+    let navigate = leptos_router::hooks::use_navigate();
+    let (get_error, update_error) = signal(None::<String>);
+    spawn_local({
+        let navigate = navigate.clone();
+        async move {
+            tracing::debug!("invoke setup_quiz");
+            match invoke("setup_quiz", JsValue::from_str("{}")).await {
+                Ok(_) => {
+                    navigate("/quiz_main", Default::default());
+                }
+                Err(js_value) => {
+                    let parsed: Result<shared::error::QuizAppError, serde_wasm_bindgen::Error> =
+                        serde_wasm_bindgen::from_value(js_value.clone());
+                    match parsed {
+                        Ok(error) => {
+                            update_error
+                                .set(Some(format!("settings error: {}", error.to_string())));
+                        }
+                        Err(error) => {
+                            update_error.set(Some(format!(
+                                "can not parse error: {:?}. js value is {:?}",
+                                error.to_string(),
+                                &js_value.clone(),
+                            )));
+                        }
+                    }
+                }
+            };
+        }
+    });
     view! {
       <p>"QuizSetup"</p>
+      <Suspense fallback=move || view!{<p>"loading data..."</p>}>
+      {
+        move || {
+          get_error.get().map(|error| view!{
+            <p>{error}</p>
+            <button class="menu-btn menu-btn-radius-gradient" on:click={
+              let navigate = navigate.clone();
+              move |_| navigate("/", Default::default())
+            }>"Top"</button>
+          })
+        }
+      }
+      </Suspense>
     }
 }
 
