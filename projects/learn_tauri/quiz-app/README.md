@@ -2,6 +2,8 @@
 
 This template should help get you started developing with Tauri and Leptos.
 
+Leptos + Tauri構成でSQL使おうとしたら沼
+
 ## Recommended IDE Setup
 
 + [VS Code](https://code.visualstudio.com/) 

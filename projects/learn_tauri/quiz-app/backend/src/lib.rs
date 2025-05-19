@@ -55,11 +55,6 @@ fn setup_quiz(app: AppHandle) -> Result<(), shared::error::QuizAppError> {
     Ok(())
 }
 
-#[tauri::command]
-async fn initialize_quiz_db(db: State<Db<Sqlite>>) -> Reuslt<(), shared::error::QuizAppError> {
-    Ok(())
-}
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tracing::debug!("backend run");
