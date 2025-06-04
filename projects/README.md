@@ -7,3 +7,6 @@
   + mockable
   + crap
 + すぐ使えるセットのテンプレート for Web
++ Bevy
++ Domain Driven Developmentひな形開発
++ OpenCV使ったaxumアプリ
