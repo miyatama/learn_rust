@@ -51,6 +51,46 @@ flowchart TD
 
 [serverlesstechnology/cqrs](https://github.com/serverlesstechnology/cqrs)のdemoを参考に組み込み方法を学習するプロジェクト。
 
+# tips
+
+## error[E0046]: not all trait items implemented, missing: `aggregate_type`
+
+```
+error[E0046]: not all trait items implemented, missing: `aggregate_type`
+  --> src\domain\aggregate.rs:14:1
+   |
+14 | impl Aggregate for BankAccount {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ missing `aggregate_type` in implementation
+   |
+   = help: implement the missing item: `fn aggregate_type() -> std::string::String { todo!() }`
+```
+
+[Aggregate](https://docs.rs/cqrs-es/latest/cqrs_es/trait.Aggregate.html)の公式に則り修正
+
+```rust
+    // TYPEを削除して集約のルートを定義
+    fn aggregate_type() -> String { "account".to_string() }
+```
+
+
+## error[E0195]: lifetime parameters or bounds on method `handle` do not match the trait declaration
+
+```rust
+error[E0195]: lifetime parameters or bounds on method `handle` do not match the trait declaration
+  --> src\domain\aggregate.rs:24:20
+   |
+24 |     async fn handle(
+   |                    ^ lifetimes do not match method in trait
+```
+
+async_traitを指定
+
+```rust
+use async_trait::async_trait;
+
+#[async_trait]
+impl Aggregate for BankAccount {
+```
 
 # reference
 
@@ -66,3 +106,5 @@ flowchart TD
   + [crate.io](https://crates.io/crates/cqrs-es)
   + [docs](https://docs.rs/cqrs-es/latest/cqrs_es/)
 + [Domain Driven Design](https://martinfowler.com/tags/domain%20driven%20design.html)
++ postgres-es
+  + [crate.io](https://crates.io/crates/postgres-es)

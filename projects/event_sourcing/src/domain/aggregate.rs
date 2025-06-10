@@ -1,5 +1,6 @@
 use cqrs_es::Aggregate;
 use serde::{Deserialize, Serialize};
+use async_trait::async_trait;
 
 use crate::domain::commands::BankAccountCommand;
 use crate::domain::events::{BankAccountError, BankAccountEvent};
@@ -11,20 +12,21 @@ pub struct BankAccount {
     balance: f64,
 }
 
+#[async_trait]
 impl Aggregate for BankAccount {
-    // This identifier should be unique to the system.
-    const TYPE: &'static str = "account";
     type Command = BankAccountCommand;
     type Event = BankAccountEvent;
     type Error = BankAccountError;
     type Services = BankAccountServices;
 
+    fn aggregate_type() -> String { "account".to_string() }
+
     // The aggregate logic goes here. Note that this will be the _bulk_ of a CQRS system
     // so expect to use helper functions elsewhere to keep the code clean.
     async fn handle(
-        &self,
-        command: Self::Command,
-        services: &Self::Services,
+        &self, 
+        command: Self::Command, 
+        service: &Self::Services
     ) -> Result<Vec<Self::Event>, Self::Error> {
         match command {
             BankAccountCommand::OpenAccount { account_id } => {
@@ -42,7 +44,7 @@ impl Aggregate for BankAccount {
                 if balance < 0_f64 {
                     return Err("funds not available".into());
                 }
-                if services
+                if service
                     .services
                     .atm_withdrawal(&atm_id, amount)
                     .await
@@ -63,7 +65,7 @@ impl Aggregate for BankAccount {
                 if balance < 0_f64 {
                     return Err("funds not available".into());
                 }
-                if services
+                if service
                     .services
                     .validate_check(&self.account_id, &check_number)
                     .await
@@ -79,6 +81,7 @@ impl Aggregate for BankAccount {
             }
         }
     }
+
 
     fn apply(&mut self, event: Self::Event) {
         match event {
