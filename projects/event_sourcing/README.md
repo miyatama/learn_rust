@@ -51,6 +51,21 @@ flowchart TD
 
 [serverlesstechnology/cqrs](https://github.com/serverlesstechnology/cqrs)のdemoを参考に組み込み方法を学習するプロジェクト。
 
+```mermaid
+flowchart TB
+
+  main[main]
+  route_handler[route_handler]
+  extractor[commnad_extractor]
+
+  main -- query/command --> route_handler
+  route_handler -- parse --> extractor
+  extractor -- set metadata --> extractor
+  extractor -- BankAccountCommand --> route_handler
+```
+
++ [CqrsFramework](https://docs.rs/cqrs-es/latest/cqrs_es/struct.CqrsFramework.html)
+
 # tips
 
 ## error[E0046]: not all trait items implemented, missing: `aggregate_type`
