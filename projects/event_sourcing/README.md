@@ -59,10 +59,14 @@ flowchart TB
   extractor[commnad_extractor]
   events[BankAccountEvent]
   aggregate[Aggregate]
+  queries[Queries]
 
   main -- query/command --> route_handler
   route_handler -- parse --> extractor
+  route_handler -- ApplicationState --> queries
+  queries -- BankAccountView --> route_handler
   extractor -- set metadata --> extractor
+  extractor -- BankAccountCommand --> aggregate
   extractor -- BankAccountCommand --> route_handler
 ```
 
