@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:17.5
+    container_name: postgres_pta
+    ports:
+      - 5432:5432
+    volumes:
+      - ./store/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'postgres'
+volumes:
+  db-store:
