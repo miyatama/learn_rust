@@ -10,7 +10,7 @@ async fn main() {
     let state = new_application_state().await;
     let router = Router::new()
         .route(
-            "/account/:account_id",
+            "/images/:image_id",
             get(query_handler).post(command_handler),
         )
         .with_state(state);
