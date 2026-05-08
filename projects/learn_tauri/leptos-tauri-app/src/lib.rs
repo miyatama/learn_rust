@@ -142,7 +142,7 @@ pub fn App() -> impl IntoView {
             <A href="/">"Contacts"</A>
             <A href="/about">"About"</A>
             <A href="/settings">"Settings"</A>
-            <A href="/indirect-home">"Home"</A>
+            <A href="/redirect-home">"Home"</A>
             <A href="/slot">"Slot"</A>
             <A href="/spread">"Spread"</A>
             <button on:click=move |_| {set_logged_in.update(|n| *n = !*n)}>{move || if logged_in.get() {"Log Out"} else {"Log In"}}</button>

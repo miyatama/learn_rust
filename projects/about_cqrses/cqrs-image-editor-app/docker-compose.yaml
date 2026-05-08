@@ -1,8 +1,14 @@
 version: '3'
 
 services:
+  app:
+    image: cqrs-image-editor:1.0
+    build: ./backend
+    ports:
+      -- 3030:3030
   db:
-    image: postgres:17.5
+    image: cqrs-image-db:1.0
+    build: ./database
     container_name: postgres_pta
     ports:
       - 5432:5432
